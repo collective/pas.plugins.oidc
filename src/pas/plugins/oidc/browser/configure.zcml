@@ -11,6 +11,22 @@
       layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
 
+  <browser:page
+      for="..plugins.IOIDCPlugin"
+      name="login"
+      class=".view.LoginView"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      for="..plugins.IOIDCPlugin"
+      name="callback"
+      class=".view.CallbackView"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
+      permission="zope2.View"
+      />
+
   <!-- Publish static files -->
   <plone:static
       name="pas.plugins.oidc"

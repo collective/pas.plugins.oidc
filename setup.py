@@ -52,7 +52,8 @@ setup(
         'z3c.jbot',
         'plone.api>=1.8.4',
         'plone.restapi',
-        'plone.app.dexterity',
+        # 'oidcrp',
+        'oic',
     ],
     extras_require={
         'test': [
