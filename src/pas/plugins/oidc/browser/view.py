@@ -98,5 +98,7 @@ class CallbackView(BrowserView):
         self.context.rememberIdentity(userinfo)
 
         # TODO: manage next_url/came_from
-        # self.request.response.redirect(api.portal.get().absolute_url())
-        return userinfo.to_json()
+        self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
+        self.request.response.redirect(api.portal.get().absolute_url())
+        # return userinfo.to_json()
+        return
