@@ -195,10 +195,10 @@ class OIDCPlugin(BasePlugin):
 
     def get_redirect_uris(self):
         if self.redirect_uris:
-            return self.redirect_uris
+            return [str(u) for u in self.redirect_uris]
         else:
             return [
-                '{}/callback'.format(self.context.absolute_url()),
+                '{}/callback'.format(self.absolute_url()),
             ]
 
 
