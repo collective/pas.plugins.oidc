@@ -173,7 +173,7 @@ class OIDCPlugin(BasePlugin):
             token = plugin.create_token(user.getId(), data=payload)
             request = self.REQUEST
             response = request['RESPONSE']
-            # TODO: take care of path and domain options ?
+            # TODO: take care of path, cookiename and domain options ?
             response.setCookie('auth_token', token, path='/')
 
     # TODO: memoize (?)

@@ -4,6 +4,7 @@ from Products.Five.browser import BrowserView
 from oic.oic import Client
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from oic.oic.message import AuthorizationResponse
+from oic.oic.message import EndSessionRequest
 from oic import rndstr
 from plone import api
 
@@ -59,7 +60,7 @@ class LoginView(BrowserView):
 
         # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
         args = {
-            'client_id':'valbisenzio-staging-c1', 
+            'client_id': self.context.client_id, 
             'response_type': 'code', 
             'scope': ['profile', 'email', 'phone'],
             'state': session.get('state'),
@@ -71,15 +72,35 @@ class LoginView(BrowserView):
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
         self.request.response.redirect(login_url)
         return
-        
 
-# https://valbisenzio.agamar.redturtle.it/oidc/callback?....
+
+class LogoutView(BrowserView):
+
+    def __call__(self):
+        client = self.context.get_oauth2_client()
+        session = Session(self.request, use_session_data_manager=self.context.use_session_data_manager)
+        # state is used to keep track of responses to outstanding requests (state).
+        session.set('end_session_state', rndstr())
+        args = {
+            'state': session.get('end_session_state'),
+            # TODO: ....
+            'post_logout_redirect_uri': api.portal.get().absolute_url(),
+        }
+        # end_req = client.construct_EndSessionRequest(request_args=args)
+        end_req = EndSessionRequest(**args)
+        logout_url = end_req.request(client.end_session_endpoint)
+        self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
+        self.request.response.expireCookie('__ac', path='/')
+        self.request.response.expireCookie('auth_token', path='/')
+        self.request.response.redirect(logout_url)
+        return
+
+
 class CallbackView(BrowserView):
     def __call__(self):
         response = self.request.environ["QUERY_STRING"]
         session = Session(self.request, use_session_data_manager=self.context.use_session_data_manager)
         client = self.context.get_oauth2_client()
-
         aresp = client.parse_response(
             AuthorizationResponse, info=response, sformat="urlencoded")
         assert aresp["state"] == session.get("state")
@@ -92,11 +113,9 @@ class CallbackView(BrowserView):
             request_args=args, 
             authn_method="client_secret_basic"
         )
-
         userinfo = client.do_user_info_request(state=aresp["state"])
-
+        # session.set('id_token', )
         self.context.rememberIdentity(userinfo)
-
         # TODO: manage next_url/came_from
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
         self.request.response.redirect(api.portal.get().absolute_url())
