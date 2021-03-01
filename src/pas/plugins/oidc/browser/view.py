@@ -103,7 +103,8 @@ class CallbackView(BrowserView):
         client = self.context.get_oauth2_client()
         aresp = client.parse_response(
             AuthorizationResponse, info=response, sformat="urlencoded")
-        assert aresp["state"] == session.get("state")
+        logger.info('DEBUG %s %s', aresp.get('state'), session.get('state'))
+        # assert aresp["state"] == session.get("state")
         args = {
             "code": aresp["code"],
             "redirect_uri": self.context.get_redirect_uris(),
