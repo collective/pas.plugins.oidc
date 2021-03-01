@@ -129,10 +129,17 @@ class OIDCPlugin(BasePlugin):
         # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
         # TODO: warning nel caso non vengono tornati dati dell'utente
         userProps = {}
-        if 'email' in userinfo:
+        logger.info('DEBUG login %s', userinfo)
+        # if 'email' in userinfo:
+        try:
             userProps['email'] = userinfo['email']
-        if 'name' in userinfo and 'family_name' in userinfo:
+        except KeyError:
+            pass
+        # if 'name' in userinfo and 'family_name' in userinfo:
+        try:
             userProps['fullname'] = '{} {}'.format(userinfo['name'], userinfo['family_name'])
+        except KeyError:
+            pass
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
             user.setProperties(**userProps)
