@@ -127,11 +127,15 @@ class OIDCPlugin(BasePlugin):
         """
         # TODO: modificare solo se ci sono dei cambiamenti sui dati ?
         # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
+        # TODO: warning nel caso non vengono tornati dati dell'utente
         userProps = {}
-        userProps['email'] = userinfo['email']
-        userProps['fullname'] = '{} {}'.format(userinfo['name'], userinfo['family_name'])
+        if 'email' in userinfo:
+            userProps['email'] = userinfo['email']
+        if 'name' in userinfo and 'family_name' in userinfo:
+            userProps['fullname'] = '{} {}'.format(userinfo['name'], userinfo['family_name'])
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
-        user.setProperties(**userProps)
+        if userProps:
+            user.setProperties(**userProps)
 
     def _generatePassword(self):
         """ Return a obfuscated password never used for login """
