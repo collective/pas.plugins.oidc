@@ -103,6 +103,8 @@ class CallbackView(BrowserView):
         client = self.context.get_oauth2_client()
         aresp = client.parse_response(
             AuthorizationResponse, info=response, sformat="urlencoded")
+        # XXX: togliere debug e reinserire assert dopo aver trovato eventuali
+        # anomalie
         logger.info('DEBUG %s %s', aresp.get('state'), session.get('state'))
         # assert aresp["state"] == session.get("state")
         args = {

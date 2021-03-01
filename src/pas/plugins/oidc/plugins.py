@@ -129,6 +129,8 @@ class OIDCPlugin(BasePlugin):
         # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
         # TODO: warning nel caso non vengono tornati dati dell'utente
         userProps = {}
+        # XXX: togliere try..except e reinserire if dopo aver trovato eventuali
+        # anomalie
         logger.info('DEBUG login %s', userinfo)
         # if 'email' in userinfo:
         try:
