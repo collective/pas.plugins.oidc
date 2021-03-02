@@ -81,13 +81,15 @@ class LogoutView(BrowserView):
 
     def __call__(self):
         client = self.context.get_oauth2_client()
-        session = Session(self.request, use_session_data_manager=self.context.use_session_data_manager)
+        # session = Session(self.request, use_session_data_manager=self.context.use_session_data_manager)
         # state is used to keep track of responses to outstanding requests (state).
-        session.set('end_session_state', rndstr())
+        # https://github.com/keycloak/keycloak-documentation/blob/master/securing_apps/topics/oidc/java/logout.adoc
+        # session.set('end_session_state', rndstr())
         args = {
-            'state': session.get('end_session_state'),
+            # 'state': session.get('end_session_state'),
             # TODO: ....
-            'post_logout_redirect_uri': api.portal.get().absolute_url(),
+            # 'post_logout_redirect_uri': api.portal.get().absolute_url(),
+            'redirect_uri': api.portal.get().absolute_url(),
         }
         # end_req = client.construct_EndSessionRequest(request_args=args)
         end_req = EndSessionRequest(**args)

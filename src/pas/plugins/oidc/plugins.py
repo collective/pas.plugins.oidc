@@ -66,6 +66,8 @@ class OIDCPlugin(BasePlugin):
              label='Redirect uris'),
         dict(id='use_session_data_manager', type='boolean', mode='w',
              label='Use Zope session data manager.'),
+        dict(id='create_user', type='boolean', mode='w',
+             label='Create user / update user properties'),
         dict(id='create_ticket', type='boolean', mode='w',
              label='Create authentication __ac ticket. '),
         dict(id='create_restapi_ticket', type='boolean', mode='w',
@@ -129,19 +131,10 @@ class OIDCPlugin(BasePlugin):
         # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
         # TODO: warning nel caso non vengono tornati dati dell'utente
         userProps = {}
-        # XXX: togliere try..except e reinserire if dopo aver trovato eventuali
-        # anomalie
-        logger.info('DEBUG login %s', userinfo)
-        # if 'email' in userinfo:
-        try:
+        if 'email' in userinfo:
             userProps['email'] = userinfo['email']
-        except KeyError:
-            pass
-        # if 'name' in userinfo and 'family_name' in userinfo:
-        try:
+        if 'name' in userinfo and 'family_name' in userinfo:
             userProps['fullname'] = '{} {}'.format(userinfo['name'], userinfo['family_name'])
-        except KeyError:
-            pass
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
             user.setProperties(**userProps)
