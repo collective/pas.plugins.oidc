@@ -1,5 +1,6 @@
 import json
 import base64
+import logging
 from Products.Five.browser import BrowserView
 from oic.oic import Client
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
@@ -7,6 +8,8 @@ from oic.oic.message import AuthorizationResponse
 from oic.oic.message import EndSessionRequest
 from oic import rndstr
 from plone import api
+
+logger = logging.getLogger(__name__)
 
 
 # https://zope.readthedocs.io/en/latest/zopebook/Sessions.html#alternative-server-side-session-backends-for-zope-4
