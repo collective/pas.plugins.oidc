@@ -35,7 +35,7 @@ def locale_folder_setup():
             subprocess.call(
                 cmd,
                 shell=True,
-            )
+            )  # nosec
 
     os.chdir('../../../../')
 
@@ -51,7 +51,7 @@ def _rebuild():
     subprocess.call(
         cmd,
         shell=True,
-    )
+    )  # nosec
 
 
 def _sync():
@@ -65,7 +65,7 @@ def _sync():
     subprocess.call(
         cmd,
         shell=True,
-    )
+    )  # nosec
 
 
 def update_locale():
