@@ -55,6 +55,7 @@ class OIDCPlugin(BasePlugin):
     create_restapi_ticket = False
     create_user = True
     scope = ('profile', 'email', 'phone')
+    use_pkce = False
 
     _properties = (
         dict(id='issuer', type='string', mode='w',
@@ -75,6 +76,9 @@ class OIDCPlugin(BasePlugin):
              label='Create authentication auth_token (volto/restapi) ticket.'),
         dict(id='scope', type='lines', mode='w',
              label='Open ID scopes to request to the server'),
+        dict(id='use_pkce', type='boolean', mode='w',
+             label='Use PKCE. '),
+
     )
 
     def rememberIdentity(self, userinfo):
@@ -144,7 +148,7 @@ class OIDCPlugin(BasePlugin):
 
     def _generatePassword(self):
         """ Return a obfuscated password never used for login """
-        return ''.join([choice(PWCHARS) for ii in range(40)])        
+        return ''.join([choice(PWCHARS) for ii in range(40)])
 
     def _setupTicket(self, user_id):
         """Set up authentication ticket (__ac cookie) with plone.session.
@@ -189,7 +193,7 @@ class OIDCPlugin(BasePlugin):
     def get_oauth2_client(self):
         client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
         # registration_response = client.register(provider_info["registration_endpoint"], redirect_uris=...)
-        # ... oic.exception.RegistrationError: {'error': 'insufficient_scope', 
+        # ... oic.exception.RegistrationError: {'error': 'insufficient_scope',
         #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
 
         # use WebFinger

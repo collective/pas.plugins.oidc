@@ -1,13 +1,16 @@
-import json
-import base64
-import logging
-from Products.Five.browser import BrowserView
+from hashlib import sha256
+from oic import rndstr
 from oic.oic import Client
-from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from oic.oic.message import AuthorizationResponse
 from oic.oic.message import EndSessionRequest
-from oic import rndstr
+from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from plone import api
+from Products.Five.browser import BrowserView
+
+import base64
+import json
+import logging
+
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +27,7 @@ class Session(object):
         self.use_session_data_manager = use_session_data_manager
         if self.use_session_data_manager:
             sdm = api.portal.get_tool('session_data_manager')
-            self._session = sdm.getSessionData(create=True)            
+            self._session = sdm.getSessionData(create=True)
         else:
             data = self.request.cookies.get(self.session_cookie_name) or {}
             if data:
@@ -38,7 +41,7 @@ class Session(object):
             if self.get(name) != value:
                 self._session[name] = value
                 self.request.response.setCookie(
-                    self.session_cookie_name, 
+                    self.session_cookie_name,
                     base64.b64encode(json.dumps(self._session).encode('utf-8'))
                 )
 
@@ -59,6 +62,7 @@ class LoginView(BrowserView):
         session.set('state', rndstr())
         session.set('nonce', rndstr())
 
+
         client = self.context.get_oauth2_client()
 
         # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
@@ -70,11 +74,27 @@ class LoginView(BrowserView):
             'nonce': session.get('nonce'),
             "redirect_uri": self.context.get_redirect_uris(),
         }
+
+        if self.context.use_pkce:
+            # Build a random string of 43 to 128 characters
+            # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
+            session.set('verifier', rndstr(128))
+            args['code_challenge'] = self.get_code_challenge(session.get('verifier'))
+            args['code_challenge_method'] = 'S256'
+
         auth_req = client.construct_AuthorizationRequest(request_args=args)
         login_url = auth_req.request(client.authorization_endpoint)
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
         self.request.response.redirect(login_url)
         return
+
+    def get_code_challenge(self, value):
+        """build a sha256 hash of the base64 encoded value of value
+           be careful: this should be url-safe base64 and we should also remove the trailing '='
+           See https://www.stefaanlippens.net/oauth-code-flow-pkce.html#PKCE-code-verifier-and-challenge
+        """
+        hash_code = sha256(value.encode("utf-8")).digest()
+        return base64.urlsafe_b64encode(hash_code).decode("utf-8").replace("=", "")
 
 
 class LogoutView(BrowserView):
@@ -116,9 +136,13 @@ class CallbackView(BrowserView):
             "code": aresp["code"],
             "redirect_uri": self.context.get_redirect_uris(),
         }
+
+        if self.context.use_pkce:
+            args['code_verifier'] = session.get('verifier')
+
         resp = client.do_access_token_request(
-            state=aresp["state"], 
-            request_args=args, 
+            state=aresp["state"],
+            request_args=args,
             authn_method="client_secret_basic"
         )
         userinfo = client.do_user_info_request(state=aresp["state"])
