@@ -63,9 +63,9 @@ class LoginView(BrowserView):
 
         # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
         args = {
-            'client_id': self.context.client_id, 
-            'response_type': 'code', 
-            'scope': ['profile', 'email', 'phone'],
+            'client_id': self.context.client_id,
+            'response_type': 'code',
+            'scope': self.context.get_scopes(),
             'state': session.get('state'),
             'nonce': session.get('nonce'),
             "redirect_uri": self.context.get_redirect_uris(),

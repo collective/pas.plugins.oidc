@@ -54,6 +54,7 @@ class OIDCPlugin(BasePlugin):
     create_ticket = True
     create_restapi_ticket = False
     create_user = True
+    scope = ('profile', 'email', 'phone')
 
     _properties = (
         dict(id='issuer', type='string', mode='w',
@@ -72,6 +73,8 @@ class OIDCPlugin(BasePlugin):
              label='Create authentication __ac ticket. '),
         dict(id='create_restapi_ticket', type='boolean', mode='w',
              label='Create authentication auth_token (volto/restapi) ticket.'),
+        dict(id='scope', type='lines', mode='w',
+             label='Open ID scopes to request to the server'),
     )
 
     def rememberIdentity(self, userinfo):
@@ -206,6 +209,12 @@ class OIDCPlugin(BasePlugin):
             return [
                 '{}/callback'.format(self.absolute_url()),
             ]
+
+    def get_scopes(self):
+        if self.scope:
+            return [u.decode('utf-8') for u in self.scope]
+        else:
+            return []
 
 
 InitializeClass(OIDCPlugin)
