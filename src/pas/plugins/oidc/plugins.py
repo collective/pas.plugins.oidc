@@ -56,6 +56,7 @@ class OIDCPlugin(BasePlugin):
     create_user = True
     scope = ('profile', 'email', 'phone')
     use_pkce = False
+    use_modified_openid_schema = False
 
     _properties = (
         dict(id='issuer', type='string', mode='w',
@@ -78,6 +79,9 @@ class OIDCPlugin(BasePlugin):
              label='Open ID scopes to request to the server'),
         dict(id='use_pkce', type='boolean', mode='w',
              label='Use PKCE. '),
+        dict(id='use_modified_openid_schema', type='boolean', mode='w',
+             label="Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string. "),
+
 
     )
 
@@ -140,7 +144,9 @@ class OIDCPlugin(BasePlugin):
         userProps = {}
         if 'email' in userinfo:
             userProps['email'] = userinfo['email']
-        if 'name' in userinfo and 'family_name' in userinfo:
+        if 'given_name' in userinfo and 'family_name' in userinfo:
+            userProps['fullname'] = '{} {}'.format(userinfo['given_name'], userinfo['family_name'])
+        elif 'name' in userinfo and 'family_name' in userinfo:
             userProps['fullname'] = '{} {}'.format(userinfo['name'], userinfo['family_name'])
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
