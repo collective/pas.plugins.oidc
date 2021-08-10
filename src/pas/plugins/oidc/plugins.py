@@ -8,6 +8,7 @@ from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from plone import api
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin  # noqa
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
@@ -214,7 +215,7 @@ class OIDCPlugin(BasePlugin):
 
     def get_redirect_uris(self):
         if self.redirect_uris:
-            return [u.decode('utf-8') for u in self.redirect_uris]
+            return [safe_unicode(u) for u in self.redirect_uris]
         else:
             return [
                 '{}/callback'.format(self.absolute_url()),
@@ -222,7 +223,7 @@ class OIDCPlugin(BasePlugin):
 
     def get_scopes(self):
         if self.scope:
-            return [u.decode('utf-8') for u in self.scope]
+            return [safe_unicode(u) for u in self.scope]
         else:
             return []
 
