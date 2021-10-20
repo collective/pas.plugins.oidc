@@ -157,10 +157,7 @@ class CallbackView(BrowserView):
             authn_method="client_secret_basic",
         )
 
-        user_info_endpoint_exists = client.message_factory.get_request_type(
-            "userinfo_endpoint"
-        )()
-        if user_info_endpoint_exists:
+        if client.userinfo_endpoint:
             # XXX: Not completely sure if this is even needed
             #      We do not have a OpenID connect provider with userinfo endpoint
             #      enabled and with the weird treatment of boolean values, so we cannot test this
