@@ -64,6 +64,9 @@ class LoginView(BrowserView):
         # nonce is a string value used to associate a Client session with an ID Token, and to mitigate replay attacks.
         session.set("state", rndstr())
         session.set("nonce", rndstr())
+        came_from = self.request.get("came_from")
+        if came_from:
+            session.set("came_from", came_from)
 
         client = self.context.get_oauth2_client()
 
@@ -116,6 +119,7 @@ class LogoutView(BrowserView):
         end_req = EndSessionRequest(**args)
         logout_url = end_req.request(client.end_session_endpoint)
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
+        # TODO: change path with portal_path
         self.request.response.expireCookie("__ac", path="/")
         self.request.response.expireCookie("auth_token", path="/")
         self.request.response.redirect(logout_url)
@@ -171,8 +175,16 @@ class CallbackView(BrowserView):
 
         # session.set('id_token', )
         self.context.rememberIdentity(userinfo)
-        # TODO: manage next_url/came_from
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
-        self.request.response.redirect(api.portal.get().absolute_url())
+        self.request.response.redirect(self.request(session=session))
         # return userinfo.to_json()
         return
+
+    def return_url(self, session=None):
+        came_from = self.request.get("came_from")
+        if not came_from and session:
+            came_from = session.get("came_from")
+        if came_from:
+            return came_from
+        else:
+            return api.portal.get().absolute_url()

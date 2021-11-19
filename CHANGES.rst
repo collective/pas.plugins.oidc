@@ -2,6 +2,12 @@ Changelog
 =========
 
 
+1.0a3 (unreleased)
+------------------
+
+- manage came_from
+  [mamico]
+
 1.0a2 (unreleased)
 ------------------
 
