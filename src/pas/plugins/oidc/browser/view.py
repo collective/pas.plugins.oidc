@@ -176,7 +176,7 @@ class CallbackView(BrowserView):
         # session.set('id_token', )
         self.context.rememberIdentity(userinfo)
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
-        self.request.response.redirect(self.request(session=session))
+        self.request.response.redirect(self.return_url(session=session))
         # return userinfo.to_json()
         return
 
