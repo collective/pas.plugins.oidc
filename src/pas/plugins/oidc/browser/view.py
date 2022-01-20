@@ -173,6 +173,10 @@ class CallbackView(BrowserView):
         else:
             userinfo = resp.to_dict().get("id_token", {})
 
+        # login user in membership tool so that login time properties are updated
+        membership_tool = api.portal.get_tool("portal_membership")
+        membership_tool.loginUser(self.request)
+
         # session.set('id_token', )
         self.context.rememberIdentity(userinfo)
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
