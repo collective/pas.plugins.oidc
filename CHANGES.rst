@@ -5,6 +5,8 @@ Changelog
 1.0a3 (unreleased)
 ------------------
 
+- check if url is in portal before redirect #2 
+  [erral]
 - manage came_from
   [mamico]
 
