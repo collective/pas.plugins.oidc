@@ -184,7 +184,9 @@ class CallbackView(BrowserView):
         came_from = self.request.get("came_from")
         if not came_from and session:
             came_from = session.get("came_from")
-        if came_from:
+
+        portal_url = api.portal.get_tool("portal_url")
+        if came_from and portal_url.isURLInPortal(came_from):
             return came_from
         else:
             return api.portal.get().absolute_url()
