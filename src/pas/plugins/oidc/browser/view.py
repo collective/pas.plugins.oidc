@@ -8,6 +8,7 @@ from pas.plugins.oidc.utils import CustomOpenIDNonBooleanSchema
 from pas.plugins.oidc.utils import SINGLE_OPTIONAL_BOOLEAN_AS_STRING
 from plone import api
 from Products.Five.browser import BrowserView
+from Products.CMFCore.utils import getToolByName
 
 import base64
 import json
@@ -115,12 +116,16 @@ class LogoutView(BrowserView):
             # 'post_logout_redirect_uri': api.portal.get().absolute_url(),
             "redirect_uri": api.portal.get().absolute_url(),
         }
+
+        pas = getToolByName(self.context, "acl_users")
+        auth_cookie_name = pas.credentials_cookie_auth.cookie_name
+
         # end_req = client.construct_EndSessionRequest(request_args=args)
         end_req = EndSessionRequest(**args)
         logout_url = end_req.request(client.end_session_endpoint)
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
         # TODO: change path with portal_path
-        self.request.response.expireCookie("__ac", path="/")
+        self.request.response.expireCookie(auth_cookie_name, path="/")
         self.request.response.expireCookie("auth_token", path="/")
         self.request.response.redirect(logout_url)
         return
