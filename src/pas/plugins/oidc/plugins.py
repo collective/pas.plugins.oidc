@@ -5,28 +5,25 @@ from contextlib import contextmanager
 from oic.oic import Client
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
-from plone import api
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin  # noqa
-from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
-from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
-from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
-from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
+from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
+# from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
+# from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
+# from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
+# from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
 from random import choice
 from ZODB.POSException import ConflictError
-from zope.interface import Interface
 from zope.interface import implementer
+from zope.interface import Interface
 
 import itertools
 import logging
-import six
 import string
-import time
 
 
 logger = logging.getLogger(__name__)
@@ -41,54 +38,70 @@ class IOIDCPlugin(Interface):
 
 @implementer(IOIDCPlugin)
 class OIDCPlugin(BasePlugin):
-    """PAS Plugin OpenID Connect.
-    """
+    """PAS Plugin OpenID Connect."""
 
-    meta_type = 'OIDC Plugin'
+    meta_type = "OIDC Plugin"
     security = ClassSecurityInfo()
 
-    issuer = ''
-    client_id = ''
-    client_secret = ''
+    issuer = ""
+    client_id = ""
+    client_secret = ""
     redirect_uris = ()
     use_session_data_manager = False
     create_ticket = True
     create_restapi_ticket = False
     create_user = True
-    scope = ('profile', 'email', 'phone')
+    scope = ("profile", "email", "phone")
     use_pkce = False
     use_modified_openid_schema = False
 
     _properties = (
-        dict(id='issuer', type='string', mode='w',
-             label='OIDC/Oauth2 Issuer'),
-        dict(id='client_id', type='string', mode='w',
-             label='Client ID'),
-        dict(id='client_secret', type='string', mode='w',
-             label='Client secret'),
-        dict(id='redirect_uris', type='lines', mode='w',
-             label='Redirect uris'),
-        dict(id='use_session_data_manager', type='boolean', mode='w',
-             label='Use Zope session data manager.'),
-        dict(id='create_user', type='boolean', mode='w',
-             label='Create user / update user properties'),
-        dict(id='create_ticket', type='boolean', mode='w',
-             label='Create authentication __ac ticket. '),
-        dict(id='create_restapi_ticket', type='boolean', mode='w',
-             label='Create authentication auth_token (volto/restapi) ticket.'),
-        dict(id='scope', type='lines', mode='w',
-             label='Open ID scopes to request to the server'),
-        dict(id='use_pkce', type='boolean', mode='w',
-             label='Use PKCE. '),
-        dict(id='use_modified_openid_schema', type='boolean', mode='w',
-             label="Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string. "),
-
-
+        dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
+        dict(id="client_id", type="string", mode="w", label="Client ID"),
+        dict(id="client_secret", type="string", mode="w", label="Client secret"),
+        dict(id="redirect_uris", type="lines", mode="w", label="Redirect uris"),
+        dict(
+            id="use_session_data_manager",
+            type="boolean",
+            mode="w",
+            label="Use Zope session data manager.",
+        ),
+        dict(
+            id="create_user",
+            type="boolean",
+            mode="w",
+            label="Create user / update user properties",
+        ),
+        dict(
+            id="create_ticket",
+            type="boolean",
+            mode="w",
+            label="Create authentication __ac ticket. ",
+        ),
+        dict(
+            id="create_restapi_ticket",
+            type="boolean",
+            mode="w",
+            label="Create authentication auth_token (volto/restapi) ticket.",
+        ),
+        dict(
+            id="scope",
+            type="lines",
+            mode="w",
+            label="Open ID scopes to request to the server",
+        ),
+        dict(id="use_pkce", type="boolean", mode="w", label="Use PKCE. "),
+        dict(
+            id="use_modified_openid_schema",
+            type="boolean",
+            mode="w",
+            label="Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string. ",
+        ),
     )
 
     def rememberIdentity(self, userinfo):
         # TODO: configurare mapping
-        user_id = userinfo['preferred_username']
+        user_id = userinfo["preferred_username"]
         pas = self._getPAS()
         if pas is None:
             return
@@ -99,9 +112,11 @@ class OIDCPlugin(BasePlugin):
                 with safe_write(self.REQUEST):
                     userAdders = self.plugins.listPlugins(IUserAdderPlugin)
                     if not userAdders:
-                        raise NotImplementedError("I wanted to make a new user, but"
-                                                " there are no PAS plugins active"
-                                                " that can make users.")
+                        raise NotImplementedError(
+                            "I wanted to make a new user, but"
+                            " there are no PAS plugins active"
+                            " that can make users."
+                        )
                     # roleAssigners = self.plugins.listPlugins(IRoleAssignerPlugin)
                     # if not roleAssigners:
                     #     raise NotImplementedError("I wanted to make a new user and give"
@@ -116,7 +131,9 @@ class OIDCPlugin(BasePlugin):
                             # Assign a dummy password. It'll never be used;.
                             user = self._getPAS().getUser(user_id)
                             try:
-                                membershipTool = getToolByName(self, 'portal_membership')
+                                membershipTool = getToolByName(
+                                    self, "portal_membership"
+                                )
                                 if not membershipTool.getHomeFolder(user_id):
                                     membershipTool.createMemberArea(user_id)
                             except (ConflictError, KeyboardInterrupt):
@@ -135,7 +152,7 @@ class OIDCPlugin(BasePlugin):
             self._setupJWTTicket(user_id, user)
 
     def _updateUserProperties(self, user, userinfo):
-        """ Update the given user properties from the set of credentials.
+        """Update the given user properties from the set of credentials.
         This is utilised when first creating a user, and to update
         their information when logging in again later.
         """
@@ -143,19 +160,23 @@ class OIDCPlugin(BasePlugin):
         # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
         # TODO: warning nel caso non vengono tornati dati dell'utente
         userProps = {}
-        if 'email' in userinfo:
-            userProps['email'] = userinfo['email']
-        if 'given_name' in userinfo and 'family_name' in userinfo:
-            userProps['fullname'] = '{} {}'.format(userinfo['given_name'], userinfo['family_name'])
-        elif 'name' in userinfo and 'family_name' in userinfo:
-            userProps['fullname'] = '{} {}'.format(userinfo['name'], userinfo['family_name'])
+        if "email" in userinfo:
+            userProps["email"] = userinfo["email"]
+        if "given_name" in userinfo and "family_name" in userinfo:
+            userProps["fullname"] = "{} {}".format(
+                userinfo["given_name"], userinfo["family_name"]
+            )
+        elif "name" in userinfo and "family_name" in userinfo:
+            userProps["fullname"] = "{} {}".format(
+                userinfo["name"], userinfo["family_name"]
+            )
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
             user.setProperties(**userProps)
 
     def _generatePassword(self):
-        """ Return a obfuscated password never used for login """
-        return ''.join([choice(PWCHARS) for ii in range(40)])
+        """Return a obfuscated password never used for login"""
+        return "".join([choice(PWCHARS) for ii in range(40)])
 
     def _setupTicket(self, user_id):
         """Set up authentication ticket (__ac cookie) with plone.session.
@@ -165,16 +186,16 @@ class OIDCPlugin(BasePlugin):
         pas = self._getPAS()
         if pas is None:
             return
-        if 'session' not in pas:
+        if "session" not in pas:
             return
         info = pas._verifyUser(pas.plugins, user_id=user_id)
         if info is None:
-            logger.debug('No user found matching header. Will not set up session.')
+            logger.debug("No user found matching header. Will not set up session.")
             return
         request = self.REQUEST
-        response = request['RESPONSE']
+        response = request["RESPONSE"]
         pas.session._setupSession(user_id, response)
-        logger.debug('Done setting up session/ticket for %s' % user_id)
+        logger.debug("Done setting up session/ticket for %s" % user_id)
 
     def _setupJWTTicket(self, user_id, user):
         """Set up JWT authentication ticket (auth_token cookie).
@@ -192,9 +213,9 @@ class OIDCPlugin(BasePlugin):
             payload["fullname"] = user.getProperty("fullname")
             token = plugin.create_token(user.getId(), data=payload)
             request = self.REQUEST
-            response = request['RESPONSE']
+            response = request["RESPONSE"]
             # TODO: take care of path, cookiename and domain options ?
-            response.setCookie('auth_token', token, path='/')
+            response.setCookie("auth_token", token, path="/")
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
@@ -204,10 +225,10 @@ class OIDCPlugin(BasePlugin):
         #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
 
         # use WebFinger
-        provider_info = client.provider_config(self.issuer)
+        provider_info = client.provider_config(self.issuer)  # noqa
         info = {
-            'client_id': self.client_id,
-            'client_secret': self.client_secret,
+            "client_id": self.client_id,
+            "client_secret": self.client_secret,
         }
         client_reg = RegistrationResponse(**info)
         client.store_registration_info(client_reg)
@@ -218,7 +239,7 @@ class OIDCPlugin(BasePlugin):
             return [safe_unicode(u) for u in self.redirect_uris]
         else:
             return [
-                '{}/callback'.format(self.absolute_url()),
+                "{}/callback".format(self.absolute_url()),
             ]
 
     def get_scopes(self):
@@ -264,10 +285,14 @@ def safe_write(request):
 def _registered_objects(request):
     """Collect all objects part of a pending write transaction."""
     app = request.PARENTS[-1]
-    return list(itertools.chain.from_iterable(
-        [conn._registered_objects
-         # skip the 'temporary' connection since it stores session objects
-         # which get written all the time
-         for name, conn in app._p_jar.connections.items() if name != 'temporary'
-        ]
-    ))
+    return list(
+        itertools.chain.from_iterable(
+            [
+                conn._registered_objects
+                # skip the 'temporary' connection since it stores session objects
+                # which get written all the time
+                for name, conn in app._p_jar.connections.items()
+                if name != "temporary"
+            ]
+        )
+    )

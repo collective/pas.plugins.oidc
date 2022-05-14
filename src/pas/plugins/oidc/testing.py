@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FIXTURE
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
-from plone.app.testing import (
-    applyProfile,
-    FunctionalTesting,
-    IntegrationTesting,
-    PloneSandboxLayer,
-)
+from plone.app.testing import applyProfile
+from plone.app.testing import FunctionalTesting
+from plone.app.testing import IntegrationTesting
+from plone.app.testing import PloneSandboxLayer
 from plone.testing import z2
 
 import pas.plugins.oidc
@@ -21,11 +19,12 @@ class PasPluginsOidcLayer(PloneSandboxLayer):
         # The z3c.autoinclude feature is disabled in the Plone fixture base
         # layer.
         import plone.restapi
+
         self.loadZCML(package=plone.restapi)
         self.loadZCML(package=pas.plugins.oidc)
 
     def setUpPloneSite(self, portal):
-        applyProfile(portal, 'pas.plugins.oidc:default')
+        applyProfile(portal, "pas.plugins.oidc:default")
 
 
 PAS_PLUGINS_OIDC_FIXTURE = PasPluginsOidcLayer()
@@ -33,13 +32,13 @@ PAS_PLUGINS_OIDC_FIXTURE = PasPluginsOidcLayer()
 
 PAS_PLUGINS_OIDC_INTEGRATION_TESTING = IntegrationTesting(
     bases=(PAS_PLUGINS_OIDC_FIXTURE,),
-    name='PasPluginsOidcLayer:IntegrationTesting',
+    name="PasPluginsOidcLayer:IntegrationTesting",
 )
 
 
 PAS_PLUGINS_OIDC_FUNCTIONAL_TESTING = FunctionalTesting(
     bases=(PAS_PLUGINS_OIDC_FIXTURE,),
-    name='PasPluginsOidcLayer:FunctionalTesting',
+    name="PasPluginsOidcLayer:FunctionalTesting",
 )
 
 
@@ -49,5 +48,5 @@ PAS_PLUGINS_OIDC_ACCEPTANCE_TESTING = FunctionalTesting(
         REMOTE_LIBRARY_BUNDLE_FIXTURE,
         z2.ZSERVER_FIXTURE,
     ),
-    name='PasPluginsOidcLayer:AcceptanceTesting',
+    name="PasPluginsOidcLayer:AcceptanceTesting",
 )

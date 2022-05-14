@@ -1,14 +1,12 @@
 from hashlib import sha256
 from oic import rndstr
-from oic.oic import Client
 from oic.oic.message import AuthorizationResponse
 from oic.oic.message import EndSessionRequest
 from oic.oic.message import IdToken
-from pas.plugins.oidc.utils import CustomOpenIDNonBooleanSchema
 from pas.plugins.oidc.utils import SINGLE_OPTIONAL_BOOLEAN_AS_STRING
 from plone import api
-from Products.Five.browser import BrowserView
 from Products.CMFCore.utils import getToolByName
+from Products.Five.browser import BrowserView
 
 import base64
 import json
