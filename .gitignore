@@ -28,5 +28,6 @@ pip-selfcheck.json
 report.html
 .vscode/
 .tox/
+pyvenv.cfg
 reports/
 # excludes
