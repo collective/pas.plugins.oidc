@@ -3,10 +3,13 @@ from oic import rndstr
 from oic.oic.message import AuthorizationResponse
 from oic.oic.message import EndSessionRequest
 from oic.oic.message import IdToken
+from oic.oic.message import AccessTokenResponse
+from oic.oic.message import OpenIDSchema
 from pas.plugins.oidc.utils import SINGLE_OPTIONAL_BOOLEAN_AS_STRING
 from plone import api
 from Products.CMFCore.utils import getToolByName
 from Products.Five.browser import BrowserView
+from zExceptions import Unauthorized
 
 import base64
 import json
@@ -158,30 +161,45 @@ class CallbackView(BrowserView):
                     "phone_number_verified": SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
                 }
             )
+
+        # The response you get back is an instance of an AccessTokenResponse
+        # or again possibly an ErrorResponse instance.
         resp = client.do_access_token_request(
             state=aresp["state"],
             request_args=args,
             authn_method="client_secret_basic",
         )
 
-        if client.userinfo_endpoint:
-            # XXX: Not completely sure if this is even needed
-            #      We do not have a OpenID connect provider with userinfo endpoint
-            #      enabled and with the weird treatment of boolean values, so we cannot test this
-            # if self.context.use_modified_openid_schema:
-            #     userinfo = client.do_user_info_request(state=aresp["state"], user_info_schema=CustomOpenIDNonBooleanSchema)
-            # else:
-            #     userinfo = client.do_user_info_request(state=aresp["state"])
-            userinfo = client.do_user_info_request(state=aresp["state"])
-        else:
-            userinfo = resp.to_dict().get("id_token", {})
+        if isinstance(resp, AccessTokenResponse):
+            # If it’s an AccessTokenResponse the information in the response will be stored in the
+            # client instance with state as the key for future use.
+            if client.userinfo_endpoint:
+                # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
 
-        # session.set('id_token', )
-        self.context.rememberIdentity(userinfo)
-        self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
-        self.request.response.redirect(self.return_url(session=session))
-        # return userinfo.to_json()
-        return
+                # XXX: Not completely sure if this is even needed
+                #      We do not have a OpenID connect provider with userinfo endpoint
+                #      enabled and with the weird treatment of boolean values, so we cannot test this
+                # if self.context.use_modified_openid_schema:
+                #     userinfo = client.do_user_info_request(state=aresp["state"], user_info_schema=CustomOpenIDNonBooleanSchema)
+                # else:
+                #     userinfo = client.do_user_info_request(state=aresp["state"])
+
+                userinfo = client.do_user_info_request(state=aresp["state"])
+            else:
+                userinfo = resp.to_dict().get("id_token", {})
+
+            # userinfo in an instance of OpenIDSchema or ErrorResponse
+            if isinstance(userinfo, OpenIDSchema):
+                self.context.rememberIdentity(userinfo)
+                self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
+                self.request.response.redirect(self.return_url(session=session))
+                return
+            else:
+                logger.error("authentication failed invaid response %s %s", resp, userinfo)
+                raise Unauthorized()
+        else:
+            logger.error("authentication failed %s", resp)
+            raise Unauthorized()
 
     def return_url(self, session=None):
         came_from = self.request.get("came_from")

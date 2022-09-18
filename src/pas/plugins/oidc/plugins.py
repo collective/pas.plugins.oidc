@@ -3,6 +3,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from contextlib import contextmanager
 from oic.oic import Client
+from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from plone.protect.utils import safeWrite
@@ -100,8 +101,12 @@ class OIDCPlugin(BasePlugin):
     )
 
     def rememberIdentity(self, userinfo):
-        # TODO: configurare mapping
-        user_id = userinfo["preferred_username"]
+        assert isinstance(userinfo, OpenIDSchema)
+        # sub: machine-readable identifier of the user at this server;
+        #      this value is guaranteed to be unique per user, stable over time,
+        #      and never re-used
+        user_id = userinfo["sub"]
+        # TODO: configurare userinfo/plone mapping
         pas = self._getPAS()
         if pas is None:
             return
