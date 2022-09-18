@@ -55,7 +55,7 @@ setup(
         "plone.api>=1.8.4",
         "plone.restapi",
         # 'oidcrp',
-        # "oic<=1; python_version < 3",
+        # "oic<1; python_version < 3",
         "oic",
     ],
     extras_require={
