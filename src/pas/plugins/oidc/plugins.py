@@ -9,11 +9,12 @@ from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
+
 # from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 # from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
+from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements

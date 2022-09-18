@@ -5,6 +5,8 @@ from oic.oauth2.message import SINGLE_REQUIRED_STRING
 from oic.oic.message import OpenIDSchema
 from oic.oic.message import OPTIONAL_ADDRESS
 from oic.oic.message import OPTIONAL_MESSAGE
+
+
 # from oic.oic.message import SINGLE_OPTIONAL_BOOLEAN
 
 

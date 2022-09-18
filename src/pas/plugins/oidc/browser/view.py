@@ -1,9 +1,9 @@
 from hashlib import sha256
 from oic import rndstr
+from oic.oic.message import AccessTokenResponse
 from oic.oic.message import AuthorizationResponse
 from oic.oic.message import EndSessionRequest
 from oic.oic.message import IdToken
-from oic.oic.message import AccessTokenResponse
 from oic.oic.message import OpenIDSchema
 from pas.plugins.oidc.utils import SINGLE_OPTIONAL_BOOLEAN_AS_STRING
 from plone import api
@@ -191,11 +191,15 @@ class CallbackView(BrowserView):
             # userinfo in an instance of OpenIDSchema or ErrorResponse
             if isinstance(userinfo, OpenIDSchema):
                 self.context.rememberIdentity(userinfo)
-                self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
+                self.request.response.setHeader(
+                    "Cache-Control", "no-cache, must-revalidate"
+                )
                 self.request.response.redirect(self.return_url(session=session))
                 return
             else:
-                logger.error("authentication failed invaid response %s %s", resp, userinfo)
+                logger.error(
+                    "authentication failed invaid response %s %s", resp, userinfo
+                )
                 raise Unauthorized()
         else:
             logger.error("authentication failed %s", resp)
