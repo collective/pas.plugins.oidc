@@ -29,7 +29,7 @@ class TestSetup(unittest.TestCase):
 
     def test_product_installed(self):
         """Test if pas.plugins.oidc is installed."""
-        self.assertTrue(self.installer.isProductInstalled("pas.plugins.oidc"))
+        self.assertTrue(self.installer.is_product_installed("pas.plugins.oidc"))
 
     def test_browserlayer(self):
         """Test that IPasPluginsOidcLayer is registered."""
@@ -51,12 +51,12 @@ class TestUninstall(unittest.TestCase):
             self.installer = api.portal.get_tool("portal_quickinstaller")
         roles_before = api.user.get_roles(TEST_USER_ID)
         setRoles(self.portal, TEST_USER_ID, ["Manager"])
-        self.installer.uninstallProducts(["pas.plugins.oidc"])
+        self.installer.uninstall_product("pas.plugins.oidc")
         setRoles(self.portal, TEST_USER_ID, roles_before)
 
     def test_product_uninstalled(self):
         """Test if pas.plugins.oidc is cleanly uninstalled."""
-        self.assertFalse(self.installer.isProductInstalled("pas.plugins.oidc"))
+        self.assertFalse(self.installer.is_product_installed("pas.plugins.oidc"))
 
     def test_browserlayer_removed(self):
         """Test that IPasPluginsOidcLayer is removed."""
