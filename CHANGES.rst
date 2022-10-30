@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0a3 (unreleased)
+1.0a3 (2022-10-30)
 ------------------
 
 - Removed the hardcoded auth cookie name
