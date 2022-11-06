@@ -2,13 +2,6 @@
    If you want to learn more about writing documentation, please check out: http://docs.plone.org/about/documentation_styleguide.html
    This text does not appear on pypi or github. It is a comment.
 
-.. image:: https://travis-ci.org/collective/pas.plugins.oidc.svg?branch=master
-    :target: https://travis-ci.org/collective/pas.plugins.oidc
-
-.. image:: https://coveralls.io/repos/github/collective/pas.plugins.oidc/badge.svg?branch=master
-    :target: https://coveralls.io/github/collective/pas.plugins.oidc?branch=master
-    :alt: Coveralls
-
 .. image:: https://img.shields.io/pypi/v/pas.plugins.oidc.svg
     :target: https://pypi.python.org/pypi/pas.plugins.oidc/
     :alt: Latest Version
@@ -17,11 +10,21 @@
     :target: https://pypi.python.org/pypi/pas.plugins.oidc
     :alt: Egg Status
 
-.. image:: https://img.shields.io/pypi/pyversions/pas.plugins.oidc.svg?style=plastic   :alt: Supported - Python Versions
-
+.. image:: https://img.shields.io/pypi/pyversions/pas.plugins.oidc.svg?style=plastic
+    :target: https://pypi.python.org/pypi/pas.plugins.oidc/
+    :alt: Supported - Python Versions
+    
 .. image:: https://img.shields.io/pypi/l/pas.plugins.oidc.svg
     :target: https://pypi.python.org/pypi/pas.plugins.oidc/
     :alt: License
+
+.. image:: https://github.com/collective/pas.plugins.oidc/actions/workflows/tests.yml/badge.svg
+    :target: https://github.com/collective/pas.plugins.oidc/actions
+    :alt: Tests
+
+.. image:: https://coveralls.io/repos/github/collective/pas.plugins.oidc/badge.svg?branch=main
+    :target: https://coveralls.io/github/collective/pas.plugins.oidc?branch=main
+    :alt: Coverage
 
 
 pas.plugins.oidc
@@ -35,6 +38,27 @@ Features
 
 - PAS plugin, although currently no interfaces are activated.
 - Three browser views for this PAS plugin, which are the main interaction with the outside world.
+
+
+Examples
+--------
+
+This add-on can be seen in action at the following sites:
+- Is there a page on the internet where everybody can see the features?
+
+
+Documentation
+-------------
+
+Full documentation for end users can be found in the "docs" folder, and is also available online at http://docs.plone.org/foo/bar
+
+
+Translations
+------------
+
+This product has been translated into
+
+- Klingon (thanks, K'Plai)
 
 
 Installation
@@ -135,10 +159,12 @@ Contribute
 - Documentation: https://docs.plone.org/foo/bar
 
 
-References
-----------
+Support
+-------
 
-* Blog post: https://www.codesyntax.com/en/blog/log-in-in-plone-using-your-google-workspace-0account
+If you are having issues, please let us know.
+We have a mailing list located at: project@example.com
+
 
 License
 -------
