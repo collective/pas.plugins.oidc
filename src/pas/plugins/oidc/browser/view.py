@@ -60,7 +60,8 @@ class Session(object):
 class LoginView(BrowserView):
     def __call__(self):
         session = Session(
-            self.request, use_session_data_manager=self.context.use_session_data_manager
+            self.request,
+            use_session_data_manager=self.context.getProperty("use_session_data_manager"),
         )
         # state is used to keep track of responses to outstanding requests (state).
         # nonce is a string value used to associate a Client session with an ID Token, and to mitigate replay attacks.
@@ -74,7 +75,7 @@ class LoginView(BrowserView):
 
         # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
         args = {
-            "client_id": self.context.client_id,
+            "client_id": self.context.getProperty("client_id"),
             "response_type": "code",
             "scope": self.context.get_scopes(),
             "state": session.get("state"),
@@ -82,7 +83,7 @@ class LoginView(BrowserView):
             "redirect_uri": self.context.get_redirect_uris(),
         }
 
-        if self.context.use_pkce:
+        if self.context.getProperty("use_pkce"):
             # Build a random string of 43 to 128 characters
             # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
             session.set("verifier", rndstr(128))
@@ -107,7 +108,10 @@ class LoginView(BrowserView):
 class LogoutView(BrowserView):
     def __call__(self):
         client = self.context.get_oauth2_client()
-        # session = Session(self.request, use_session_data_manager=self.context.use_session_data_manager)
+        # session = Session(
+        #   self.request,
+        #   use_session_data_manager=self.context.getProperty("use_session_data_manager")
+        # )
         # state is used to keep track of responses to outstanding requests (state).
         # https://github.com/keycloak/keycloak-documentation/blob/master/securing_apps/topics/oidc/java/logout.adoc
         # session.set('end_session_state', rndstr())
@@ -143,7 +147,8 @@ class CallbackView(BrowserView):
     def __call__(self):
         response = self.request.environ["QUERY_STRING"]
         session = Session(
-            self.request, use_session_data_manager=self.context.use_session_data_manager
+            self.request,
+            use_session_data_manager=self.context.getProperty("use_session_data_manager"),
         )
         client = self.context.get_oauth2_client()
         aresp = client.parse_response(
@@ -158,10 +163,10 @@ class CallbackView(BrowserView):
             "redirect_uri": self.context.get_redirect_uris(),
         }
 
-        if self.context.use_pkce:
+        if self.context.getProperty("use_pkce"):
             args["code_verifier"] = session.get("verifier")
 
-        if self.context.use_modified_openid_schema:
+        if self.context.getProperty("use_modified_openid_schema"):
             IdToken.c_param.update(
                 {
                     "email_verified": SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
@@ -186,7 +191,7 @@ class CallbackView(BrowserView):
                 # XXX: Not completely sure if this is even needed
                 #      We do not have a OpenID connect provider with userinfo endpoint
                 #      enabled and with the weird treatment of boolean values, so we cannot test this
-                # if self.context.use_modified_openid_schema:
+                # if self.context.getProperty("use_modified_openid_schema"):
                 #     userinfo = client.do_user_info_request(state=aresp["state"], user_info_schema=CustomOpenIDNonBooleanSchema)
                 # else:
                 #     userinfo = client.do_user_info_request(state=aresp["state"])

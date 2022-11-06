@@ -23,9 +23,9 @@ class TestPlugin(unittest.TestCase):
     def test_remember_identity(self):
         userinfo = OpenIDSchema(sub="bob")
         # auto create user by default
-        self.assertTrue(self.plugin.create_user)
+        self.assertTrue(self.plugin.getProperty("create_user"))
         # set __ac ticket by default
-        self.assertTrue(self.plugin.create_ticket)
+        self.assertTrue(self.plugin.getProperty("create_ticket"))
         self.assertIsNone(self.pas.getUserById("bob"))
         self.plugin.rememberIdentity(userinfo)
         self.assertIsNotNone(self.pas.getUserById("bob"))

@@ -28,7 +28,8 @@
 pas.plugins.oidc
 ================
 
-Tell me what your product does
+PAS plugin for authentication based on OpenID Connect: https://openid.net/connect/
+
 
 Features
 --------

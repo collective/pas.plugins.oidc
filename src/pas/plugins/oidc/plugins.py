@@ -112,7 +112,7 @@ class OIDCPlugin(BasePlugin):
         if pas is None:
             return
         user = pas.getUserById(user_id)
-        if self.create_user:
+        if self.getProperty("create_user"):
             # https://github.com/collective/Products.AutoUserMakerPASPlugin/blob/master/Products/AutoUserMakerPASPlugin/auth.py#L110
             if user is None:
                 with safe_write(self.REQUEST):
@@ -152,9 +152,9 @@ class OIDCPlugin(BasePlugin):
                 # if time.time() > user.getProperty(LAST_UPDATE_USER_PROPERTY_KEY) + config.get(autoUpdateUserPropertiesIntervalKey, 0):
                 with safe_write(self.REQUEST):
                     self._updateUserProperties(user, userinfo)
-        if user and self.create_ticket:
+        if user and self.getProperty("create_ticket"):
             self._setupTicket(user_id)
-        if user and self.create_restapi_ticket:
+        if user and self.getProperty("create_restapi_ticket"):
             self._setupJWTTicket(user_id, user)
 
     def _updateUserProperties(self, user, userinfo):
@@ -231,26 +231,26 @@ class OIDCPlugin(BasePlugin):
         #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
 
         # use WebFinger
-        provider_info = client.provider_config(self.issuer)  # noqa
+        provider_info = client.provider_config(self.getProperty("issuer"))  # noqa
         info = {
-            "client_id": self.client_id,
-            "client_secret": self.client_secret,
+            "client_id": self.getProperty("client_id"),
+            "client_secret": self.getProperty("client_secret"),
         }
         client_reg = RegistrationResponse(**info)
         client.store_registration_info(client_reg)
         return client
 
     def get_redirect_uris(self):
-        if self.redirect_uris:
-            return [safe_unicode(u) for u in self.redirect_uris]
+        if self.getProperty("redirect_uris"):
+            return [safe_unicode(u) for u in self.getProperty("redirect_uris")]
         else:
             return [
                 "{}/callback".format(self.absolute_url()),
             ]
 
     def get_scopes(self):
-        if self.scope:
-            return [safe_unicode(u) for u in self.scope]
+        if self.getProperty("scope"):
+            return [safe_unicode(u) for u in self.getProperty("scope")]
         else:
             return []
 
