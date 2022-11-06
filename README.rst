@@ -40,27 +40,6 @@ Features
 - Three browser views for this PAS plugin, which are the main interaction with the outside world.
 
 
-Examples
---------
-
-This add-on can be seen in action at the following sites:
-- Is there a page on the internet where everybody can see the features?
-
-
-Documentation
--------------
-
-Full documentation for end users can be found in the "docs" folder, and is also available online at http://docs.plone.org/foo/bar
-
-
-Translations
-------------
-
-This product has been translated into
-
-- Klingon (thanks, K'Plai)
-
-
 Installation
 ------------
 
@@ -159,12 +138,10 @@ Contribute
 - Documentation: https://docs.plone.org/foo/bar
 
 
-Support
--------
+References
+----------
 
-If you are having issues, please let us know.
-We have a mailing list located at: project@example.com
-
+* Blog post: https://www.codesyntax.com/en/blog/log-in-in-plone-using-your-google-workspace-0account
 
 License
 -------
