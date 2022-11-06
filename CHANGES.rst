@@ -5,7 +5,8 @@ Changelog
 1.0a4 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- use getProperty accessor
+  [mamico]
 
 
 1.0a3 (2022-10-30)
