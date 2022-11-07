@@ -141,7 +141,7 @@ Contribute
 References
 ----------
 
-* Blog post: https://www.codesyntax.com/en/blog/log-in-in-plone-using-your-google-workspace-0account
+* Blog post: https://www.codesyntax.com/en/blog/log-in-in-plone-using-your-google-workspace-account
 
 License
 -------
