@@ -2,7 +2,7 @@
 
 import os
 import pkg_resources
-import subprocess
+import subprocess  # nosec B404
 
 
 domain = "pas.plugins.oidc"
