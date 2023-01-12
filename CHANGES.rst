@@ -5,6 +5,9 @@ Changelog
 1.0a4 (unreleased)
 ------------------
 
+- Call getProperty only once when getting redirect_uris or scope.
+  [maurits]
+
 - use getProperty accessor
   [mamico]
 
@@ -16,7 +19,7 @@ Changelog
   [alecghica]
 - Fixed Python compatibility with version >= 3.6
   [alecghica]
-- check if url is in portal before redirect #2 
+- check if url is in portal before redirect #2
   [erral]
 - manage came_from
   [mamico]
