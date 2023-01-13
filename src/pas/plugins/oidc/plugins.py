@@ -8,7 +8,6 @@ from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import safe_unicode
 
 # from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 # from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
@@ -25,6 +24,13 @@ from zope.interface import Interface
 import itertools
 import logging
 import string
+
+try:
+    # Plone 6.0+
+    from plone.base.utils import safe_text
+except ImportError:
+    # Plone 5.2
+    from Products.CMFPlone.utils import safe_unicode as safe_text
 
 try:
     # Python 3.6+
@@ -253,18 +259,18 @@ class OIDCPlugin(BasePlugin):
         return client
 
     def get_redirect_uris(self):
-        if self.getProperty("redirect_uris"):
-            return [safe_unicode(u) for u in self.getProperty("redirect_uris")]
-        else:
-            return [
-                "{}/callback".format(self.absolute_url()),
-            ]
+        redirect_uris = self.getProperty("redirect_uris")
+        if redirect_uris:
+            return [safe_text(uri) for uri in redirect_uris if uri]
+        return [
+            "{}/callback".format(self.absolute_url()),
+        ]
 
     def get_scopes(self):
-        if self.getProperty("scope"):
-            return [safe_unicode(u) for u in self.getProperty("scope")]
-        else:
-            return []
+        scopes = self.getProperty("scope")
+        if scopes:
+            return [safe_text(scope) for scope in scopes if scope]
+        return []
 
 
 InitializeClass(OIDCPlugin)
