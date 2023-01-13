@@ -17,7 +17,6 @@ from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlug
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
-from random import choice
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
 from zope.interface import Interface
@@ -32,6 +31,15 @@ try:
 except ImportError:
     # Plone 5.2
     from Products.CMFPlone.utils import safe_unicode as safe_text
+
+try:
+    # Python 3.6+
+    from secrets import choice
+except ImportError:
+    # Less secure.
+    # https://bandit.readthedocs.io/en/1.7.4/blacklists/blacklist_calls.html#b311-random
+    from random import choice
+
 
 logger = logging.getLogger(__name__)
 # _MARKER = object()
@@ -52,7 +60,7 @@ class OIDCPlugin(BasePlugin):
 
     issuer = ""
     client_id = ""
-    client_secret = ""
+    client_secret = ""  # nosec B105
     redirect_uris = ()
     use_session_data_manager = False
     create_ticket = True
@@ -107,7 +115,8 @@ class OIDCPlugin(BasePlugin):
     )
 
     def rememberIdentity(self, userinfo):
-        assert isinstance(userinfo, OpenIDSchema)
+        if not isinstance(userinfo, OpenIDSchema):
+            raise AssertionError("userinfo should be an OpenIDSchema but is {}".format(type(userinfo)))
         # sub: machine-readable identifier of the user at this server;
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
@@ -149,7 +158,11 @@ class OIDCPlugin(BasePlugin):
                                     membershipTool.createMemberArea(user_id)
                             except (ConflictError, KeyboardInterrupt):
                                 raise
-                            except Exception:
+                            except Exception:  # nosec B110
+                                # Silently ignored exception, but seems fine here.
+                                # Logging would likely generate too much noise,
+                                # depending on your setup.
+                                # https://bandit.readthedocs.io/en/1.7.4/plugins/b110_try_except_pass.html
                                 pass
                             self._updateUserProperties(user, userinfo)
                             break
@@ -187,7 +200,7 @@ class OIDCPlugin(BasePlugin):
 
     def _generatePassword(self):
         """Return a obfuscated password never used for login"""
-        return "".join([choice(PWCHARS) for ii in range(40)])
+        return "".join([choice(PWCHARS) for ii in range(40)])  # nosec B311
 
     def _setupTicket(self, user_id):
         """Set up authentication ticket (__ac cookie) with plone.session.
