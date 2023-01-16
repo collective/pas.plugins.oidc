@@ -16,7 +16,7 @@ long_description = "\n\n".join(
 
 setup(
     name="pas.plugins.oidc",
-    version='1.0a4.dev0',
+    version='1.0a4',
     description="An add-on for Plone",
     long_description=long_description,
     # Get more from https://pypi.org/classifiers/

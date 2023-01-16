@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0a4 (unreleased)
+1.0a4 (2023-01-16)
 ------------------
 
 - Call getProperty only once when getting redirect_uris or scope.
