@@ -58,18 +58,83 @@ class Session(object):
 
 
 class LoginView(BrowserView):
+    """Login view: acl_users/oidc/login
+
+    We save a few items in the session, and then redirect to the OIDC server.
+
+    Problem: when the session is newly created or when it is fully cookie-based,
+    then we will set a cookie on the response, for the Plone domain.
+    This will either contain only the session key when this is truly session based
+    (with use_session_data_manager=True), or it will contain a base64 encoding of
+    everything we want to save on the session, like came_from.
+
+    So the response tells the browser to set cookies for the Plone domain,
+    but also tells it to go to the OIDC server.  It does not looke like the browser
+    agrees to set a cookie then.  At least I do not see came_from working when the
+    session is cookie based.
+
+    Possible solution: when we notice that a cookie is being set on the response,
+    first do a redirect to the current url with an extra query parameter.
+    Then check the query parameter to see if we still need to add anything to
+    the session.
+
+    I tried this, but then we have a new problem, or the same really:
+    also for this redirect to the Plone domain, the Set-Cookie header is ignored,
+    at least by Safari and Chrome on Mac.  I see that `__ac_session` is being set
+    in Plone, but when the browser follows the redirect, request.cookies is empty.
+    Result it that it redirects again and again and again.
+
+    Or maybe Zope/Plone removes this header when it does a redirect?
+    No, with `curl` I *do* see a Set-Cookie header.
+
+    Stackoverflow describes the same problem:
+    https://stackoverflow.com/questions/57026956/on-safari-cookies-are-not-saved-when-sent-with-redirect#57119113
+    The question is about Safari/webkit, and the answer points to a webkit issue:
+    https://bugs.webkit.org/show_bug.cgi?id=3512
+    But it seems that more browsers share this behavior.  And the webkit issue suggests
+    it is an HTTP protocol problem, if I interpret it correctly.
+
+    Another answer on the same stackoverflow question suggests to not use a redirect,
+    but return a status 200 with an html page that does a javascript redirect.
+    A bit ugly, but that may do the trick:
+    https://stackoverflow.com/a/70295152/621201
+    """
     def __call__(self):
         session = Session(
             self.request,
             use_session_data_manager=self.context.getProperty("use_session_data_manager"),
         )
+        # Did we already set a session?
+        session_set = self.request.get("session_set")
+
         # state is used to keep track of responses to outstanding requests (state).
         # nonce is a string value used to associate a Client session with an ID Token, and to mitigate replay attacks.
-        session.set("state", rndstr())
-        session.set("nonce", rndstr())
-        came_from = self.request.get("came_from")
-        if came_from:
-            session.set("came_from", came_from)
+        if not (session_set and session.get("state")):
+            # Either the session was not set yet, or it *was* set, but somehow
+            # the state is lost.  Then we set it.  We do the same for the others.
+            session.set("state", rndstr())
+        if not (session_set and session.get("nonce")):
+            session.set("nonce", rndstr())
+        if not (session_set and session.get("came_from")):
+            came_from = self.request.get("came_from")
+            if came_from:
+                session.set("came_from", came_from)
+
+        use_pkce = self.context.getProperty("use_pkce")
+        if use_pkce and not (session_set and session.get("verifier")):
+            # Build a random string of 43 to 128 characters
+            # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
+            session.set("verifier", rndstr(128))
+
+        response = self.request.response
+        response.setHeader("Cache-Control", "no-cache, must-revalidate")
+
+        if response.cookies:
+            # We want to set a cookie in the response.
+            # Redirect to the same url with an extra parameter.
+            url = self.context.absolute_url() + "/login?session_set=1"
+            response.redirect(url)
+            return
 
         client = self.context.get_oauth2_client()
 
@@ -82,18 +147,13 @@ class LoginView(BrowserView):
             "nonce": session.get("nonce"),
             "redirect_uri": self.context.get_redirect_uris(),
         }
-
-        if self.context.getProperty("use_pkce"):
-            # Build a random string of 43 to 128 characters
-            # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
-            session.set("verifier", rndstr(128))
+        if use_pkce:
             args["code_challenge"] = self.get_code_challenge(session.get("verifier"))
             args["code_challenge_method"] = "S256"
 
         auth_req = client.construct_AuthorizationRequest(request_args=args)
         login_url = auth_req.request(client.authorization_endpoint)
-        self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
-        self.request.response.redirect(login_url)
+        response.redirect(login_url)
         return
 
     def get_code_challenge(self, value):
