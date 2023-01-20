@@ -14,6 +14,14 @@
 
   <browser:page
       for="..plugins.IOIDCPlugin"
+      name="require_login"
+      class=".view.RequireLoginView"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
+      permission="zope2.View"
+      />
+
+  <browser:page
+      for="..plugins.IOIDCPlugin"
       name="logout"
       class=".view.LogoutView"
       layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"

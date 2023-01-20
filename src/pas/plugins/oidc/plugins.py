@@ -9,7 +9,7 @@ from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
 
-# from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
+from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 # from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
@@ -272,6 +272,25 @@ class OIDCPlugin(BasePlugin):
             return [safe_text(scope) for scope in scopes if scope]
         return []
 
+    def challenge(self, request, response):
+        """Assert via the response that credentials will be gathered.
+
+        For IChallengePlugin.
+
+        Takes a REQUEST object and a RESPONSE object.
+
+        Must return True if it fired, False/None otherwise.
+
+        Note: if you are not logged in, and go to the login form,
+        everything will still work, and you will not be challenged.
+        A challenge is only tried when you are unauthorized.
+        """
+        # Go to the login view of the PAS plugin.
+        logger.info("Challenge. Came from %s", request.URL)
+        url = "{}/require_login?came_from={}".format(self.absolute_url(), request.URL)
+        response.redirect(url, lock=1)
+        return True
+
 
 InitializeClass(OIDCPlugin)
 
@@ -280,7 +299,7 @@ classImplements(
     IOIDCPlugin,
     # IExtractionPlugin,
     # IAuthenticationPlugin,
-    # IChallengePlugin,
+    IChallengePlugin,
     # IPropertiesPlugin,
     # IRolesPlugin,
 )
