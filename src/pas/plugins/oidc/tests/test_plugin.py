@@ -33,3 +33,16 @@ class TestPlugin(unittest.TestCase):
         self.assertEqual(
             splitTicket(b64decode(self.response.cookies["__ac"]["value"]))[1], "bob"
         )
+
+    def test_challenge(self):
+        request_url = self.request.URL
+
+        # When the plugin makes a challenge, it must return a True value.
+        self.assertTrue(self.plugin.challenge(self.request, self.response))
+
+        # Check the response.
+        plugin_url = self.plugin.absolute_url()
+        self.assertEqual(
+            self.response.headers["location"],
+            "{}/require_login?came_from={}".format(plugin_url, request_url),
+        )

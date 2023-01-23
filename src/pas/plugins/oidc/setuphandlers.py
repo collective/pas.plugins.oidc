@@ -40,6 +40,32 @@ def post_install(context):
             "Existing PAS plugin {0} is not a OIDCPlugin.".format(PLUGIN_ID)
         )
 
+    # Activate all supported interfaces for this plugin.
+    activate = []
+    plugins = pas.plugins
+    for info in plugins.listPluginTypeInfo():
+        interface = info["interface"]
+        interface_name = info["id"]
+        if plugin.testImplements(interface):
+            activate.append(interface_name)
+            logger.info(
+                "Activating interface %s for plugin %s", interface_name, info["title"]
+            )
+
+    plugin.manage_activateInterfaces(activate)
+    logger.info("Plugins activated.")
+
+    # Order some plugins to make sure our plugin is at the top.
+    # This is not needed for all plugin interfaces.
+    for info in plugins.listPluginTypeInfo():
+        interface_name = info["id"]
+        # If we support IPropertiesPlugin, it should be added here.
+        if interface_name in ("IChallengePlugin",):
+            iface = plugins._getInterfaceFromName(interface_name)
+            for obj in plugins.listPlugins(iface):
+                plugins.movePluginsUp(iface, [PLUGIN_ID])
+            logger.info("Moved %s to top of %s.", PLUGIN_ID, interface_name)
+
     return plugin
 
 
