@@ -318,11 +318,14 @@ def safe_write(request):
     Inside the context manager objects can be written to without any
     restriction. The context manager collects all touched objects
     and marks them as safe write."""
-    objects_before = set(_registered_objects(request))
+    # We used 'set' here before, but that could lead to:
+    # TypeError: unhashable type: 'PersistentMapping'
+    objects_before = _registered_objects(request)
     yield
-    objects_after = set(_registered_objects(request))
-    for obj in objects_after - objects_before:
-        safeWrite(obj, request)
+    objects_after = _registered_objects(request)
+    for obj in objects_after:
+        if obj not in objects_before:
+            safeWrite(obj, request)
 
 
 def _registered_objects(request):
