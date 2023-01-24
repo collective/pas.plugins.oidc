@@ -36,6 +36,14 @@
       post_handler=".setuphandlers.uninstall"
       />
 
+  <genericsetup:upgradeStep
+      title="Activate challenge plugin"
+      source="1000"
+      destination="1001"
+      profile="pas.plugins.oidc:default"
+      handler=".setuphandlers.activate_challenge_plugin"
+      />
+
   <utility
       factory=".setuphandlers.HiddenProfiles"
       name="pas.plugins.oidc-hiddenprofiles"

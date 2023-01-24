@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from pas.plugins.oidc.plugins import OIDCPlugin
+from pas.plugins.oidc.utils import PLUGIN_ID
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
@@ -24,9 +26,6 @@ def post_install(context):
     pas = getToolByName(context, "acl_users")
 
     # Create plugin if it does not exist.
-    from pas.plugins.oidc.plugins import OIDCPlugin
-    from pas.plugins.oidc.utils import PLUGIN_ID
-
     if PLUGIN_ID not in pas.objectIds():
         plugin = OIDCPlugin(
             title="OpenID Connect",
@@ -49,7 +48,7 @@ def post_install(context):
         if plugin.testImplements(interface):
             activate.append(interface_name)
             logger.info(
-                "Activating interface %s for plugin %s", interface_name, info["title"]
+                "Activating interface %s for plugin %s", interface_name, PLUGIN_ID
             )
 
     plugin.manage_activateInterfaces(activate)
@@ -62,11 +61,45 @@ def post_install(context):
         # If we support IPropertiesPlugin, it should be added here.
         if interface_name in ("IChallengePlugin",):
             iface = plugins._getInterfaceFromName(interface_name)
-            for obj in plugins.listPlugins(iface):
-                plugins.movePluginsUp(iface, [PLUGIN_ID])
+            plugins.movePluginsTop(iface, [PLUGIN_ID])
             logger.info("Moved %s to top of %s.", PLUGIN_ID, interface_name)
 
     return plugin
+
+
+def activate_challenge_plugin(context):
+    pas = getToolByName(context, "acl_users")
+
+    if PLUGIN_ID not in pas.objectIds():
+        raise ValueError(
+            "acl_users has no plugin {%s}.".format(PLUGIN_ID)
+        )
+
+    plugin = getattr(pas, PLUGIN_ID)
+    if not isinstance(plugin, OIDCPlugin):
+        raise ValueError(
+            "Existing PAS plugin {0} is not a OIDCPlugin.".format(PLUGIN_ID)
+        )
+
+    # Activate all supported interfaces for this plugin.
+    activate = []
+    plugins = pas.plugins
+    interface_name = "IChallengePlugin"
+    activate.append(interface_name)
+    logger.info(
+        "Activating interface %s for plugin %s", interface_name, PLUGIN_ID
+    )
+
+    plugin.manage_activateInterfaces([interface_name])
+
+    # Order some plugins to make sure our plugin is at the top.
+    # This is not needed for all plugin interfaces.
+    iface = plugins._getInterfaceFromName(interface_name)
+    plugins.movePluginsTop(iface, [PLUGIN_ID])
+    logger.info("Moved %s to top of %s.", PLUGIN_ID, interface_name)
+
+    return plugin
+
 
 
 def uninstall(context):
