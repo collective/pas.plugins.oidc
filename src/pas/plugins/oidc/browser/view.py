@@ -121,10 +121,18 @@ class LoginView(BrowserView):
             args["code_challenge_method"] = "S256"
 
         auth_req = client.construct_AuthorizationRequest(request_args=args)
-        login_url = auth_req.request(client.authorization_endpoint)
+        self.login_url = auth_req.request(client.authorization_endpoint)
         self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
-        self.request.response.redirect(login_url)
-        return
+
+        # Doing a redirect and having a Set-Cookie header in the same request may
+        # not work.  See https://github.com/collective/pas.plugins.oidc/issues/11
+        # So only do this when no cookies are being set.
+        if not self.request.response.cookies:
+            self.request.response.redirect(self.login_url)
+            return
+
+        # Render a template instead, which does a redirect in Javascript.
+        return self.index()
 
     def get_code_challenge(self, value):
         """build a sha256 hash of the base64 encoded value of value

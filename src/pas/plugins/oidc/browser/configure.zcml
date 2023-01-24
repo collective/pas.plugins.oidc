@@ -8,6 +8,7 @@
       for="..plugins.IOIDCPlugin"
       name="login"
       class=".view.LoginView"
+      template="login_redirect.pt"
       layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       permission="zope2.View"
       />

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      i18n:domain="pas.plugins.oidc">
+<head>
+    <title i18n:translate="">Redirecting...</title>
+</head>
+<body>
+    <h1 i18n:translate="">Redirecting...</h1>
+    <p i18n:translate="description_redirecting">
+      In a moment you will be redirected to the central authentication server.
+      If you are not redirected, click the following link:
+      <a id="link" href="${view/login_url}" i18n:translate="">Go Now</a>
+    </p>
+    <script type="text/javascript">
+      setTimeout(function(){
+        document.getElementById("link").click();
+      }, 1);
+    </script>
+</body>
+</html>
