@@ -69,7 +69,6 @@ class TestFunctionalPlugin(unittest.TestCase):
         # self.browser.raiseHttpErrors = False
         self.browser.followRedirects = False
         portal_url = self.portal.absolute_url()
-        plugin_url = self.portal.acl_users.oidc.absolute_url()
 
         # Try going to a page for which you need to be authenticated.
         url = portal_url + "/@@overview-controlpanel"
@@ -97,7 +96,6 @@ class TestFunctionalPlugin(unittest.TestCase):
 
         # Try going to a page for which you need to be authenticated.
         url = portal_url + "/@@overview-controlpanel"
-        quoted_url = quote(url)
         self.browser.open(url)
 
         # Since we have told the browser to not follow redirects,

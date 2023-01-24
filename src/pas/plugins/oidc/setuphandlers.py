@@ -67,12 +67,11 @@ def post_install(context):
     return plugin
 
 
-def activate_challenge_plugin(context):
+def activate_plugin(context, interface_name, move_to_top=False):
     pas = getToolByName(context, "acl_users")
-
     if PLUGIN_ID not in pas.objectIds():
         raise ValueError(
-            "acl_users has no plugin {%s}.".format(PLUGIN_ID)
+            "acl_users has no plugin {}.".format(PLUGIN_ID)
         )
 
     plugin = getattr(pas, PLUGIN_ID)
@@ -81,25 +80,26 @@ def activate_challenge_plugin(context):
             "Existing PAS plugin {0} is not a OIDCPlugin.".format(PLUGIN_ID)
         )
 
-    # Activate all supported interfaces for this plugin.
-    activate = []
+    # This would activate one interface and deactivate all others:
+    # plugin.manage_activateInterfaces([interface_name])
+    # So only take over the necessary code from manage_activateInterfaces.
     plugins = pas.plugins
-    interface_name = "IChallengePlugin"
-    activate.append(interface_name)
-    logger.info(
-        "Activating interface %s for plugin %s", interface_name, PLUGIN_ID
-    )
-
-    plugin.manage_activateInterfaces([interface_name])
-
-    # Order some plugins to make sure our plugin is at the top.
-    # This is not needed for all plugin interfaces.
     iface = plugins._getInterfaceFromName(interface_name)
-    plugins.movePluginsTop(iface, [PLUGIN_ID])
-    logger.info("Moved %s to top of %s.", PLUGIN_ID, interface_name)
+    if PLUGIN_ID not in plugins.listPluginIds(iface):
+        plugins.activatePlugin(iface, PLUGIN_ID)
+        logger.info(
+            "Activated interface %s for plugin %s", interface_name, PLUGIN_ID
+        )
 
-    return plugin
+    if move_to_top:
+        # Order some plugins to make sure our plugin is at the top.
+        # This is not needed for all plugin interfaces.
+        plugins.movePluginsTop(iface, [PLUGIN_ID])
+        logger.info("Moved %s to top of %s.", PLUGIN_ID, interface_name)
 
+
+def activate_challenge_plugin(context):
+    activate_plugin(context, "IChallengePlugin", move_to_top=True)
 
 
 def uninstall(context):
