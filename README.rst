@@ -13,7 +13,7 @@
 .. image:: https://img.shields.io/pypi/pyversions/pas.plugins.oidc.svg?style=plastic
     :target: https://pypi.python.org/pypi/pas.plugins.oidc/
     :alt: Supported - Python Versions
-    
+
 .. image:: https://img.shields.io/pypi/l/pas.plugins.oidc.svg
     :target: https://pypi.python.org/pypi/pas.plugins.oidc/
     :alt: License
@@ -128,6 +128,20 @@ Currently, the Plone login form is unchanged.
 Instead, go to the login page of the plugin: http://localhost:8081/Plone/acl_users/oidc/login
 This will take you to Keycloak to login, and then return.
 You should now be logged in to Plone, and see the fullname and email, if you have set this in Keycloak.
+
+Varnish
+-------
+
+If you are using the Varnish caching server in front of Plone, you may see this plugin only partially working.
+Especially the ``came_from`` parameter may be ignored.
+This is because the standard configuration from ``plone.recipe.varnish`` removes most cookies to improve anonymous caching.
+Solution is to make sure the ``__ac_session`` cookie is added to the ``cookie-pass`` option.
+Check what the current default is in the recipe, and update it::
+
+  [varnish-configuration]
+  recipe = plone.recipe.varnish:configuration
+  ...
+  cookie-pass = "auth_token|__ac(|_(name|password|persistent|session))=":"\.(js|css|kss)$"
 
 
 Contribute
