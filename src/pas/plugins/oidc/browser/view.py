@@ -184,10 +184,12 @@ class CallbackView(BrowserView):
         aresp = client.parse_response(
             AuthorizationResponse, info=response, sformat="urlencoded"
         )
-        # XXX: togliere debug e reinserire assert dopo aver trovato eventuali
-        # anomalie
-        logger.info("DEBUG %s %s", aresp.get("state"), session.get("state"))
-        # assert aresp["state"] == session.get("state")
+        if aresp["state"] != session.get("state"):
+            logger.error("invalid OAuth2 state response:%s != session:%s",
+                         aresp.get("state"), session.get("state"))
+            # TODO: need to double check before removing the comment below
+            # raise ValueError("invalid OAuth2 state")
+
         args = {
             "code": aresp["code"],
             "redirect_uri": self.context.get_redirect_uris(),
