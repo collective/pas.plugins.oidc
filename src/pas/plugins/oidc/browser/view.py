@@ -15,6 +15,13 @@ import base64
 import json
 import logging
 
+try:
+    # Python 3
+    from urllib.parse import quote
+except ImportError:
+    # Python 2
+    from urllib import quote
+
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +62,29 @@ class Session(object):
 
     def __repr__(self):
         return repr(self._session)
+
+
+class RequireLoginView(BrowserView):
+    """Our version of the require-login view from Plone.
+
+    Our challenge plugin redirects here.
+    Note that the plugin has no way of knowing if you are authenticated:
+    its code is called before this is known.
+    I think.
+    """
+
+    def __call__(self):
+        if api.user.is_anonymous():
+            # context is our PAS plugin
+            url = self.context.absolute_url() + "/login"
+            came_from = self.request.get('came_from', None)
+            if came_from:
+                url += "?came_from={}".format(quote(came_from))
+        else:
+            url = api.portal.get().absolute_url()
+            url += "/insufficient-privileges"
+
+        self.request.response.redirect(url)
 
 
 class LoginView(BrowserView):

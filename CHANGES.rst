@@ -5,7 +5,11 @@ Changelog
 1.0a5 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Update the plugin to make challenges.
+  An anonymous user who visits a page for which you have to be authenticated,
+  is redirected to the new require_login view on the plugin.
+  This works the same way as the standard require_login page of Plone.
+  [maurits]
 
 
 1.0a4 (2023-01-16)
