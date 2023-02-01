@@ -10,6 +10,8 @@ Changelog
   is redirected to the new require_login view on the plugin.
   This works the same way as the standard require_login page of Plone.
   [maurits]
+- Add a property for the default userinfo instead of using only sub.
+  [eikichi18]
 
 
 1.0a4 (2023-01-16)

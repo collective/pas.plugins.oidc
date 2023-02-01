@@ -69,6 +69,7 @@ class OIDCPlugin(BasePlugin):
     scope = ("profile", "email", "phone")
     use_pkce = False
     use_modified_openid_schema = False
+    default_user_info = "sub"
 
     _properties = (
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
@@ -112,6 +113,12 @@ class OIDCPlugin(BasePlugin):
             mode="w",
             label="Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string. ",
         ),
+        dict(
+            id="default_user_info",
+            type="string",
+            mode="w",
+            label="Default user info used as user_id, default 'sub'"
+        )
     )
 
     def rememberIdentity(self, userinfo):
@@ -120,7 +127,7 @@ class OIDCPlugin(BasePlugin):
         # sub: machine-readable identifier of the user at this server;
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
-        user_id = userinfo["sub"]
+        user_id = userinfo[self.getProperty("default_user_info")]
         # TODO: configurare userinfo/plone mapping
         pas = self._getPAS()
         if pas is None:
