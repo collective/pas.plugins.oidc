@@ -55,6 +55,10 @@ Install pas.plugins.oidc by adding it to your buildout::
 
 and then running ``bin/buildout``
 
+Warning
+-------
+
+Pay attention to the customization of `User info property used as userid` field, with the wrong configuration it's easy impersonate another user.
 
 Example setup with Keycloak
 ---------------------------
