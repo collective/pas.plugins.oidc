@@ -185,7 +185,7 @@ class OIDCPlugin(BasePlugin):
                 # if time.time() > user.getProperty(LAST_UPDATE_USER_PROPERTY_KEY) + config.get(autoUpdateUserPropertiesIntervalKey, 0):
                 with safe_write(self.REQUEST):
                     self._updateUserProperties(user, userinfo)
-        if self.getProperty("create_groups") and "groups" in userinfo:
+        if self.getProperty("create_groups") and isinstance(userinfo.get("groups"), list):
             with safe_write(self.REQUEST):
                 oidc = self.getId()
                 groups = user.getGroups()
