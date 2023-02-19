@@ -10,19 +10,24 @@ from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
 
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
+
 # from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
-from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
+from Products.PluggableAuthService.interfaces.plugins import (
+    IAuthenticationPlugin,
+)
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
 from ZODB.POSException import ConflictError
+from zope.component.hooks import getSite
 from zope.interface import implementer
 from zope.interface import Interface
 
 import itertools
 import logging
+import os
 import string
 
 try:
@@ -47,6 +52,63 @@ PWCHARS = string.ascii_letters + string.digits + string.punctuation
 # LAST_UPDATE_USER_PROPERTY_KEY = 'last_autousermaker_update'
 
 
+def context_property(name, default=None):
+    def getter(self, name=name, default=default):
+        SITE_STRING = "_" + getSite().getId()
+        # First of all try to get the value from
+        # an environment variable that starts with
+        # OIDC followed by property name and ends with Plone site id
+
+        # This way we can handle several Plone sites in the same
+        # zope instance and have different settings through environment
+        # variables
+
+        # i.e.: OIDC_USE_DATA_SESSION_MANAGER_Plone
+        env_var = "OIDC" + name.upper() + SITE_STRING
+        env_value = os.environ.get(env_var, default)
+
+        if env_value == default:
+            # Secondly, try to get the value from an environment
+            # variable too, but this time without the Plone site id
+            # i.e.: OIDC_USE_DATA_SESSION_MANAGER
+            env_var = "OIDC" + name.upper() + SITE_STRING
+            env_value = os.environ.get(env_var, default)
+
+        if env_value == default:
+            return env_value
+
+        if isinstance(default, bool):
+            if env_value.lower() == "true":
+                return True
+
+            if env_value.lower() == "false":
+                return False
+
+            return default
+
+        if isinstance(default, tuple):
+            if "," in env_value:
+                env_value = tuple("".join(env_value.split()).split(","))
+            else:
+                if env_value == "":
+                    return ()
+
+                env_value = (env_value,)
+
+        if env_value == "":
+            return getattr(self, name)
+
+        return env_value
+
+    def setter(self, value, name=name):
+        setattr(self, name, value)
+
+    def deleter(self, name=name):
+        delattr(self, name)
+
+    return property(getter, setter, deleter)
+
+
 class IOIDCPlugin(Interface):
     """ """
 
@@ -58,23 +120,59 @@ class OIDCPlugin(BasePlugin):
     meta_type = "OIDC Plugin"
     security = ClassSecurityInfo()
 
-    issuer = ""
-    client_id = ""
-    client_secret = ""  # nosec B105
-    redirect_uris = ()
-    use_session_data_manager = False
-    create_ticket = True
-    create_restapi_ticket = False
-    create_user = True
-    scope = ("profile", "email", "phone")
-    use_pkce = False
-    use_modified_openid_schema = False
+    if os.environ.get("PAS_PLUGINS_OIDC_USE_ENVIRONMENT_VARS"):
+        _issuer = ""
+        _client_id = ""
+        _client_secret = ""
+        _redirect_uris = ()
+        _use_session_data_manager = False
+        _create_ticket = True
+        _create_restapi_ticket = False
+        _create_user = True
+        _scope = ("profile", "email", "phone")
+        _use_pkce = False
+        _use_modified_openid_schema = False
+
+        issuer = context_property("_issuer", "")
+        client_id = context_property("_client_id", "")
+        client_secret = context_property("_client_secret", "")
+        redirect_uris = context_property("_redirect_uris", ())
+        use_session_data_manager = context_property(
+            "_use_session_data_manager", False
+        )  # noqa
+        create_ticket = context_property("_create_ticket", True)
+        create_restapi_ticket = context_property(
+            "_create_restapi_ticket", True
+        )
+        create_user = context_property("_create_user", True)
+        scope = context_property("_scope", ("profile", "email", "phone"))
+        use_pkce = context_property("_use_pkce", True)
+        use_modified_openid_schema = context_property(
+            "_use_modified_openid_schema", False
+        )  # noqa
+
+    else:
+        issuer = ""
+        client_id = ""
+        client_secret = ""  # nosec B105
+        redirect_uris = ()
+        use_session_data_manager = False
+        create_ticket = True
+        create_restapi_ticket = False
+        create_user = True
+        scope = ("profile", "email", "phone")
+        use_pkce = False
+        use_modified_openid_schema = False
 
     _properties = (
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
         dict(id="client_id", type="string", mode="w", label="Client ID"),
-        dict(id="client_secret", type="string", mode="w", label="Client secret"),
-        dict(id="redirect_uris", type="lines", mode="w", label="Redirect uris"),
+        dict(
+            id="client_secret", type="string", mode="w", label="Client secret"
+        ),
+        dict(
+            id="redirect_uris", type="lines", mode="w", label="Redirect uris"
+        ),
         dict(
             id="use_session_data_manager",
             type="boolean",
@@ -110,13 +208,20 @@ class OIDCPlugin(BasePlugin):
             id="use_modified_openid_schema",
             type="boolean",
             mode="w",
-            label="Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string. ",
+            label=(
+                "Use a modified OpenID Schema for email_verified and"
+                " phone_number_verified boolean values coming as string. "
+            ),
         ),
     )
 
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, OpenIDSchema):
-            raise AssertionError("userinfo should be an OpenIDSchema but is {}".format(type(userinfo)))
+            raise AssertionError(
+                "userinfo should be an OpenIDSchema but is {}".format(
+                    type(userinfo)
+                )
+            )
         # sub: machine-readable identifier of the user at this server;
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
@@ -147,7 +252,9 @@ class OIDCPlugin(BasePlugin):
                     # Add the user to the first IUserAdderPlugin that works:
                     user = None
                     for _, curAdder in userAdders:
-                        if curAdder.doAddUser(user_id, self._generatePassword()):
+                        if curAdder.doAddUser(
+                            user_id, self._generatePassword()
+                        ):
                             # Assign a dummy password. It'll never be used;.
                             user = self._getPAS().getUser(user_id)
                             try:
@@ -214,7 +321,9 @@ class OIDCPlugin(BasePlugin):
             return
         info = pas._verifyUser(pas.plugins, user_id=user_id)
         if info is None:
-            logger.debug("No user found matching header. Will not set up session.")
+            logger.debug(
+                "No user found matching header. Will not set up session."
+            )
             return
         request = self.REQUEST
         response = request["RESPONSE"]
@@ -249,7 +358,9 @@ class OIDCPlugin(BasePlugin):
         #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
 
         # use WebFinger
-        provider_info = client.provider_config(self.getProperty("issuer"))  # noqa
+        provider_info = client.provider_config(
+            self.getProperty("issuer")
+        )  # noqa
         info = {
             "client_id": self.getProperty("client_id"),
             "client_secret": self.getProperty("client_secret"),
@@ -287,7 +398,9 @@ class OIDCPlugin(BasePlugin):
         """
         # Go to the login view of the PAS plugin.
         logger.info("Challenge. Came from %s", request.URL)
-        url = "{}/require_login?came_from={}".format(self.absolute_url(), request.URL)
+        url = "{}/require_login?came_from={}".format(
+            self.absolute_url(), request.URL
+        )
         response.redirect(url, lock=1)
         return True
 

@@ -129,6 +129,71 @@ Instead, go to the login page of the plugin: http://localhost:8081/Plone/acl_use
 This will take you to Keycloak to login, and then return.
 You should now be logged in to Plone, and see the fullname and email, if you have set this in Keycloak.
 
+
+Example setup with environment variables
+----------------------------------------
+
+This plugin can be configured using environment variables instead of editing the configuration
+through the ZMI.
+
+To do so you first need to enable the feature adding an environment variabled called
+`PAS_PLUGINS_OIDC_USE_ENVIRONMENT_VARS` with some value like `1`.
+
+**When using environment variables to configure this plugin, any change made from the plugin properties page
+in the ZMI will be disregarded**
+
+Then you can create one environment variable per attribute existing in the configuration with the relevant values:
+
+* OIDC_ISSUER = https://accounts.google.com
+* OIDC_CLIENT_ID = XXXXX
+* OIDC_CLIENT_SECRET = YYYYY
+* OIDC_REDIRECT_URIS = https://yoursite.com/acl_users/oidc/callback
+* OIDC_USE_SESSION_DATA_MANAGER = false
+* OIDC_CREATE_TICKET = true
+* OIDC_CREATE_RESTAPI_TICKET = true
+* OIDC_CREATE_USER = true
+* OIDC_SCOPE = profile,openid,email
+* OIDC_USE_PKCE = true
+* OIDC_USE_MODIFIED_OPENID_SCHEMA = false
+
+Be aware that boolean values should be handled as `true` and `false` in lowercase, and the tuple values must
+be set to a string separating each value with `,`.
+
+In case you have several Plone sites in a single Zope instance, you can use your Plone site id to create
+different environment variables for each Plone site.
+
+For example if you have two Plone sites in your Zope instance
+once called `Plone` and the other one called `MyShinyPlone` the environment variables can be set like this:
+
+Plone site `Plone:`
+
+* OIDC_ISSUER_Plone = https://accounts.google.com
+* OIDC_CLIENT_ID_Plone = XXXXX
+* OIDC_CLIENT_SECRET_Plone = YYYYY
+* OIDC_REDIRECT_URIS_Plone = https://yoursite.com/acl_users/oidc/callback
+* OIDC_USE_SESSION_DATA_MANAGER_Plone = false
+* OIDC_CREATE_TICKET_Plone = true
+* OIDC_CREATE_RESTAPI_TICKET_Plone = true
+* OIDC_CREATE_USER_Plone = true
+* OIDC_SCOPE_Plone = profile,openid,email
+* OIDC_USE_PKCE_Plone = true
+* OIDC_USE_MODIFIED_OPENID_SCHEMA_Plone = false
+
+Plone site `MyShinyPlone`:
+
+* OIDC_ISSUER_MyShinyPlone = https://my.keycloak.server.com
+* OIDC_CLIENT_ID_MyShinyPlone = AAAAAA
+* OIDC_CLIENT_SECRET_MyShinyPlone = BBBBB
+* OIDC_REDIRECT_URIS_MyShinyPlone = https://yourothersite.com/acl_users/oidc/callback
+* OIDC_USE_SESSION_DATA_MANAGER_MyShinyPlone = true
+* OIDC_CREATE_TICKET_MyShinyPlone = true
+* OIDC_CREATE_RESTAPI_TICKET_MyShinyPlone = true
+* OIDC_CREATE_USER_MyShinyPlone = true
+* OIDC_SCOPE_MyShinyPlone = profile,openid,email
+* OIDC_USE_PKCE_MyShinyPlone = true
+* OIDC_USE_MODIFIED_OPENID_SCHEMA_MyShinyPlone = false
+
+
 Varnish
 -------
 
