@@ -159,6 +159,8 @@ Then you can create one environment variable per attribute existing in the confi
 Be aware that boolean values should be handled as `true` and `false` in lowercase, and the tuple values must
 be set to a string separating each value with `,`.
 
+For those properties that no environment variable is set, the default value provided by the plugin will be used.
+
 In case you have several Plone sites in a single Zope instance, you can use your Plone site id to create
 different environment variables for each Plone site.
 
