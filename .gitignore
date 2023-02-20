@@ -28,6 +28,7 @@ output.xml
 pip-selfcheck.json
 report.html
 .vscode/
+.idea/
 .tox/
 pyvenv.cfg
 reports/
