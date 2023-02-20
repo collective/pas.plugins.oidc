@@ -75,7 +75,7 @@ class OIDCPlugin(BasePlugin):
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
         dict(id="client_id", type="string", mode="w", label="Client ID"),
         dict(id="client_secret", type="string", mode="w", label="Client secret"),
-        dict(id="redirect_uris", type="line`s", mode="w", label="Redirect uris"),
+        dict(id="redirect_uris", type="lines", mode="w", label="Redirect uris"),
         dict(
             id="use_session_data_manager",
             type="boolean",
