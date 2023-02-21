@@ -133,6 +133,15 @@ Instead, go to the login page of the plugin: http://localhost:8081/Plone/acl_use
 This will take you to Keycloak to login, and then return.
 You should now be logged in to Plone, and see the fullname and email, if you have set this in Keycloak.
 
+Settings in environment variables
+---------------------------------
+
+Instead of editing your OIDC provider settings through the ZMI, you can use `collective.regenv`_ and provide
+a YAML file with your settings. This is very useful if you have different settings in different environments
+and and you do not want to edit the settings each time
+you move the contents.
+
+
 Varnish
 -------
 
@@ -165,3 +174,6 @@ License
 -------
 
 The project is licensed under the GPLv2.
+
+
+.. _`collective.regenv`: https://pypi.org/project/collective.regenv/
