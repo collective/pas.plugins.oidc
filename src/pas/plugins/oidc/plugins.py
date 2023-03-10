@@ -24,6 +24,7 @@ from zope.interface import Interface
 import itertools
 import logging
 import string
+import plone.api as api
 
 try:
     # Plone 6.0+
@@ -66,6 +67,8 @@ class OIDCPlugin(BasePlugin):
     create_ticket = True
     create_restapi_ticket = False
     create_user = True
+    create_groups = False
+    user_property_as_groupid = "groups"
     scope = ("profile", "email", "phone")
     use_pkce = False
     use_modified_openid_schema = False
@@ -87,6 +90,18 @@ class OIDCPlugin(BasePlugin):
             type="boolean",
             mode="w",
             label="Create user / update user properties",
+        ),
+        dict(
+            id="create_groups",
+            type="boolean",
+            mode="w",
+            label="Create groups / update group memberships",
+        ),
+        dict(
+            id="user_property_as_groupid",
+            type="string",
+            mode="w",
+            label="User info property used as groupid, default 'groups'",
         ),
         dict(
             id="create_ticket",
@@ -177,6 +192,39 @@ class OIDCPlugin(BasePlugin):
                 # if time.time() > user.getProperty(LAST_UPDATE_USER_PROPERTY_KEY) + config.get(autoUpdateUserPropertiesIntervalKey, 0):
                 with safe_write(self.REQUEST):
                     self._updateUserProperties(user, userinfo)
+
+        if self.getProperty("create_groups"):
+            groupid_property = self.getProperty("user_property_as_groupid")
+            groupid = userinfo.get(groupid_property, None)
+            if isinstance(groupid, str):
+                groupid = [groupid]
+
+            if isinstance(groupid, list):
+                with safe_write(self.REQUEST):
+                    oidc = self.getId()
+                    groups = user.getGroups()
+                    # Remove group memberships
+                    for gid in groups:
+                        group = api.group.get(gid)
+                        is_managed = group.getProperty("type") == oidc.upper()
+                        if is_managed and gid not in groupid:
+                            api.group.remove_user(
+                                group=group, username=user_id
+                            )
+                    # Add group memberships
+                    for gid in groupid:
+                        if gid not in groups:
+                            group = api.group.get(gid) or api.group.create(
+                                gid, title=gid
+                            )
+                            # Tag managed groups with "type" of plugin id
+                            if not group.getTool().hasProperty("type"):
+                                group.getTool()._setProperty(
+                                    "type", "", "string"
+                                )
+                            group.setGroupProperties({"type": oidc.upper()})
+                            api.group.add_user(group=group, username=user_id)
+
         if user and self.getProperty("create_ticket"):
             self._setupTicket(user_id)
         if user and self.getProperty("create_restapi_ticket"):
