@@ -10,6 +10,8 @@ from plone import api
 from Products.CMFCore.utils import getToolByName
 from Products.Five.browser import BrowserView
 from zExceptions import Unauthorized
+from pas.plugins.oidc.plugins import OAuth2ConnectionException
+from pas.plugins.oidc import _
 
 import base64
 import json
@@ -101,7 +103,14 @@ class LoginView(BrowserView):
         if came_from:
             session.set("came_from", came_from)
 
-        client = self.context.get_oauth2_client()
+        try:
+            client = self.context.get_oauth2_client()
+        except OAuth2ConnectionException:
+            portal_url = api.portal.get_tool("portal_url")
+            if came_from and portal_url.isURLInPortal(came_from):
+                self.request.response.redirect(came_from)
+            else:
+                self.request.response.redirect(api.portal.get().absolute_url())
 
         # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
         args = {
@@ -117,12 +126,33 @@ class LoginView(BrowserView):
             # Build a random string of 43 to 128 characters
             # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
             session.set("verifier", rndstr(128))
-            args["code_challenge"] = self.get_code_challenge(session.get("verifier"))
+            args["code_challenge"] = self.get_code_challenge(
+                session.get("verifier")
+            )
             args["code_challenge_method"] = "S256"
 
-        auth_req = client.construct_AuthorizationRequest(request_args=args)
-        login_url = auth_req.request(client.authorization_endpoint)
-        self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
+        try:
+            auth_req = client.construct_AuthorizationRequest(request_args=args)
+            login_url = auth_req.request(client.authorization_endpoint)
+        except Exception as e:
+            logger.error(e)
+            api.portal.show_message(
+                _(
+                    "There was an error during the login process. Please try"
+                    " again."
+                )
+            )
+            portal_url = api.portal.get_tool("portal_url")
+            if came_from and portal_url.isURLInPortal(came_from):
+                self.request.response.redirect(came_from)
+            else:
+                self.request.response.redirect(api.portal.get().absolute_url())
+
+            return
+
+        self.request.response.setHeader(
+            "Cache-Control", "no-cache, must-revalidate"
+        )
         self.request.response.redirect(login_url)
         return
 
@@ -132,12 +162,20 @@ class LoginView(BrowserView):
         See https://www.stefaanlippens.net/oauth-code-flow-pkce.html#PKCE-code-verifier-and-challenge
         """
         hash_code = sha256(value.encode("utf-8")).digest()
-        return base64.urlsafe_b64encode(hash_code).decode("utf-8").replace("=", "")
+        return (
+            base64.urlsafe_b64encode(hash_code)
+            .decode("utf-8")
+            .replace("=", "")
+        )
 
 
 class LogoutView(BrowserView):
     def __call__(self):
-        client = self.context.get_oauth2_client()
+        try:
+            client = self.context.get_oauth2_client()
+        except OAuth2ConnectionException:
+            return ""
+
         # session = Session(
         #   self.request,
         #   use_session_data_manager=self.context.getProperty("use_session_data_manager")

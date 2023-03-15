@@ -48,6 +48,10 @@ PWCHARS = string.ascii_letters + string.digits + string.punctuation
 # LAST_UPDATE_USER_PROPERTY_KEY = 'last_autousermaker_update'
 
 
+class OAuth2ConnectionException(Exception):
+    """Exception raised when there are OAuth2 Connection Exceptions"""
+
+
 class IOIDCPlugin(Interface):
     """ """
 
@@ -298,20 +302,29 @@ class OIDCPlugin(BasePlugin):
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
-        client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
-        # registration_response = client.register(provider_info["registration_endpoint"], redirect_uris=...)
-        # ... oic.exception.RegistrationError: {'error': 'insufficient_scope',
-        #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
+        try:
+            client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
+            # registration_response = client.register(provider_info["registration_endpoint"], redirect_uris=...)
+            # ... oic.exception.RegistrationError: {'error': 'insufficient_scope',
+            #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
 
-        # use WebFinger
-        provider_info = client.provider_config(self.getProperty("issuer"))  # noqa
-        info = {
-            "client_id": self.getProperty("client_id"),
-            "client_secret": self.getProperty("client_secret"),
-        }
-        client_reg = RegistrationResponse(**info)
-        client.store_registration_info(client_reg)
-        return client
+            # use WebFinger
+            provider_info = client.provider_config(
+                self.getProperty("issuer")
+            )  # noqa
+            info = {
+                "client_id": self.getProperty("client_id"),
+                "client_secret": self.getProperty("client_secret"),
+            }
+            client_reg = RegistrationResponse(**info)
+            client.store_registration_info(client_reg)
+            return client
+        except Exception as e:
+            # There may happen several connection errors in this process
+            # we catch them here and raise a generic own exception to be able
+            # to catch it wherever it happens without knowing the internals
+            # of the OAuth2 process
+            raise OAuth2ConnectionException
 
     def get_redirect_uris(self):
         redirect_uris = self.getProperty("redirect_uris")
