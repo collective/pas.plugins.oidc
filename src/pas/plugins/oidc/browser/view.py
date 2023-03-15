@@ -11,6 +11,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.Five.browser import BrowserView
 from zExceptions import Unauthorized
 from pas.plugins.oidc.plugins import OAuth2ConnectionException
+from pas.plugins.oidc import _
 
 import base64
 import json
@@ -131,7 +132,19 @@ class LoginView(BrowserView):
             login_url = auth_req.request(client.authorization_endpoint)
         except Exception as e:
             logger.error(e)
-            return ""
+            api.portal.show_message(
+                _(
+                    "There was an error during the login process. Please try"
+                    " again."
+                )
+            )
+            portal_url = api.portal.get_tool("portal_url")
+            if came_from and portal_url.isURLInPortal(came_from):
+                self.request.response.redirect(came_from)
+            else:
+                self.request.response.redirect(api.portal.get().absolute_url())
+
+            return
 
         self.request.response.setHeader(
             "Cache-Control", "no-cache, must-revalidate"
