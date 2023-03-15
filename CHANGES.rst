@@ -5,6 +5,8 @@ Changelog
 1.0a5 (unreleased)
 ------------------
 
+- Catch exceptions during the OAuth process
+  [erral]
 - Update the plugin to make challenges.
   An anonymous user who visits a page for which you have to be authenticated,
   is redirected to the new require_login view on the plugin.
