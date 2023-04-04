@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0a5 (unreleased)
+1.0a5 (2023-04-05)
 ------------------
 
 - Catch exceptions during the OAuth process
