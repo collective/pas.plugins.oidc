@@ -146,7 +146,7 @@ class OIDCPlugin(BasePlugin):
         # sub: machine-readable identifier of the user at this server;
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
-        user_id = userinfo[self.getProperty("user_property_as_userid")]
+        user_id = userinfo[self.getProperty("user_property_as_userid") or "sub"]
         # TODO: configurare userinfo/plone mapping
         pas = self._getPAS()
         if pas is None:
