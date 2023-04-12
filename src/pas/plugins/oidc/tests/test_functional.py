@@ -16,7 +16,6 @@ except ImportError:
 
 
 class TestFunctionalPlugin(unittest.TestCase):
-
     layer = PAS_PLUGINS_OIDC_FUNCTIONAL_TESTING
 
     def setUp(self):

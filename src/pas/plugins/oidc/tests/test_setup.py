@@ -40,7 +40,6 @@ class TestSetup(unittest.TestCase):
 
 
 class TestUninstall(unittest.TestCase):
-
     layer = PAS_PLUGINS_OIDC_INTEGRATION_TESTING
 
     def setUp(self):

@@ -28,9 +28,10 @@ def post_install(context):
     # Create plugin if it does not exist.
     if PLUGIN_ID not in pas.objectIds():
         plugin = OIDCPlugin(
+            PLUGIN_ID,
             title="OpenID Connect",
         )
-        plugin.id = PLUGIN_ID
+        # plugin.id = PLUGIN_ID
         pas._setObject(PLUGIN_ID, plugin)
         logger.info("Created %s in acl_users.", PLUGIN_ID)
     plugin = getattr(pas, PLUGIN_ID)
@@ -59,7 +60,7 @@ def post_install(context):
     for info in plugins.listPluginTypeInfo():
         interface_name = info["id"]
         # If we support IPropertiesPlugin, it should be added here.
-        if interface_name in ("IChallengePlugin",):
+        if interface_name in ("IChallengePlugin", "IPropertiesPlugin"):
             iface = plugins._getInterfaceFromName(interface_name)
             plugins.movePluginsTop(iface, [PLUGIN_ID])
             logger.info("Moved %s to top of %s.", PLUGIN_ID, interface_name)
@@ -70,9 +71,7 @@ def post_install(context):
 def activate_plugin(context, interface_name, move_to_top=False):
     pas = getToolByName(context, "acl_users")
     if PLUGIN_ID not in pas.objectIds():
-        raise ValueError(
-            "acl_users has no plugin {}.".format(PLUGIN_ID)
-        )
+        raise ValueError("acl_users has no plugin {}.".format(PLUGIN_ID))
 
     plugin = getattr(pas, PLUGIN_ID)
     if not isinstance(plugin, OIDCPlugin):
@@ -87,9 +86,7 @@ def activate_plugin(context, interface_name, move_to_top=False):
     iface = plugins._getInterfaceFromName(interface_name)
     if PLUGIN_ID not in plugins.listPluginIds(iface):
         plugins.activatePlugin(iface, PLUGIN_ID)
-        logger.info(
-            "Activated interface %s for plugin %s", interface_name, PLUGIN_ID
-        )
+        logger.info("Activated interface %s for plugin %s", interface_name, PLUGIN_ID)
 
     if move_to_top:
         # Order some plugins to make sure our plugin is at the top.

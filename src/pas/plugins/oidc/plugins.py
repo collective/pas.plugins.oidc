@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
+from BTrees.OOBTree import OOBTree
 from contextlib import contextmanager
 from oic.oic import Client
 from oic.oic.message import OpenIDSchema
@@ -9,13 +10,14 @@ from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
 
-from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
-# from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
-# from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
+# from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
+from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
+from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
+from Products.PluggableAuthService.UserPropertySheet import UserPropertySheet
 from Products.PluggableAuthService.utils import classImplements
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
@@ -23,8 +25,9 @@ from zope.interface import Interface
 
 import itertools
 import logging
-import string
 import plone.api as api
+import string
+
 
 try:
     # Plone 6.0+
@@ -43,7 +46,7 @@ except ImportError:
 
 
 logger = logging.getLogger(__name__)
-# _MARKER = object()
+_marker = {}
 PWCHARS = string.ascii_letters + string.digits + string.punctuation
 # LAST_UPDATE_USER_PROPERTY_KEY = 'last_autousermaker_update'
 
@@ -73,10 +76,11 @@ class OIDCPlugin(BasePlugin):
     create_user = True
     create_groups = False
     user_property_as_groupid = "groups"
-    scope = ("profile", "email", "phone")
+    scope = ("openid", "profile", "email", "phone")
     use_pkce = False
     use_modified_openid_schema = False
     user_property_as_userid = "sub"
+    userinfo_to_memberdata = ()
 
     _properties = (
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
@@ -136,13 +140,29 @@ class OIDCPlugin(BasePlugin):
             id="user_property_as_userid",
             type="string",
             mode="w",
-            label="User info property used as userid, default 'sub'"
-        )
+            label="User info property used as userid, default 'sub'",
+        ),
+        dict(
+            id="userinfo_to_memberdata",
+            type="lines",
+            mode="w",
+            label="Mapping from userinfo to memberdata property. "
+            "Format: userinfo_propname|memberdata_propname",
+        ),
     )
+
+    def __init__(self, id, title=None, **kw):
+        self._setId(id)
+        self.title = title
+        # TODO: upgrade step ?
+        # TODO: OOBTREE ?
+        self._userdata_by_userid = OOBTree()
 
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, OpenIDSchema):
-            raise AssertionError("userinfo should be an OpenIDSchema but is {}".format(type(userinfo)))
+            raise AssertionError(
+                "userinfo should be an OpenIDSchema but is {}".format(type(userinfo))
+            )
         # sub: machine-readable identifier of the user at this server;
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
@@ -212,9 +232,7 @@ class OIDCPlugin(BasePlugin):
                         group = api.group.get(gid)
                         is_managed = group.getProperty("type") == oidc.upper()
                         if is_managed and gid not in groupid:
-                            api.group.remove_user(
-                                group=group, username=user_id
-                            )
+                            api.group.remove_user(group=group, username=user_id)
                     # Add group memberships
                     for gid in groupid:
                         if gid not in groups:
@@ -223,9 +241,7 @@ class OIDCPlugin(BasePlugin):
                             )
                             # Tag managed groups with "type" of plugin id
                             if not group.getTool().hasProperty("type"):
-                                group.getTool()._setProperty(
-                                    "type", "", "string"
-                                )
+                                group.getTool()._setProperty("type", "", "string")
                             group.setGroupProperties({"type": oidc.upper()})
                             api.group.add_user(group=group, username=user_id)
 
@@ -240,22 +256,64 @@ class OIDCPlugin(BasePlugin):
         their information when logging in again later.
         """
         # TODO: modificare solo se ci sono dei cambiamenti sui dati ?
-        # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
-        # TODO: warning nel caso non vengono tornati dati dell'utente
-        userProps = {}
-        if "email" in userinfo:
-            userProps["email"] = userinfo["email"]
-        if "given_name" in userinfo and "family_name" in userinfo:
-            userProps["fullname"] = "{} {}".format(
-                userinfo["given_name"], userinfo["family_name"]
-            )
-        elif "name" in userinfo and "family_name" in userinfo:
-            userProps["fullname"] = "{} {}".format(
-                userinfo["name"], userinfo["family_name"]
-            )
+        userProps = self._get_all_userinfo_properties(userinfo)
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
-            user.setProperties(**userProps)
+            if (
+                user.getId() not in self._userdata_by_userid
+                or self._userdata_by_userid[user.getId()]._properties != userProps
+            ):
+                self._userdata_by_userid[user.getId()] = UserPropertySheet(
+                    user.getId(), **userProps
+                )
+
+    def _parse_userinfo_to_memberdata(self):
+        """Parse the userinfo_to_memberdata property."""
+        result = []
+        for line in self.userinfo_to_memberdata:
+            line = line.strip()
+            if not line:
+                continue
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
+            if line.startswith("#"):
+                continue
+            pipes = line.count("|")
+            if pipes == 1:
+                userinfo_prop, member_prop = line.split("|")
+            else:
+                continue
+            member_prop = member_prop.strip()
+            if not member_prop:
+                continue
+            userinfo_prop = userinfo_prop.strip()
+            if not userinfo_prop:
+                continue
+            result.append((userinfo_prop, member_prop))
+        return result
+
+    def _get_all_userinfo_properties(self, userinfo):
+        """Get all known properties from the userinfo.
+        Returns a dictionary.
+        """
+        result = {}
+        for userinfo_prop, member_prop in self._parse_userinfo_to_memberdata():
+            if userinfo_prop in userinfo:
+                value = userinfo[userinfo_prop]
+                result[member_prop] = value
+        # DEFAULTS
+        if "email" not in result and "email" in userinfo:
+            result["email"] = userinfo["email"]
+        if "fullname" not in result:
+            if "given_name" in userinfo and "family_name" in userinfo:
+                result["fullname"] = "{} {}".format(
+                    userinfo["given_name"], userinfo["family_name"]
+                )
+            elif "name" in userinfo and "family_name" in userinfo:
+                result["fullname"] = "{} {}".format(
+                    userinfo["name"], userinfo["family_name"]
+                )
+        return result
 
     def _generatePassword(self):
         """Return a obfuscated password never used for login"""
@@ -309,9 +367,7 @@ class OIDCPlugin(BasePlugin):
             #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
 
             # use WebFinger
-            provider_info = client.provider_config(
-                self.getProperty("issuer")
-            )  # noqa
+            provider_info = client.provider_config(self.getProperty("issuer"))  # noqa
             info = {
                 "client_id": self.getProperty("client_id"),
                 "client_secret": self.getProperty("client_secret"),
@@ -340,6 +396,8 @@ class OIDCPlugin(BasePlugin):
             return [safe_text(scope) for scope in scopes if scope]
         return []
 
+    # pas_interfaces.plugins.IChallengePlugin
+    @security.private
     def challenge(self, request, response):
         """Assert via the response that credentials will be gathered.
 
@@ -359,8 +417,17 @@ class OIDCPlugin(BasePlugin):
         response.redirect(url, lock=1)
         return True
 
+    # pas_interfaces.plugins.IPropertiesPlugin
+    @security.private
+    def getPropertiesForUser(self, user, request=None):
+        propertysheet = self._userdata_by_userid.get(user.getId(), _marker)
+        if propertysheet is _marker:
+            return None
+        return propertysheet
+
 
 InitializeClass(OIDCPlugin)
+
 
 classImplements(
     OIDCPlugin,
@@ -368,7 +435,7 @@ classImplements(
     # IExtractionPlugin,
     # IAuthenticationPlugin,
     IChallengePlugin,
-    # IPropertiesPlugin,
+    IPropertiesPlugin,
     # IRolesPlugin,
 )
 
