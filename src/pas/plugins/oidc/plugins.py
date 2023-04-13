@@ -304,6 +304,8 @@ class OIDCPlugin(BasePlugin):
         for key, value in userinfo.items():
             logger.info("%s: %s", key, value)
         for userinfo_prop, member_prop in self._parse_userinfo_to_memberdata():
+            # DEBUG
+            logger.info("Userinfo property: %s %s", userinfo_prop, member_prop)
             if userinfo_prop in userinfo:
                 value = userinfo[userinfo_prop]
                 result[member_prop] = value
@@ -319,6 +321,8 @@ class OIDCPlugin(BasePlugin):
                 result["fullname"] = "{} {}".format(
                     userinfo["name"], userinfo["family_name"]
                 )
+        # DEBUG
+        logger.info("User properties: %s", result)
         return result
 
     def _generatePassword(self):
