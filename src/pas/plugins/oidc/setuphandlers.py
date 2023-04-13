@@ -99,16 +99,17 @@ def activate_challenge_plugin(context):
     activate_plugin(context, "IChallengePlugin", move_to_top=True)
 
 
+def activate_properties_plugin(context):
+    activate_plugin(context, "IPropertiesPlugin", move_to_top=True)
+
+
 def uninstall(context):
     """Uninstall script"""
-    from pas.plugins.oidc.utils import PLUGIN_ID
-
     pas = getToolByName(context, "acl_users")
 
     # Remove plugin if it exists.
     if PLUGIN_ID not in pas.objectIds():
         return
-    from pas.plugins.oidc.plugins import OIDCPlugin
 
     plugin = getattr(pas, PLUGIN_ID)
     if not isinstance(plugin, OIDCPlugin):

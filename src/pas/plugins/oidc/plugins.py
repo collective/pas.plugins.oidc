@@ -259,6 +259,8 @@ class OIDCPlugin(BasePlugin):
         userProps = self._get_all_userinfo_properties(userinfo)
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
+            if not hasattr(self, "_userdata_by_userid"):
+                self._userdata_by_userid = OOBTree()
             if (
                 user.getId() not in self._userdata_by_userid
                 or self._userdata_by_userid[user.getId()]._properties != userProps
