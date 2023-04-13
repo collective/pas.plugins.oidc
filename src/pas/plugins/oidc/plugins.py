@@ -273,7 +273,7 @@ class OIDCPlugin(BasePlugin):
     def _parse_userinfo_to_memberdata(self):
         """Parse the userinfo_to_memberdata property."""
         result = []
-        for line in self.userinfo_to_memberdata:
+        for line in self.getProperty("userinfo_to_memberdata"):
             line = line.strip()
             if not line:
                 continue
