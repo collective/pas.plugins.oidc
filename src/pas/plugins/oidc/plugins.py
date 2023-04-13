@@ -154,8 +154,6 @@ class OIDCPlugin(BasePlugin):
     def __init__(self, id, title=None, **kw):
         self._setId(id)
         self.title = title
-        # TODO: upgrade step ?
-        # TODO: OOBTREE ?
         self._userdata_by_userid = OOBTree()
 
     def rememberIdentity(self, userinfo):
@@ -167,7 +165,6 @@ class OIDCPlugin(BasePlugin):
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
         user_id = userinfo[self.getProperty("user_property_as_userid") or "sub"]
-        # TODO: configurare userinfo/plone mapping
         pas = self._getPAS()
         if pas is None:
             return
@@ -216,6 +213,9 @@ class OIDCPlugin(BasePlugin):
                 # if time.time() > user.getProperty(LAST_UPDATE_USER_PROPERTY_KEY) + config.get(autoUpdateUserPropertiesIntervalKey, 0):
                 with safe_write(self.REQUEST):
                     self._updateUserProperties(user, userinfo)
+        elif user is not None:
+            with safe_write(self.REQUEST):
+                self._updateUserProperties(user, userinfo)
 
         if self.getProperty("create_groups"):
             groupid_property = self.getProperty("user_property_as_groupid")
@@ -255,7 +255,6 @@ class OIDCPlugin(BasePlugin):
         This is utilised when first creating a user, and to update
         their information when logging in again later.
         """
-        # TODO: modificare solo se ci sono dei cambiamenti sui dati ?
         userProps = self._get_all_userinfo_properties(userinfo)
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
@@ -268,6 +267,8 @@ class OIDCPlugin(BasePlugin):
                 self._userdata_by_userid[user.getId()] = UserPropertySheet(
                     user.getId(), **userProps
                 )
+            if self.create_user:
+                user.setProperties(**userProps)
 
     def _parse_userinfo_to_memberdata(self):
         """Parse the userinfo_to_memberdata property."""
@@ -299,6 +300,9 @@ class OIDCPlugin(BasePlugin):
         Returns a dictionary.
         """
         result = {}
+        # DEBUG
+        for key, value in userinfo.items():
+            logger.info("%s: %s", key, value)
         for userinfo_prop, member_prop in self._parse_userinfo_to_memberdata():
             if userinfo_prop in userinfo:
                 value = userinfo[userinfo_prop]
