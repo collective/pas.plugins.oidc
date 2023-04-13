@@ -422,10 +422,11 @@ class OIDCPlugin(BasePlugin):
     # pas_interfaces.plugins.IPropertiesPlugin
     @security.private
     def getPropertiesForUser(self, user, request=None):
-        propertysheet = self._userdata_by_userid.get(user.getId(), _marker)
-        if propertysheet is _marker:
-            return None
-        return propertysheet
+        if hasattr(self, "_userdata_by_userid"):
+            propertysheet = self._userdata_by_userid.get(user.getId(), _marker)
+            if propertysheet is not _marker:
+                return propertysheet
+        return None
 
 
 InitializeClass(OIDCPlugin)
