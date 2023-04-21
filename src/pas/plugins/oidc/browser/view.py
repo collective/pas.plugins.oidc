@@ -287,9 +287,11 @@ class CallbackView(BrowserView):
         came_from = self.request.get("came_from")
         if not came_from and session:
             came_from = session.get("came_from")
-        logger.info("DEBUG: came_from: %s", came_from)
         portal_url = api.portal.get_tool("portal_url")
-        if not (came_from and portal_url.isURLInPortal(came_from)):
+        if not came_from:
+            came_from = api.portal.get().absolute_url()
+        elif not portal_url.isURLInPortal(came_from):
+            logger.warning("came_from is not in portal %s", came_from)
             came_from = api.portal.get().absolute_url()
 
         # Volto frontend mapping exception
