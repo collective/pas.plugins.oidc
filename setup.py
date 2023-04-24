@@ -57,7 +57,6 @@ setup(
         # -*- Extra requirements: -*-
         "z3c.jbot",
         "plone.api>=1.8.4",
-        "plone.restapi",
         # 'oidcrp',
         # "oic<1; python_version < 3",
         "oic",
