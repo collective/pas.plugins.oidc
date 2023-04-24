@@ -253,7 +253,7 @@ class CallbackView(BrowserView):
         )
 
         if isinstance(resp, AccessTokenResponse):
-            # If it’s an AccessTokenResponse the information in the response will be stored in the
+            # If it's an AccessTokenResponse the information in the response will be stored in the
             # client instance with state as the key for future use.
             if client.userinfo_endpoint:
                 # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
