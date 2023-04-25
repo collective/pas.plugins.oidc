@@ -5,8 +5,8 @@ Changelog
 1.0a6 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Drop python 2.7 and Plone 4 support
+  [erral]
 
 1.0a5 (2023-04-05)
 ------------------
