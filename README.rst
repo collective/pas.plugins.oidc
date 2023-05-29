@@ -73,7 +73,7 @@ This does **not** give you a production setup, but it is fine for local developm
 Keycloak runs on port 8080 by default.
 Plone uses the same port.
 When you are reading this, you probably know how to let Plone use a different port.
-So let's indeed let Keycloak use its prefered port.
+So let's indeed let Keycloak use its preferred port.
 At the moment of writing, this is how you start a Keycloak container::
 
   docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:19.0.3 start-dev
