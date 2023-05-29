@@ -26,17 +26,17 @@ Running tests
 list all tox environments:
 
     $ tox -l
-    py27-Plone43
-    py27-Plone51
-    py27-Plone52
-    py37-Plone52
-    build_instance
-    code-analysis
-    lint-py27
-    lint-py37
-    coverage-report
+    plone52-py37
+    plone52-py38
+    plone52-py39
+    plone60-py37
+    plone60-py38
+    plone60-py39
+    plone60-py310
+    plone60-py311
+
 
 run a specific tox env:
 
-    $ tox -e py37-Plone52
+    $ tox -e plone52-py37
 
