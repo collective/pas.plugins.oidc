@@ -5,6 +5,9 @@ Changelog
 1.0a6 (unreleased)
 ------------------
 
+- Added Spanish translation
+  [macagua]
+
 - Added improvements about i18n support
   [macagua]
 
