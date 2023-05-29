@@ -1,0 +1,38 @@
+#--- PLEASE EDIT THE LINES BELOW CORRECTLY ---
+#SOME DESCRIPTIVE TITLE.
+#FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2023-05-29 12:03+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: en\n"
+"Language-Name: English\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: pas.plugins.oidc\n"
+
+#: ../configure.zcml:28
+msgid "Installs the pas.plugins.oidc add-on."
+msgstr ""
+
+#: ../browser/view.py:140
+msgid "There was an error during the login process. Please try again."
+msgstr ""
+
+#: ../configure.zcml:37
+msgid "Uninstalls the pas.plugins.oidc add-on."
+msgstr ""
+
+#: ../configure.zcml:28
+msgid "pas.plugins.oidc"
+msgstr ""
+
+#: ../configure.zcml:37
+msgid "pas.plugins.oidc (uninstall)"
+msgstr ""

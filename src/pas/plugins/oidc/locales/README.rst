@@ -15,7 +15,7 @@ For updating locales
 
 .. code-block:: console
 
-    $ ./bin/update_locale
+    $ ./update.sh
 
 Note
 ----

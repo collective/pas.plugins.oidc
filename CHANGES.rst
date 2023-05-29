@@ -5,6 +5,9 @@ Changelog
 1.0a6 (unreleased)
 ------------------
 
+- Added improvements about i18n support
+  [macagua]
+
 - Drop python 2.7 and Plone 4 support
   [erral]
 
