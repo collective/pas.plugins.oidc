@@ -28,9 +28,6 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-# https://zope.readthedocs.io/en/latest/zopebook/Sessions.html#alternative-server-side-session-backends-for-zope-4
-# in produzione usare: https://pypi.org/project/Products.mcdutils/
-# XXX: attualmente implementata sessione su cookie
 class Session(object):
     session_cookie_name = "__ac_session"
     _session = {}

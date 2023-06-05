@@ -133,6 +133,23 @@ Instead, go to the login page of the plugin: http://localhost:8081/Plone/acl_use
 This will take you to Keycloak to login, and then return.
 You should now be logged in to Plone, and see the fullname and email, if you have set this in Keycloak.
 
+Usage of sessions in the login process
+--------------------------------------
+
+This plugin uses sessions during the login process to identify the user while he goes to the OIDC provider
+and comes back from there.
+
+The plugin has 2 ways of working with sessions:
+
+- Use the Zope Session Management: if the "Use Zope session data manager" option in the plugin configuration is enabled,
+the plugin will use the sessioning configuration configured in Zope. To do so we advise to use `Products.mcdutils`_
+to save the session data in a memcached based storage. Otherwise Zope will try to use ZODB based sessioning
+which has shown several problems in the past.
+
+- Use the cookie based session management: if the "Use Zope session data manager" option in the plugin
+configuration is disabled, the plugin will use a Cookie to save that information in the client's browser.
+
+
 Settings in environment variables
 ---------------------------------
 
@@ -177,3 +194,4 @@ The project is licensed under the GPLv2.
 
 
 .. _`collective.regenv`: https://pypi.org/project/collective.regenv/
+.. _`Products.mcdutils`: https://pypi.org/project/Products.mcdutils/
