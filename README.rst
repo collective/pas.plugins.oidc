@@ -43,7 +43,7 @@ Features
 Installation
 ------------
 
-Install pas.plugins.oidc by adding it to your buildout::
+Install ``pas.plugins.oidc`` by adding it to your buildout::
 
     [buildout]
 
@@ -114,9 +114,9 @@ Setup Plone as client
 ~~~~~~~~~~~~~~~~~~~~~
 
 * In your Zope instance configuration, make sure Plone runs on port 8081.
-* Make sure ``pas.plugins.openidc`` is installed with pip or Buildout.
+* Make sure ``pas.plugins.oidc`` is installed with pip or Buildout.
 * Start Plone and create a Plone site with id Plone.
-* In the Add-ons control panel, install ``pas.plugins.openidc``.
+* In the Add-ons control panel, install ``pas.plugins.oidc``.
 * In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
 * Set these properties:
 
