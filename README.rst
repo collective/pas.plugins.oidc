@@ -142,12 +142,12 @@ and comes back from there.
 The plugin has 2 ways of working with sessions:
 
 - Use the Zope Session Management: if the "Use Zope session data manager" option in the plugin configuration is enabled,
-the plugin will use the sessioning configuration configured in Zope. To do so we advise to use `Products.mcdutils`_
-to save the session data in a memcached based storage. Otherwise Zope will try to use ZODB based sessioning
-which has shown several problems in the past.
+  the plugin will use the sessioning configuration configured in Zope. To do so we advise to use `Products.mcdutils`_
+  to save the session data in a memcached based storage. Otherwise Zope will try to use ZODB based sessioning
+  which has shown several problems in the past.
 
 - Use the cookie based session management: if the "Use Zope session data manager" option in the plugin
-configuration is disabled, the plugin will use a Cookie to save that information in the client's browser.
+  configuration is disabled, the plugin will use a Cookie to save that information in the client's browser.
 
 
 Settings in environment variables
