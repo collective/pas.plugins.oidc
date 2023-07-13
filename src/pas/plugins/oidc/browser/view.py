@@ -191,7 +191,8 @@ class LogoutView(BrowserView):
             # 'state': session.get('end_session_state'),
             # TODO: ....
             # 'post_logout_redirect_uri': api.portal.get().absolute_url(),
-            "redirect_uri": redirect_uri,
+            "post_logout_redirect_uri": redirect_uri,
+            "client_id": self.context.getProperty("client_id"),
         }
 
         pas = getToolByName(self.context, "acl_users")
