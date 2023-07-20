@@ -75,6 +75,7 @@ class OIDCPlugin(BasePlugin):
     user_property_as_groupid = "groups"
     scope = ("profile", "email", "phone")
     use_pkce = False
+    use_deprecated_redirect_uri_for_logout = False
     use_modified_openid_schema = False
     user_property_as_userid = "sub"
 
@@ -126,6 +127,7 @@ class OIDCPlugin(BasePlugin):
             label="Open ID scopes to request to the server",
         ),
         dict(id="use_pkce", type="boolean", mode="w", label="Use PKCE. "),
+        dict(id="use_deprecated_redirect_uri_for_logout", type="boolean", mode="w", label="Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)."),
         dict(
             id="use_modified_openid_schema",
             type="boolean",

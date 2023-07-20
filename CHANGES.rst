@@ -14,6 +14,10 @@ Changelog
 - Drop python 2.7 and Plone 4 support
   [erral]
 
+- Add support for the post_logout parameter for logout api.
+  [ramiroluz]
+
+
 1.0a5 (2023-04-05)
 ------------------
 

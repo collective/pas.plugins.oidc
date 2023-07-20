@@ -78,6 +78,10 @@ At the moment of writing, this is how you start a Keycloak container::
 
   docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:19.0.3 start-dev
 
+The plugin can be used with legacy(deprecated) keycloak redirect_uri parameter. To use this you need to enable the option in the plugin configuration. To test that you can run the keycloak server with the option--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true::
+
+  docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:19.0.3 start-dev --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
+
 Note: when you exit this container, it still exists and you can restart it so you don't lose your configuration.
 With ``docker ps -a`` figure out the name of the container and then use ``docker container start -ai <name>``.
 
@@ -105,7 +109,7 @@ So:
 
   * Root URL: http://localhost:8081/Plone/
   * Home URL: http://localhost:8081/Plone/
-  * Valid redirect URIs: http://localhost:8081/Plone/acl_users/oidc/callback
+  * Valid redirect URIs: http://localhost:8081/Plone*
   * Leave the rest at the defaults, unless you know what you are doing, and click Save.
 
 Keycloak is ready.
@@ -122,7 +126,23 @@ Setup Plone as client
 
   * OIDC/Oauth2 Issuer: http://localhost:8080/realms/plone/
   * client ID: plone.  This must match the client ID you have set in Keycloak.
+  * Use deprecated redirect_uri. Use this if you need to run old versions of keycloak.
   * Leave the rest at the default and save the changes.
+
+[TODO] screenshot.
+
+Attention, before keycloak 18, the parameter for logout was redirect_uri and it is deprecated since version 18. But the keycloak server can run with the redirect_uri if needed, it is possible to use the plugin with the legacy parameter enabled also. The problem is that if the deprecated parameter is enabled in the plugin but not in the server, the plugin will not work.
+
+So this is the way it works:
+
+* With legacy enabled in keycloak, the plugin works in default mode.
+* With legacy enabled in keycloak, the plugin also works with legacy mode.
+* With legacy disabled in keycloak(default after version 18), the plugin works in default mode.
+* With legacy disabled in keycloak(default after version 18), the plugin do NOT works with legacy mode.
+
+So, for keycloak, it do not matter if we use the default or legacy mode if the keycloak runs in legacy mode.
+
+If legacy is disabled in keycloak, this is the default since version 18 of keycloak according to this comment in starckoverflow: https://stackoverflow.com/a/72142887, the plugin will work only if the option use legacy mode is off(un-checked).
 
 Login
 ~~~~~
@@ -132,6 +152,14 @@ Currently, the Plone login form is unchanged.
 Instead, go to the login page of the plugin: http://localhost:8081/Plone/acl_users/oidc/login
 This will take you to Keycloak to login, and then return.
 You should now be logged in to Plone, and see the fullname and email, if you have set this in Keycloak.
+
+Logout
+~~~~~~
+
+If the login did worked as expected you can try to logout.
+
+Go to the logout page of the plugin: http://localhost:8081/Plone/acl_users/oidc/logout
+This will take you to Keycloak to logout, and then return to the post logout redirect url.
 
 Usage of sessions in the login process
 --------------------------------------

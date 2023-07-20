@@ -187,12 +187,15 @@ class LogoutView(BrowserView):
         if redirect_uri.endswith('/api'):
             redirect_uri = redirect_uri[:-4]
 
-        args = {
-            # 'state': session.get('end_session_state'),
-            # TODO: ....
-            # 'post_logout_redirect_uri': api.portal.get().absolute_url(),
-            "redirect_uri": redirect_uri,
-        }
+        if self.context.getProperty("use_deprecated_redirect_uri_for_logout"):
+            args = {
+                "redirect_uri": redirect_uri,
+                }
+        else:
+            args = {
+                "post_logout_redirect_uri": redirect_uri,
+                "client_id": self.context.getProperty("client_id"),
+                }
 
         pas = getToolByName(self.context, "acl_users")
         auth_cookie_name = pas.credentials_cookie_auth.cookie_name
