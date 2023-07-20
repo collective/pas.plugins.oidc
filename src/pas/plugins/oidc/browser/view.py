@@ -189,9 +189,6 @@ class LogoutView(BrowserView):
 
         if self.context.getProperty("use_deprecated_redirect_uri_for_logout"):
             args = {
-                # 'state': session.get('end_session_state'),
-                # TODO: ....
-                # 'post_logout_redirect_uri': api.portal.get().absolute_url(),
                 "redirect_uri": redirect_uri,
                 }
         else:
