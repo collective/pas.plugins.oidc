@@ -76,7 +76,7 @@ Install and configure the plugin
    * Create authentication __ac ticket: when selected the user will be allowed to act as a logged-in user in Plone.
    * Create authentication auth_token (volto/restapi) ticket: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
    * Open ID scopes to request to the server: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
-   * Use PKCE: when enabled uses [PKCE](https://datatracker.ietf.org/doc/html/rfc7636) when requesting authentication from the provider.
+   * Use PKCE: when enabled uses PKCE_ when requesting authentication from the provider.
 
 Login and Logout URLs
 ---------------------
@@ -259,3 +259,4 @@ The project is licensed under the GPLv2.
 
 .. _`collective.regenv`: https://pypi.org/project/collective.regenv/
 .. _`Products.mcdutils`: https://pypi.org/project/Products.mcdutils/
+.. _PKCE: https://datatracker.ietf.org/doc/html/rfc7636
