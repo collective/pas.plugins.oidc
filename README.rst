@@ -67,7 +67,7 @@ Install and configure the plugin
 * Go to the Add-ons control panel and install ``pas.plugins.oidc``.
 * In the ZMI go to the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm
 * Configure the properties with the data obtained from your provider, except the following:
-  * redirect_uris: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
+   * redirect_uris: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
 
 
 Login and Logout URLs
