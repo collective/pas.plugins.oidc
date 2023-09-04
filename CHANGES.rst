@@ -2,10 +2,26 @@ Changelog
 =========
 
 
-1.0a6 (unreleased)
+1.0a7 (unreleased)
 ------------------
 
 - Nothing changed yet.
+
+
+1.0a6 (2023-07-20)
+------------------
+
+- Added Spanish translation
+  [macagua]
+
+- Added improvements about i18n support
+  [macagua]
+
+- Drop python 2.7 and Plone 4 support
+  [erral]
+
+- Add support for the post_logout parameter for logout api.
+  [ramiroluz]
 
 
 1.0a5 (2023-04-05)

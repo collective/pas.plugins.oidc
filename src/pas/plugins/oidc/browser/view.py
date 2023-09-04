@@ -28,9 +28,6 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-# https://zope.readthedocs.io/en/latest/zopebook/Sessions.html#alternative-server-side-session-backends-for-zope-4
-# in produzione usare: https://pypi.org/project/Products.mcdutils/
-# XXX: attualmente implementata sessione su cookie
 class Session(object):
     session_cookie_name = "__ac_session"
     _session = {}
@@ -181,12 +178,15 @@ class LogoutView(BrowserView):
         if redirect_uri.endswith("/api"):
             redirect_uri = redirect_uri[:-4]
 
-        args = {
-            # 'state': session.get('end_session_state'),
-            # TODO: ....
-            # 'post_logout_redirect_uri': api.portal.get().absolute_url(),
-            "redirect_uri": redirect_uri,
-        }
+        if self.context.getProperty("use_deprecated_redirect_uri_for_logout"):
+            args = {
+                "redirect_uri": redirect_uri,
+                }
+        else:
+            args = {
+                "post_logout_redirect_uri": redirect_uri,
+                "client_id": self.context.getProperty("client_id"),
+                }
 
         pas = getToolByName(self.context, "acl_users")
         auth_cookie_name = pas.credentials_cookie_auth.cookie_name
@@ -249,7 +249,7 @@ class CallbackView(BrowserView):
         )
 
         if isinstance(resp, AccessTokenResponse):
-            # If it’s an AccessTokenResponse the information in the response will be stored in the
+            # If it's an AccessTokenResponse the information in the response will be stored in the
             # client instance with state as the key for future use.
             if client.userinfo_endpoint:
                 # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
