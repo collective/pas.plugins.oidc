@@ -16,7 +16,7 @@ long_description = "\n\n".join(
 
 setup(
     name="pas.plugins.oidc",
-    version="1.0a7.userinfo0",
+    version="1.0a7.dev1",
     description="An add-on for Plone",
     long_description=long_description,
     long_description_content_type="text/x-rst",
