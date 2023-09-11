@@ -60,6 +60,42 @@ Warning
 
 Pay attention to the customization of `User info property used as userid` field, with the wrong configuration it's easy impersonate another user.
 
+
+Install and configure the plugin
+--------------------------------
+
+* Go to the Add-ons control panel and install ``pas.plugins.oidc``.
+* In the ZMI go to the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm
+* Configure the properties with the data obtained from your provider:
+   * OIDC/Oauth2 Issuer
+   * Client ID
+   * Client secret
+   * redirect_uris: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
+   * Use Zope session data manager: see the section below about the usage of session.
+   * Create user / update user properties: when selected the user data in Plone will be updated with the data coming from the OIDC provider.ç
+   * Create authentication __ac ticket: when selected the user will be allowed to act as a logged-in user in Plone.
+   * Create authentication auth_token (volto/restapi) ticket: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
+   * Open ID scopes to request to the server: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
+   * Use PKCE: when enabled uses PKCE_ when requesting authentication from the provider.
+
+Login and Logout URLs
+---------------------
+
+When using this plugin the standard Plone URLs used for login (`http://localhost:8080/Plone/login`) and logout (`http://localhost:8080/Plone/logout`) will not trigger the usage of the plugin.
+
+When using this plugin with a Volto frontend the standard URLs for login (`http://localhost:3000/login`) and logout (`http://localhost:3000/logout`) will not trigger the usage of the plugin.
+
+To login into a site using the OIDC provider, you will need to change those login URLs to the following:
+
+* Login: /<Plone Site Id>/acl_users/<oidc pas plugin id>/login
+* Logout: /<Plone Site Id>/acl_users/<oidc pas plugin id>/logout
+
+Where:
+ - Plone Site Id: is the id you gave to the Plone site when you created it. It is usually `Plone` but may vary. It is the last part of the URL when you browse Plone directly without using any proxy server, ex. `http://localhost:8080/Plone+  -> `Plone`
+ - oidc pas plugin id: is the id you gave to the OIDC plugin when you created it inside the Plone PAS administration panel. If you just used the default configuration and installed this plugin using Plone's Add-on Control Panel, this id will be `oidc`
+
+When using Volto as a frontend, you need to expose those login and logout URLs somehow to make the login and logout process work.
+
 Example setup with Keycloak
 ---------------------------
 
@@ -223,3 +259,4 @@ The project is licensed under the GPLv2.
 
 .. _`collective.regenv`: https://pypi.org/project/collective.regenv/
 .. _`Products.mcdutils`: https://pypi.org/project/Products.mcdutils/
+.. _PKCE: https://datatracker.ietf.org/doc/html/rfc7636
