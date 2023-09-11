@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.0a7 (unreleased)
-------------------
+1.0b4+cs.1 (2023-09-11)
+-----------------------
 
 - check for userinfo being not-empty [Mikel Larreategi <mlarreategi@codesyntax.com>]
 
