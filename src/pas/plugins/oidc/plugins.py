@@ -143,7 +143,7 @@ class OIDCPlugin(BasePlugin):
     )
 
     def rememberIdentity(self, userinfo):
-        if not isinstance(userinfo, OpenIDSchema):
+        if not isinstance(userinfo, (OpenIDSchema, dict)):
             raise AssertionError("userinfo should be an OpenIDSchema but is {}".format(type(userinfo)))
         # sub: machine-readable identifier of the user at this server;
         #      this value is guaranteed to be unique per user, stable over time,
