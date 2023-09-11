@@ -272,7 +272,7 @@ class CallbackView(BrowserView):
 
             # userinfo in an instance of OpenIDSchema or ErrorResponse
             # It could also be dict, if there is no userinfo_endpoint
-            if isinstance(userinfo, (OpenIDSchema, dict)):
+            if userinfo and isinstance(userinfo, (OpenIDSchema, dict)):
                 self.context.rememberIdentity(userinfo)
                 self.request.response.setHeader(
                     "Cache-Control", "no-cache, must-revalidate"
