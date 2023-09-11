@@ -5,7 +5,12 @@ Changelog
 1.0a7 (unreleased)
 ------------------
 
-- Allow dict instances to hold userinfo
+- check for userinfo being not-empty [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+- changelog [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+- allow dicts [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
   [erral]
 
 1.0a6 (2023-07-20)
