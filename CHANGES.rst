@@ -5,7 +5,12 @@ Changelog
 1.0b4+cs.3 (unreleased)
 -----------------------
 
-- Nothing changed yet.
+- set http_only [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+-  [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+- [ci skip] [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
 
 
 1.0b4+cs.2 (2023-09-13)
