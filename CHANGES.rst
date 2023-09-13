@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.7 (unreleased)
+1.0b4+cs.7 (2023-09-13)
 -----------------------
 
 - use a timestamp [Mikel Larreategi <mlarreategi@codesyntax.com>]
