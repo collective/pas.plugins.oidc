@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.6 (unreleased)
+1.0b4+cs.6 (2023-09-13)
 -----------------------
 
 - set cookie expiration date [Mikel Larreategi <mlarreategi@codesyntax.com>]
