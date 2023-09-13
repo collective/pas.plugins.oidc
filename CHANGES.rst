@@ -5,7 +5,12 @@ Changelog
 1.0b4+cs.7 (unreleased)
 -----------------------
 
-- Nothing changed yet.
+- use a timestamp [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+-  [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+- [ci skip] [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
 
 
 1.0b4+cs.6 (2023-09-13)
