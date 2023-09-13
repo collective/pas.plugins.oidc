@@ -384,7 +384,7 @@ class OIDCPlugin(BasePlugin):
                     )
                 )
                 # This requires a RFC822 formated date
-                options["expires"] = formatdate(cookie_expiration)
+                options["expires"] = formatdate(cookie_expiration.timestamp())
 
             response.setCookie("auth_token", token, **options)
 
