@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.5 (unreleased)
+1.0b4+cs.5 (2023-09-13)
 -----------------------
 
 - fix [Mikel Larreategi <mlarreategi@codesyntax.com>]
