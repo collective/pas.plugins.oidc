@@ -10,17 +10,22 @@ from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
 
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
+
 # from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 # from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
-from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
+from Products.PluggableAuthService.interfaces.plugins import (
+    IAuthenticationPlugin,
+)
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
 from zope.interface import Interface
+from email.utils import formatdate
 
+import datetime
 import itertools
 import logging
 import string
@@ -81,12 +86,17 @@ class OIDCPlugin(BasePlugin):
     cookie_attr_same_site = "Lax"
     cookie_attr_secure = False
     cookie_attr_http_only = False
+    cookie_attr_expiration_extra_days = 0
 
     _properties = (
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
         dict(id="client_id", type="string", mode="w", label="Client ID"),
-        dict(id="client_secret", type="string", mode="w", label="Client secret"),
-        dict(id="redirect_uris", type="lines", mode="w", label="Redirect uris"),
+        dict(
+            id="client_secret", type="string", mode="w", label="Client secret"
+        ),
+        dict(
+            id="redirect_uris", type="lines", mode="w", label="Redirect uris"
+        ),
         dict(
             id="use_session_data_manager",
             type="boolean",
@@ -130,48 +140,81 @@ class OIDCPlugin(BasePlugin):
             label="Open ID scopes to request to the server",
         ),
         dict(id="use_pkce", type="boolean", mode="w", label="Use PKCE. "),
-        dict(id="use_deprecated_redirect_uri_for_logout", type="boolean", mode="w", label="Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)."),
+        dict(
+            id="use_deprecated_redirect_uri_for_logout",
+            type="boolean",
+            mode="w",
+            label=(
+                "Use deprecated redirect_uri for logout"
+                " url(/Plone/acl_users/oidc/logout)."
+            ),
+        ),
         dict(
             id="use_modified_openid_schema",
             type="boolean",
             mode="w",
-            label="Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string. ",
+            label=(
+                "Use a modified OpenID Schema for email_verified and"
+                " phone_number_verified boolean values coming as string. "
+            ),
         ),
         dict(
             id="user_property_as_userid",
             type="string",
             mode="w",
-            label="User info property used as userid, default 'sub'"
+            label="User info property used as userid, default 'sub'",
         ),
-
         dict(
             id="cookie_attr_same_site",
             type="string",
             mode="w",
-            label="Value of the SameSite property of the auth_token cookie (if set)"
+            label=(
+                "Value of the SameSite property of the auth_token cookie (if"
+                " set)"
+            ),
         ),
         dict(
             id="cookie_attr_secure",
             type="boolean",
             mode="w",
-            label="Value of the Secure property of the auth_token cookie (if set)"
+            label=(
+                "Value of the Secure property of the auth_token cookie (if"
+                " set)"
+            ),
         ),
         dict(
             id="cookie_attr_http_only",
             type="boolean",
             mode="w",
-            label="Value of the HttpOnly property of the auth_token cookie (if set)"
+            label=(
+                "Value of the HttpOnly property of the auth_token cookie (if"
+                " set)"
+            ),
         ),
-
+        dict(
+            id="cookie_attr_expiration_extra_days",
+            type="int",
+            mode="w",
+            label=(
+                "Extra days to be added to the login datetime for the"
+                " auth_token expiration date ( if set)"
+            ),
+        ),
     )
 
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, (OpenIDSchema, dict)):
-            raise AssertionError("userinfo should be an OpenIDSchema but is {}".format(type(userinfo)))
+            raise AssertionError(
+                "userinfo should be an OpenIDSchema but is {}".format(
+                    type(userinfo)
+                )
+            )
         # sub: machine-readable identifier of the user at this server;
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
-        user_id = userinfo[self.getProperty("user_property_as_userid") or "sub"]
+        user_id = userinfo[
+            self.getProperty("user_property_as_userid") or "sub"
+        ]
         # TODO: configurare userinfo/plone mapping
         pas = self._getPAS()
         if pas is None:
@@ -198,7 +241,9 @@ class OIDCPlugin(BasePlugin):
                     # Add the user to the first IUserAdderPlugin that works:
                     user = None
                     for _, curAdder in userAdders:
-                        if curAdder.doAddUser(user_id, self._generatePassword()):
+                        if curAdder.doAddUser(
+                            user_id, self._generatePassword()
+                        ):
                             # Assign a dummy password. It'll never be used;.
                             user = self._getPAS().getUser(user_id)
                             try:
@@ -298,7 +343,9 @@ class OIDCPlugin(BasePlugin):
             return
         info = pas._verifyUser(pas.plugins, user_id=user_id)
         if info is None:
-            logger.debug("No user found matching header. Will not set up session.")
+            logger.debug(
+                "No user found matching header. Will not set up session."
+            )
             return
         request = self.REQUEST
         response = request["RESPONSE"]
@@ -327,11 +374,19 @@ class OIDCPlugin(BasePlugin):
                 path="/",
                 http_only=self.cookie_attr_http_only,
                 same_site=self.cookie_attr_same_site,
-                secure=self.cookie_attr_secure
+                secure=self.cookie_attr_secure,
             )
+            if self.cookie_attr_expiration_extra_days:
+                cookie_expiration = (
+                    datetime.datetime.now()
+                    + datetime.timedelta(
+                        days=self.cookie_attr_expiration_extra_days
+                    )
+                )
+                # This requires a RFC822 formated date
+                options["expires"] = formatdate(cookie_expiration)
+
             response.setCookie("auth_token", token, **options)
-
-
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
@@ -388,7 +443,9 @@ class OIDCPlugin(BasePlugin):
         """
         # Go to the login view of the PAS plugin.
         logger.info("Challenge. Came from %s", request.URL)
-        url = "{}/require_login?came_from={}".format(self.absolute_url(), request.URL)
+        url = "{}/require_login?came_from={}".format(
+            self.absolute_url(), request.URL
+        )
         response.redirect(url, lock=1)
         return True
 
