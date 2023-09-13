@@ -158,7 +158,7 @@ class OIDCPlugin(BasePlugin):
         ),
         dict(
             id="cookie_attr_http_only",
-            type="string",
+            type="boolean",
             mode="w",
             label="Value of the HttpOnly property of the auth_token cookie (if set)"
         ),
