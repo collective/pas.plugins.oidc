@@ -78,6 +78,9 @@ class OIDCPlugin(BasePlugin):
     use_deprecated_redirect_uri_for_logout = False
     use_modified_openid_schema = False
     user_property_as_userid = "sub"
+    cookie_attr_same_site = "Lax"
+    cookie_attr_secure = False
+    cookie_attr_http_only = False
 
     _properties = (
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
@@ -139,7 +142,27 @@ class OIDCPlugin(BasePlugin):
             type="string",
             mode="w",
             label="User info property used as userid, default 'sub'"
-        )
+        ),
+
+        dict(
+            id="cookie_attr_same_site",
+            type="string",
+            mode="w",
+            label="Value of the SameSite property of the auth_token cookie (if set)"
+        ),
+        dict(
+            id="cookie_attr_secure",
+            type="boolean",
+            mode="w",
+            label="Value of the Secure property of the auth_token cookie (if set)"
+        ),
+        dict(
+            id="cookie_attr_http_only",
+            type="string",
+            mode="w",
+            label="Value of the HttpOnly property of the auth_token cookie (if set)"
+        ),
+
     )
 
     def rememberIdentity(self, userinfo):
@@ -300,7 +323,15 @@ class OIDCPlugin(BasePlugin):
             request = self.REQUEST
             response = request["RESPONSE"]
             # TODO: take care of path, cookiename and domain options ?
-            response.setCookie("auth_token", token, path="/", http_only=True, same_site="Lax")
+            options = dict(
+                path="/",
+                http_only=self.cookie_attr_http_only,
+                same_site=self.cookie_attr_same_site,
+                secure=self.cookie_attr_secure
+            )
+            response.setCookie("auth_token", token, **options)
+
+
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
