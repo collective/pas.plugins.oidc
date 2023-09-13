@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.3 (unreleased)
+1.0b4+cs.3 (2023-09-13)
 -----------------------
 
 - set http_only [Mikel Larreategi <mlarreategi@codesyntax.com>]
