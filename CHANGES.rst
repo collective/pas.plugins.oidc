@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.4 (unreleased)
+1.0b4+cs.4 (2023-09-13)
 -----------------------
 
 - handle auth_token cookie options [Mikel Larreategi <mlarreategi@codesyntax.com>]
