@@ -300,7 +300,7 @@ class OIDCPlugin(BasePlugin):
             request = self.REQUEST
             response = request["RESPONSE"]
             # TODO: take care of path, cookiename and domain options ?
-            response.setCookie("auth_token", token, path="/", same_site="Lax")
+            response.setCookie("auth_token", token, path="/", http_only=True, same_site="Lax")
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
