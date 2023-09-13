@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.2 (unreleased)
+1.0b4+cs.2 (2023-09-13)
 -----------------------
 
 - add lax cookie [Mikel Larreategi <mlarreategi@codesyntax.com>]
