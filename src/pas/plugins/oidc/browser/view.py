@@ -105,9 +105,9 @@ class LoginView(BrowserView):
         except OAuth2ConnectionException:
             portal_url = api.portal.get_tool("portal_url")
             if came_from and portal_url.isURLInPortal(came_from):
-                self.request.response.redirect(came_from)
+                return self.request.response.redirect(came_from)
             else:
-                self.request.response.redirect(api.portal.get().absolute_url())
+                return self.request.response.redirect(api.portal.get().absolute_url())
 
         # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
         args = {
