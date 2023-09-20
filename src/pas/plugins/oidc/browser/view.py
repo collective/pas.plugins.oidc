@@ -277,7 +277,7 @@ class CallbackView(BrowserView):
                 self.request.response.setHeader(
                     "Cache-Control", "no-cache, must-revalidate"
                 )
-                self.request.response.redirect(self.return_url(session=session))
+                self.request.response.redirect(self.return_url(session=session, userinfo=userinfo))
                 return
             else:
                 logger.error(
