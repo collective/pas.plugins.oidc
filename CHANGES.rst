@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.8 (unreleased)
+1.0b4+cs.8 (2023-09-20)
 -----------------------
 
 - add additional parameter to the return url [Mikel Larreategi <mlarreategi@codesyntax.com>]
