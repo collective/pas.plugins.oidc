@@ -5,7 +5,14 @@ Changelog
 1.0b4+cs.8 (unreleased)
 -----------------------
 
-- Nothing changed yet.
+- add additional parameter to the return url [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+- add return in redirects [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+-  [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+- [ci skip] [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
 
 
 1.0b4+cs.7 (2023-09-13)
