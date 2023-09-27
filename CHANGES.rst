@@ -5,7 +5,12 @@ Changelog
 1.0b4+cs.9 (unreleased)
 -----------------------
 
-- Nothing changed yet.
+- return auth_token token for future handling [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+-  [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
+- [ci skip] [Mikel Larreategi <mlarreategi@codesyntax.com>]
+
 
 
 1.0b4+cs.8 (2023-09-20)
