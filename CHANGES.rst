@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.9 (unreleased)
+1.0b4+cs.9 (2023-09-27)
 -----------------------
 
 - return auth_token token for future handling [Mikel Larreategi <mlarreategi@codesyntax.com>]
