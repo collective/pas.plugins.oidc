@@ -12,6 +12,7 @@ from Products.Five.browser import BrowserView
 from zExceptions import Unauthorized
 from pas.plugins.oidc.plugins import OAuth2ConnectionException
 from pas.plugins.oidc import _
+from pas.plugins.oidc.utils import add_url_params
 
 import base64
 import json
@@ -52,7 +53,9 @@ class Session(object):
                 self._session[name] = value
                 self.request.response.setCookie(
                     self.session_cookie_name,
-                    base64.b64encode(json.dumps(self._session).encode("utf-8")),
+                    base64.b64encode(
+                        json.dumps(self._session).encode("utf-8")
+                    ),
                 )
 
     def get(self, name):
@@ -76,7 +79,7 @@ class RequireLoginView(BrowserView):
         if api.user.is_anonymous():
             # context is our PAS plugin
             url = self.context.absolute_url() + "/login"
-            came_from = self.request.get('came_from', None)
+            came_from = self.request.get("came_from", None)
             if came_from:
                 url += "?came_from={}".format(quote(came_from))
         else:
@@ -90,7 +93,9 @@ class LoginView(BrowserView):
     def __call__(self):
         session = Session(
             self.request,
-            use_session_data_manager=self.context.getProperty("use_session_data_manager"),
+            use_session_data_manager=self.context.getProperty(
+                "use_session_data_manager"
+            ),
         )
         # state is used to keep track of responses to outstanding requests (state).
         # nonce is a string value used to associate a Client session with an ID Token, and to mitigate replay attacks.
@@ -107,7 +112,9 @@ class LoginView(BrowserView):
             if came_from and portal_url.isURLInPortal(came_from):
                 return self.request.response.redirect(came_from)
             else:
-                return self.request.response.redirect(api.portal.get().absolute_url())
+                return self.request.response.redirect(
+                    api.portal.get().absolute_url()
+                )
 
         # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
         args = {
@@ -184,18 +191,18 @@ class LogoutView(BrowserView):
         redirect_uri = api.portal.get().absolute_url()
 
         # Volto frontend mapping exception
-        if redirect_uri.endswith('/api'):
+        if redirect_uri.endswith("/api"):
             redirect_uri = redirect_uri[:-4]
 
         if self.context.getProperty("use_deprecated_redirect_uri_for_logout"):
             args = {
                 "redirect_uri": redirect_uri,
-                }
+            }
         else:
             args = {
                 "post_logout_redirect_uri": redirect_uri,
                 "client_id": self.context.getProperty("client_id"),
-                }
+            }
 
         pas = getToolByName(self.context, "acl_users")
         auth_cookie_name = pas.credentials_cookie_auth.cookie_name
@@ -203,7 +210,9 @@ class LogoutView(BrowserView):
         # end_req = client.construct_EndSessionRequest(request_args=args)
         end_req = EndSessionRequest(**args)
         logout_url = end_req.request(client.end_session_endpoint)
-        self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
+        self.request.response.setHeader(
+            "Cache-Control", "no-cache, must-revalidate"
+        )
         # TODO: change path with portal_path
         self.request.response.expireCookie(auth_cookie_name, path="/")
         self.request.response.expireCookie("auth_token", path="/")
@@ -216,15 +225,20 @@ class CallbackView(BrowserView):
         response = self.request.environ["QUERY_STRING"]
         session = Session(
             self.request,
-            use_session_data_manager=self.context.getProperty("use_session_data_manager"),
+            use_session_data_manager=self.context.getProperty(
+                "use_session_data_manager"
+            ),
         )
         client = self.context.get_oauth2_client()
         aresp = client.parse_response(
             AuthorizationResponse, info=response, sformat="urlencoded"
         )
         if aresp["state"] != session.get("state"):
-            logger.error("invalid OAuth2 state response:%s != session:%s",
-                         aresp.get("state"), session.get("state"))
+            logger.error(
+                "invalid OAuth2 state response:%s != session:%s",
+                aresp.get("state"),
+                session.get("state"),
+            )
             # TODO: need to double check before removing the comment below
             # raise ValueError("invalid OAuth2 state")
 
@@ -273,22 +287,28 @@ class CallbackView(BrowserView):
             # userinfo in an instance of OpenIDSchema or ErrorResponse
             # It could also be dict, if there is no userinfo_endpoint
             if userinfo and isinstance(userinfo, (OpenIDSchema, dict)):
-                self.context.rememberIdentity(userinfo)
+                token = self.context.rememberIdentity(userinfo)
                 self.request.response.setHeader(
                     "Cache-Control", "no-cache, must-revalidate"
                 )
-                self.request.response.redirect(self.return_url(session=session, userinfo=userinfo))
+                self.request.response.redirect(
+                    self.return_url(
+                        session=session, userinfo=userinfo, token=token
+                    )
+                )
                 return
             else:
                 logger.error(
-                    "authentication failed invaid response %s %s", resp, userinfo
+                    "authentication failed invaid response %s %s",
+                    resp,
+                    userinfo,
                 )
                 raise Unauthorized()
         else:
             logger.error("authentication failed %s", resp)
             raise Unauthorized()
 
-    def return_url(self, session=None):
+    def return_url(self, session=None, userinfo={}, token=None):
         came_from = self.request.get("came_from")
         if not came_from and session:
             came_from = session.get("came_from")
@@ -298,7 +318,9 @@ class CallbackView(BrowserView):
             came_from = api.portal.get().absolute_url()
 
         # Volto frontend mapping exception
-        if came_from.endswith('/api'):
+        if came_from.endswith("/api"):
             came_from = came_from[:-4]
 
-        return came_from
+        new_came_from = add_url_params(came_from, {"access_token": token})
+
+        return new_came_from

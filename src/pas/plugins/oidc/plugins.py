@@ -203,6 +203,7 @@ class OIDCPlugin(BasePlugin):
     )
 
     def rememberIdentity(self, userinfo):
+        token = None
         if not isinstance(userinfo, (OpenIDSchema, dict)):
             raise AssertionError(
                 "userinfo should be an OpenIDSchema but is {}".format(
@@ -302,7 +303,9 @@ class OIDCPlugin(BasePlugin):
         if user and self.getProperty("create_ticket"):
             self._setupTicket(user_id)
         if user and self.getProperty("create_restapi_ticket"):
-            self._setupJWTTicket(user_id, user)
+            token = self._setupJWTTicket(user_id, user)
+
+        return token
 
     def _updateUserProperties(self, user, userinfo):
         """Update the given user properties from the set of credentials.
@@ -386,7 +389,10 @@ class OIDCPlugin(BasePlugin):
                 # This requires a RFC822 formated date
                 options["expires"] = formatdate(cookie_expiration.timestamp())
 
-            response.setCookie("auth_token", token, **options)
+            # response.setCookie("auth_token", token, **options)
+            return token
+
+        return None
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
