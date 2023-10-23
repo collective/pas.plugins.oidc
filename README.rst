@@ -163,9 +163,14 @@ Setup Plone as client
   * OIDC/Oauth2 Issuer: http://localhost:8080/realms/plone/
   * client ID: plone.  This must match the client ID you have set in Keycloak.
   * Use deprecated redirect_uri. Use this if you need to run old versions of keycloak.
+  * For the scopes it depends on which version of Keycloak you are using, and which scopes are available there.
+    In recent Keycloak versions, you *must* include ``openid`` as scope.
+    Suggestion is to use ``openid`` and ``profile``.
   * Leave the rest at the default and save the changes.
 
-[TODO] screenshot.
+See this screenshot:
+
+.. image:: docs/screenshot-settings.png
 
 Attention, before keycloak 18, the parameter for logout was redirect_uri and it is deprecated since version 18. But the keycloak server can run with the redirect_uri if needed, it is possible to use the plugin with the legacy parameter enabled also. The problem is that if the deprecated parameter is enabled in the plugin but not in the server, the plugin will not work.
 
