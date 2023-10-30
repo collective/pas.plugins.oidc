@@ -65,19 +65,33 @@ Install and configure the plugin
 --------------------------------
 
 * Go to the Add-ons control panel and install ``pas.plugins.oidc``.
+
 * In the ZMI go to the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm
+
 * Configure the properties with the data obtained from your provider:
+
    * ``OIDC/Oauth2 Issuer``
+
    * ``Client ID``
+
    * ``Client secret``
+
    * ``redirect_uris``: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include
      the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
+
    * Use Zope session data manager: see the section below about the usage of session.
+
    * Create user / update user properties: when selected the user data in Plone will be updated with the data coming from the OIDC provider.
+
    * Create authentication __ac ticket: when selected the user will be allowed to act as a logged-in user in Plone.
+
    * Create authentication auth_token (Volto/REST API) ticket: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
+
    * Open ID scopes to request to the server: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
+
    * Use PKCE: when enabled uses PKCE_ when requesting authentication from the provider.
+
+----
 
 Login and Logout URLs
 ---------------------
@@ -101,6 +115,8 @@ To login into a site using the OIDC provider, you will need to change those logi
   * ``oidc pas plugin id``: is the id you gave to the OIDC plugin when you created it inside the Plone PAS administration panel. If you just used the default configuration and installed this plugin using Plone's Add-on Control Panel, this id will be `oidc`.
 
 When using Volto as a frontend, you need to expose those login and logout URLs somehow to make the login and logout process work.
+
+----
 
 Example setup with Keycloak
 ---------------------------
@@ -179,19 +195,29 @@ So:
 
 Keycloak is ready.
 
+----
+
 Setup Plone as a client
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 * In your Zope instance configuration, make sure Plone runs on port 8081.
+
 * Make sure ``pas.plugins.oidc`` is installed with pip or Buildout.
+
 * Start Plone and create a Plone site with id Plone.
+
 * In the Add-ons control panel, install ``pas.plugins.oidc``.
+
 * In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
+
 * Set these properties:
 
   * OIDC/Oauth2 Issuer: http://localhost:8080/realms/plone/
+
   * Client ID: plone.  This must match the client ID you have set in Keycloak.
+
   * Use deprecated ``redirect_uri``. Use this if you need to run old versions of Keycloak.
+
   * Leave the rest at the default and save the changes.
 
 [TODO] screenshot.
@@ -203,14 +229,19 @@ The problem is that if the deprecated parameter is enabled in the plugin but not
 So, this is the way it works:
 
 * With legacy enabled in Keycloak, the plugin works in default mode.
+
 * With legacy enabled in Keycloak, the plugin also works with legacy mode.
+
 * With legacy disabled in Keycloak (default after version 18), the plugin works in default mode.
+
 * With legacy disabled in Keycloak (default after version 18), the plugin does NOT work with legacy mode.
 
 So, for Keycloak, it does not matter if we use the default or legacy mode if the Keycloak runs in legacy mode.
 
 If legacy is disabled in Keycloak, this is the default since version 18 of Keycloak according to this comment in *Starck Overflow*: https://stackoverflow.com/a/72142887,
 the plugin will work only if the option use legacy mode is off (un-checked).
+
+----
 
 Login
 ~~~~~
@@ -229,6 +260,8 @@ If the login did work as expected you can try to logout.
 Go to the logout page of the plugin: http://localhost:8081/Plone/acl_users/oidc/logout
 This will take you to Keycloak to logout, and then return to the post logout redirect url.
 
+----
+
 Usage of sessions in the login process
 --------------------------------------
 
@@ -245,6 +278,7 @@ The plugin has 2 ways of working with sessions:
 - Use the cookie-based session management: if the "Use Zope session data manager" option in the plugin
   configuration is disabled, the plugin will use a Cookie to save that information in the client's browser.
 
+----
 
 Settings in environment variables
 ---------------------------------
@@ -253,6 +287,7 @@ Optionally, instead of editing your OIDC provider settings through the ZMI, you 
 a ``YAML`` file with your settings. This is very useful if you have different settings in different environments
 and you do not want to edit the settings each time you move the contents.
 
+----
 
 Varnish
 -------
@@ -268,6 +303,7 @@ Check what the current default is in the recipe, and update it: ::
   ...
   cookie-pass = "auth_token|__ac(|_(name|password|persistent|session))=":"\.(js|css|kss)$"
 
+----
 
 Contribute
 ----------
