@@ -70,26 +70,26 @@ Install and configure the plugin
 
 * Configure the properties with the data obtained from your provider:
 
-   * ``OIDC/Oauth2 Issuer``
+  * ``OIDC/Oauth2 Issuer``
 
-   * ``Client ID``
+  * ``Client ID``
 
-   * ``Client secret``
+  * ``Client secret``
 
-   * ``redirect_uris``: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include
+  * ``redirect_uris``: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include
      the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
 
-   * Use Zope session data manager: see the section below about the usage of session.
+  * Use Zope session data manager: see the section below about the usage of session.
 
-   * Create user / update user properties: when selected the user data in Plone will be updated with the data coming from the OIDC provider.
+  * Create user / update user properties: when selected the user data in Plone will be updated with the data coming from the OIDC provider.
 
-   * Create authentication __ac ticket: when selected the user will be allowed to act as a logged-in user in Plone.
+  * Create authentication __ac ticket: when selected the user will be allowed to act as a logged-in user in Plone.
 
-   * Create authentication auth_token (Volto/REST API) ticket: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
+  * Create authentication auth_token (Volto/REST API) ticket: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
 
-   * Open ID scopes to request to the server: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
+  * Open ID scopes to request to the server: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
 
-   * Use PKCE: when enabled uses PKCE_ when requesting authentication from the provider.
+  * Use PKCE: when enabled uses PKCE_ when requesting authentication from the provider.
 
 ----
 
@@ -179,11 +179,11 @@ So:
 
   * ``Client ID``: *plone*
 
-  * Turn ``Always display in console`` to ``On``  Useful for testing.
+  * Turn ``Always display in console`` to ``On``, *Useful for testing*.
 
   * Click ``Next`` and click ``Save``.
 
-* Now you can fill in the ``Settings`` -> ``Access settings``.  We will assume Plone runs on port 8081:
+* Now you can fill in the ``Settings`` -> ``Access settings``. We will assume Plone runs on port ``8081``:
 
   * ``Root URL``: `http://localhost:8081/Plone/`
 
@@ -214,7 +214,7 @@ Setup Plone as a client
 
   * OIDC/Oauth2 Issuer: http://localhost:8080/realms/plone/
 
-  * Client ID: plone.  This must match the client ID you have set in Keycloak.
+  * Client ID: plone. **Note:** This must match the ``Client ID`` you have set in Keycloak.
 
   * Use deprecated ``redirect_uri``. Use this if you need to run old versions of Keycloak.
 
