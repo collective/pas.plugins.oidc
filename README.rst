@@ -82,20 +82,22 @@ Install and configure the plugin
 Login and Logout URLs
 ---------------------
 
-When using this plugin, the standard Plone URLs used for login (`http://localhost:8080/Plone/login`) and logout (`http://localhost:8080/Plone/logout`)
+When using this plugin with *Plone 6 Classic UI* the standard URLs used for login (`http://localhost:8080/Plone/login`) and logout (`http://localhost:8080/Plone/logout`)
 will not trigger the usage of the plugin.
 
-When using this plugin with a Volto frontend the standard URLs for login (`http://localhost:3000/login`) and logout (`http://localhost:3000/logout`)
-will not trigger the usage of the plugin.
+When using this plugin with a `Volto frontend <https://6.docs.plone.org/volto/index.html>`_ the standard URLs for login (`http://localhost:3000/login`)
+and logout (`http://localhost:3000/logout`) will not trigger the usage of the plugin.
 
 To login into a site using the OIDC provider, you will need to change those login URLs to the following:
 
-* Login: /``<Plone Site Id>``/acl_users/``<oidc pas plugin id>``/login
-* Logout: /``<Plone Site Id>``/acl_users/``<oidc pas plugin id>``/logout
+* **Login URL**: /``<Plone Site Id>``/acl_users/``<oidc pas plugin id>``/login
+
+* **Logout URL**: /``<Plone Site Id>``/acl_users/``<oidc pas plugin id>``/logout
 
   *Where:*
 
   * ``Plone Site Id``: is the id you gave to the Plone site when you created it. It is usually `Plone` but may vary. It is the last part of the URL when you browse Plone directly without using any proxy server, ex. `http://localhost:8080/Plone+` -> `Plone`.
+
   * ``oidc pas plugin id``: is the id you gave to the OIDC plugin when you created it inside the Plone PAS administration panel. If you just used the default configuration and installed this plugin using Plone's Add-on Control Panel, this id will be `oidc`.
 
 When using Volto as a frontend, you need to expose those login and logout URLs somehow to make the login and logout process work.
