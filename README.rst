@@ -77,7 +77,7 @@ Install and configure the plugin
   * ``Client secret``
 
   * ``redirect_uris``: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include
-     the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
+    the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
 
   * ``Use Zope session data manager``: see the section below about the usage of session.
 
