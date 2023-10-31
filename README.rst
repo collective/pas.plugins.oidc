@@ -191,7 +191,17 @@ So:
 
   * ``Valid redirect URIs``: `http://localhost:8081/Plone*`
 
-  * Leave the rest at the defaults, unless you know what you are doing, and click ``Save``.
+    **Tip:** Leave the rest at the defaults, unless you know what you are doing.
+
+* Now you can fill in the ``Settings`` -> ``Capability config``.
+
+  * Turn ``Client authentication`` to ``On``. This defines the type of the OIDC client. When it's ON, the
+    OIDC type is set to confidential access type. When it's OFF, it is set to public access type.
+
+  * Click ``Save``.
+
+* Now you can access ``Credentials`` -> ``Client secret`` and click on the clipboard icon to copy it. This will
+  be necessary to configure the plugin in Plone.
 
 Keycloak is ready.
 
@@ -212,13 +222,21 @@ Setup Plone as a client
 
 * Set these properties:
 
-  * OIDC/Oauth2 Issuer: http://localhost:8080/realms/plone/
+  * ``OIDC/Oauth2 Issuer``: http://localhost:8080/realms/plone/
 
-  * Client ID: plone. **Note:** This must match the ``Client ID`` you have set in Keycloak.
+  * ``Client ID``: *plone*
 
-  * Use deprecated ``redirect_uri``. Use this if you need to run old versions of Keycloak.
+    **Warning:** This must match the ``Client ID`` you have set in Keycloak.
 
-  * Leave the rest at the default and save the changes.
+  * ``Client secret``: *••••••••••••••••••••••••••••••••*
+
+    **Warning:** This must match the ``Client secret`` you have get in Keycloak.
+
+  * ``Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)``. Use this if you need to run old versions of Keycloak.
+
+    **Tip:** Leave the rest at the defaults, unless you know what you are doing.
+
+  * Click ``Save``.
 
 [TODO] screenshot.
 
@@ -239,6 +257,7 @@ So, this is the way it works:
 So, for Keycloak, it does not matter if we use the default or legacy mode if the Keycloak runs in legacy mode.
 
 *Notes:*
+
   * If legacy ``redirect_uri`` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
     to this comment in *Starck Overflow*: https://stackoverflow.com/a/72142887.
 
