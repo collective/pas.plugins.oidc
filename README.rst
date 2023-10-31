@@ -134,7 +134,7 @@ So let's indeed let Keycloak use its preferred port. At the moment of writing, t
   docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:19.0.3 start-dev
 
 The plugin can be used with legacy (deprecated) Keycloak ``redirect_uri`` parameter. To use this you need to enable the option
-in the plugin configuration. To test that you can run the Keycloak server with the `--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true`
+in the plugin configuration. To test that you can run the Keycloak server with the ``--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true``
 option: ::
 
   docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:19.0.3 start-dev --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
@@ -148,7 +148,7 @@ Follow the Keycloak Docker documentation further:
 
 * Click the word ``master`` in the top-left corner, then click ``Create Realm``.
 
-* Enter `plone` in the ``Realm name`` field.
+* Enter *plone* in the ``Realm name`` field.
 
 * Click ``Create``.
 
@@ -203,7 +203,7 @@ So:
 * Now you can access ``Credentials`` -> ``Client secret`` and click on the clipboard icon to copy it. This will
   be necessary to configure the plugin in Plone.
 
-Keycloak is ready.
+**Keycloak is ready done configured!**
 
 ----
 
@@ -212,7 +212,7 @@ Setup Plone as a client
 
 * In your Zope instance configuration, make sure Plone runs on port 8081.
 
-* Make sure ``pas.plugins.oidc`` is installed with pip or Buildout.
+* Make sure ``pas.plugins.oidc`` is installed with `pip <https://6.docs.plone.org/glossary.html#term-pip>`_ or `Buildout <https://www.buildout.org/>`_.
 
 * Start Plone and create a Plone site with id Plone.
 
@@ -238,11 +238,14 @@ Setup Plone as a client
 
   * Click ``Save``.
 
+**Plone is ready done configured!**
+
 [TODO] screenshot.
 
 Attention, before Keycloak 18, the parameter for logout was ``redirect_uri`` and it has been deprecated since version 18. But the
-Keycloak server can run with the ``redirect_uri`` if needed, it is possible to use the plugin with the legacy ``redirect_uri`` parameter enabled also.
-The problem is that if the deprecated parameter is enabled in the plugin but not in the server, the plugin will not work.
+Keycloak server can run with the ``redirect_uri`` if needed, it is possible to use the plugin with the legacy ``redirect_uri``
+parameter enabled also. The problem is that if the deprecated parameter is enabled in the plugin but not in the server, the plugin
+will not work.
 
 So, this is the way it works:
 
@@ -319,9 +322,11 @@ Varnish
 
 Optionally, if you are using the `Varnish caching server <https://6.docs.plone.org/glossary.html#term-Varnish>`_ in front
 of Plone, you may see this plugin only partially working. Especially the ``came_from`` parameter may be ignored.
-This is because the standard configuration from ``plone.recipe.varnish`` removes most cookies to improve anonymous caching.
+This is because the buildout standard configuration from `plone.recipe.varnish <https://pypi.org/project/plone.recipe.varnish/>`_
+removes most cookies to improve anonymous caching.
+
 The solution is to make sure the ``__ac_session`` cookie is added to the ``cookie-pass`` option.
-Check what the current default is in the recipe, and update it: ::
+Check what the current default is in the buildout recipe, and update it: ::
 
   [varnish-configuration]
   recipe = plone.recipe.varnish:configuration
