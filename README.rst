@@ -223,42 +223,45 @@ Setup Plone as a client
 [TODO] screenshot.
 
 Attention, before Keycloak 18, the parameter for logout was ``redirect_uri`` and it has been deprecated since version 18. But the
-Keycloak server can run with the ``redirect_uri`` if needed, it is possible to use the plugin with the legacy parameter enabled also.
+Keycloak server can run with the ``redirect_uri`` if needed, it is possible to use the plugin with the legacy ``redirect_uri`` parameter enabled also.
 The problem is that if the deprecated parameter is enabled in the plugin but not in the server, the plugin will not work.
 
 So, this is the way it works:
 
-* With legacy enabled in Keycloak, the plugin works in default mode.
+* With legacy ``redirect_uri`` parameter enabled in Keycloak, the plugin works in default mode.
 
-* With legacy enabled in Keycloak, the plugin also works with legacy mode.
+* With legacy ``redirect_uri`` parameter enabled in Keycloak, the plugin also works with legacy mode.
 
-* With legacy disabled in Keycloak (default after version 18), the plugin works in default mode.
+* With legacy ``redirect_uri`` parameter disabled in Keycloak (default after version 18), the plugin works in default mode.
 
-* With legacy disabled in Keycloak (default after version 18), the plugin does NOT work with legacy mode.
+* With legacy ``redirect_uri`` parameter disabled in Keycloak (default after version 18), the plugin does NOT work with legacy mode.
 
 So, for Keycloak, it does not matter if we use the default or legacy mode if the Keycloak runs in legacy mode.
 
-If legacy is disabled in Keycloak, this is the default since version 18 of Keycloak according to this comment in *Starck Overflow*: https://stackoverflow.com/a/72142887,
-the plugin will work only if the option use legacy mode is off (un-checked).
+If legacy ``redirect_uri`` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according to this comment in
+*Starck Overflow*: https://stackoverflow.com/a/72142887, the plugin will work only if the ``Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)``
+option is un-checked at the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm.
 
 ----
 
 Login
 ~~~~~
 
-Go to the other browser, or logout as admin from Keycloak.
+Go to the other browser, or logout as admin from `Keycloak Admin Console <http://localhost:8080/admin>`_.
 Currently, the Plone login form is unchanged.
-Instead, go to the login page of the plugin: http://localhost:8081/Plone/acl_users/oidc/login
-This will take you to Keycloak to login, and then return.
-You should now be logged in to Plone, and see the *full name* and *email*, if you have set this in Keycloak.
+
+Instead, for testing go to the login page of the plugin: http://localhost:8081/Plone/acl_users/oidc/login,
+this will take you to Keycloak to login, and then return. You should now be logged in to Plone, and see the
+*full name* and *email*, if you have set this in Keycloak.
 
 Logout
 ~~~~~~
 
-If the login did work as expected you can try to logout.
+If the login did work as expected you can try to Plone logout.
+Currently, the Plone logout form is unchanged.
 
-Go to the logout page of the plugin: http://localhost:8081/Plone/acl_users/oidc/logout
-This will take you to Keycloak to logout, and then return to the post logout redirect url.
+Instead, for testing go to the logout page of the plugin: http://localhost:8081/Plone/acl_users/oidc/logout,
+this will take you to Keycloak to logout, and then return to the post-logout redirect URL.
 
 ----
 
