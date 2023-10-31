@@ -258,11 +258,11 @@ So, for Keycloak, it does not matter if we use the default or legacy mode if the
 
 *Notes:*
 
-  * If legacy ``redirect_uri`` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
-    to this comment in *Starck Overflow*: https://stackoverflow.com/a/72142887.
+* If legacy ``redirect_uri`` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
+  to this comment in *Starck Overflow*: https://stackoverflow.com/a/72142887.
 
-  * The plugin will work only if the ``Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)``
-    option is un-checked at the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm.
+* The plugin will work only if the ``Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)``
+  option is un-checked at the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm.
 
 ----
 
