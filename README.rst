@@ -226,13 +226,13 @@ Setup Plone as a client
 
   * ``Client ID``: *plone*
 
-    **Warning:** This must match the ``Client ID`` you have set in Keycloak.
+    **Warning:** This property must match the ``Client ID`` you have set in Keycloak.
 
   * ``Client secret``: *••••••••••••••••••••••••••••••••*
 
-    **Warning:** This must match the ``Client secret`` you have get in Keycloak.
+    **Warning:** This property must match the ``Client secret`` you have get in Keycloak.
 
-  * ``Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)``. Use this if you need to run old versions of Keycloak.
+  * ``Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`` checked. Use this if you need to run old versions of Keycloak.
 
     **Tip:** Leave the rest at the defaults, unless you know what you are doing.
 
