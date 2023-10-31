@@ -79,17 +79,17 @@ Install and configure the plugin
   * ``redirect_uris``: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include
      the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
 
-  * Use Zope session data manager: see the section below about the usage of session.
+  * ``Use Zope session data manager``: see the section below about the usage of session.
 
-  * Create user / update user properties: when selected the user data in Plone will be updated with the data coming from the OIDC provider.
+  * ``Create user / update user properties``: when selected the user data in Plone will be updated with the data coming from the OIDC provider.
 
-  * Create authentication __ac ticket: when selected the user will be allowed to act as a logged-in user in Plone.
+  * ``Create authentication __ac ticket``: when selected the user will be allowed to act as a logged-in user in Plone.
 
-  * Create authentication auth_token (Volto/REST API) ticket: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
+  * ``Create authentication auth_token (Volto/REST API) ticket``: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
 
-  * Open ID scopes to request to the server: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
+  * ``Open ID scopes to request to the server``: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
 
-  * Use PKCE: when enabled uses PKCE_ when requesting authentication from the provider.
+  * ``Use PKCE``: when enabled uses PKCE_ when requesting authentication from the provider.
 
 ----
 
@@ -270,12 +270,12 @@ and comes back from there.
 
 The plugin has 2 ways of working with sessions:
 
-- Use the Zope Session Management: if the "Use Zope session data manager" option in the plugin configuration is enabled,
+- Use the Zope Session Management: if the ``Use Zope session data manager`` option in the plugin configuration is enabled,
   the plugin will use the sessioning configuration configured in Zope. To do so we advise using `Products.mcdutils`_
   to save the session data in a memcached based storage. Otherwise Zope will try to use ZODB based sessioning
   which has shown several problems in the past.
 
-- Use the cookie-based session management: if the "Use Zope session data manager" option in the plugin
+- Use the cookie-based session management: if the ``Use Zope session data manager`` option in the plugin
   configuration is disabled, the plugin will use a Cookie to save that information in the client's browser.
 
 ----
