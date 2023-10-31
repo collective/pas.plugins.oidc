@@ -242,6 +242,8 @@ Setup Plone as a client
 
 [TODO] screenshot.
 
+*Warning:*
+
 Attention, before Keycloak 18, the parameter for logout was ``redirect_uri`` and it has been deprecated since version 18. But the
 Keycloak server can run with the ``redirect_uri`` if needed, it is possible to use the plugin with the legacy ``redirect_uri``
 parameter enabled also. The problem is that if the deprecated parameter is enabled in the plugin but not in the server, the plugin
