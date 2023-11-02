@@ -234,13 +234,19 @@ Setup Plone as a client
 
   * ``Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`` checked. Use this if you need to run old versions of Keycloak.
 
-    **Tip:** Leave the rest at the defaults, unless you know what you are doing.
+  * ``Open ID scopes to request to the server``: this depends on which version of Keycloak you are using, and which scopes are available there.
+    In recent Keycloak versions, you *must* include ``openid`` as scope.
+    Suggestion is to use ``openid`` and ``profile``.
+
+  *  **Tip:** Leave the rest at the defaults, unless you know what you are doing.
 
   * Click ``Save``.
 
 **Plone is ready done configured!**
 
-[TODO] screenshot.
+See this screenshot:
+
+.. image:: docs/screenshot-settings.png
 
 *Warning:*
 
