@@ -160,6 +160,10 @@ ignore = [
 [tool.coverage.run]
 omit = ["*/locales/*"]
 
+[tool.bandit]
+targets = "src/pas/plugins/oidc"
+exclude_dirs = ["src/pas/plugins/oidc/locales"]
+
 ##
 # Add extra configuration options in .meta.toml:
 #  [pyproject]
