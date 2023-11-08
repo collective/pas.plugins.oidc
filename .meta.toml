@@ -23,8 +23,8 @@ extra_lines = """
 omit = ["*/locales/*"]
 
 [tool.bandit]
-targets = "src/pas/plugins/oidc"
-exclude_dirs = ["src/pas/plugins/oidc/locales"]
+targets = "src"
+exclude_dirs = ["tests", "src/pas/plugins/oidc/locales"]
 """
 
 [gitignore]
