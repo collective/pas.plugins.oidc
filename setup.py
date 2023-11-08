@@ -51,7 +51,6 @@ setup(
     python_requires=">=3.8",
     install_requires=[
         "setuptools",
-        "z3c.jbot",
         "Plone",
         "plone.api",
         "plone.restapi>=8.34.0",

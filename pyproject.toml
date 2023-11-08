@@ -4,6 +4,45 @@
 [build-system]
 requires = ["setuptools>=68.2"]
 
+[tool.towncrier]
+directory = "news/"
+filename = "CHANGES.md"
+start_string = "<!-- towncrier release notes start -->\n"
+title_format = "## {version} ({project_date})"
+template = "news/.changelog_template.jinja"
+underlines = ["", "", ""]
+issue_format = "[#{issue}](https://github.com/collective/pas.plugins.oidc/issues/{issue})"
+
+[[tool.towncrier.type]]
+directory = "breaking"
+name = "Breaking changes:"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "feature"
+name = "New features:"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "bugfix"
+name = "Bug fixes:"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "internal"
+name = "Internal:"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "documentation"
+name = "Documentation:"
+showcontent = true
+
+[[tool.towncrier.type]]
+directory = "tests"
+name = "Tests"
+showcontent = true
+
 ##
 # Add extra configuration options in .meta.toml:
 #  [pyproject]
@@ -84,7 +123,7 @@ Zope = [
 ]
 python-dateutil = ['dateutil']
 ignore-packages = ['plone.restapi', 'plone.volto', 'zestreleaser.towncrier', 'zest.releaser', 'pytest', 'pytest-cov', 'pytest-plone', 'pytest-docker', 'pytest-vcr', 'pytest-mock', 'gocept.pytestlayer', 'requests-mock', 'vcrpy']
-Plone = ['Products.CMFPlone', 'Products.CMFCore', 'Products.GenericSetup']
+Plone = ['Products.CMFPlone', 'Products.CMFCore', 'Products.GenericSetup', 'Products.PluggableAuthService']
 
 ##
 # Add extra configuration options in .meta.toml:
