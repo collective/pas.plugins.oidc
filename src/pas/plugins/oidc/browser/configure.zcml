@@ -2,38 +2,39 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:plone="http://namespaces.plone.org/plone"
-    i18n_domain="pas.plugins.oidc">
+    i18n_domain="pas.plugins.oidc"
+    >
 
   <browser:page
-      for="..plugins.IOIDCPlugin"
       name="login"
+      for="pas.plugins.oidc.plugins.IOIDCPlugin"
       class=".view.LoginView"
-      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       permission="zope2.View"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
 
   <browser:page
-      for="..plugins.IOIDCPlugin"
       name="require_login"
+      for="pas.plugins.oidc.plugins.IOIDCPlugin"
       class=".view.RequireLoginView"
-      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       permission="zope2.View"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
 
   <browser:page
-      for="..plugins.IOIDCPlugin"
       name="logout"
+      for="pas.plugins.oidc.plugins.IOIDCPlugin"
       class=".view.LogoutView"
-      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       permission="zope2.View"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
 
   <browser:page
-      for="..plugins.IOIDCPlugin"
       name="callback"
+      for="pas.plugins.oidc.plugins.IOIDCPlugin"
       class=".view.CallbackView"
-      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       permission="zope2.View"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
 
 </configure>

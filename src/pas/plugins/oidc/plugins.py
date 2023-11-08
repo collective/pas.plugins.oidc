@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from contextlib import contextmanager
@@ -6,46 +5,26 @@ from oic.oic import Client
 from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
+from pas.plugins.oidc import logger
+from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
-
-from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
-# from Products.PluggableAuthService.interfaces.plugins import IExtractionPlugin
-# from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
-# from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
+from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
+from secrets import choice
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
 from zope.interface import Interface
 
 import itertools
-import logging
-import string
 import plone.api as api
-
-try:
-    # Plone 6.0+
-    from plone.base.utils import safe_text
-except ImportError:
-    # Plone 5.2
-    from Products.CMFPlone.utils import safe_unicode as safe_text
-
-try:
-    # Python 3.6+
-    from secrets import choice
-except ImportError:
-    # Less secure.
-    # https://bandit.readthedocs.io/en/1.7.4/blacklists/blacklist_calls.html#b311-random
-    from random import choice
+import string
 
 
-logger = logging.getLogger(__name__)
-# _MARKER = object()
 PWCHARS = string.ascii_letters + string.digits + string.punctuation
-# LAST_UPDATE_USER_PROPERTY_KEY = 'last_autousermaker_update'
 
 
 class OAuth2ConnectionException(Exception):
@@ -127,7 +106,12 @@ class OIDCPlugin(BasePlugin):
             label="Open ID scopes to request to the server",
         ),
         dict(id="use_pkce", type="boolean", mode="w", label="Use PKCE. "),
-        dict(id="use_deprecated_redirect_uri_for_logout", type="boolean", mode="w", label="Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)."),
+        dict(
+            id="use_deprecated_redirect_uri_for_logout",
+            type="boolean",
+            mode="w",
+            label="Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout).",
+        ),
         dict(
             id="use_modified_openid_schema",
             type="boolean",
@@ -138,13 +122,15 @@ class OIDCPlugin(BasePlugin):
             id="user_property_as_userid",
             type="string",
             mode="w",
-            label="User info property used as userid, default 'sub'"
-        )
+            label="User info property used as userid, default 'sub'",
+        ),
     )
 
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, (OpenIDSchema, dict)):
-            raise AssertionError("userinfo should be an OpenIDSchema but is {}".format(type(userinfo)))
+            raise AssertionError(
+                f"userinfo should be an OpenIDSchema but is {type(userinfo)}"
+            )
         # sub: machine-readable identifier of the user at this server;
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
@@ -214,9 +200,7 @@ class OIDCPlugin(BasePlugin):
                         group = api.group.get(gid)
                         is_managed = group.getProperty("type") == oidc.upper()
                         if is_managed and gid not in groupid:
-                            api.group.remove_user(
-                                group=group, username=user_id
-                            )
+                            api.group.remove_user(group=group, username=user_id)
                     # Add group memberships
                     for gid in groupid:
                         if gid not in groups:
@@ -225,9 +209,7 @@ class OIDCPlugin(BasePlugin):
                             )
                             # Tag managed groups with "type" of plugin id
                             if not group.getTool().hasProperty("type"):
-                                group.getTool()._setProperty(
-                                    "type", "", "string"
-                                )
+                                group.getTool()._setProperty("type", "", "string")
                             group.setGroupProperties({"type": oidc.upper()})
                             api.group.add_user(group=group, username=user_id)
 
@@ -245,16 +227,16 @@ class OIDCPlugin(BasePlugin):
         # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
         # TODO: warning nel caso non vengono tornati dati dell'utente
         userProps = {}
-        if "email" in userinfo:
-            userProps["email"] = userinfo["email"]
-        if "given_name" in userinfo and "family_name" in userinfo:
-            userProps["fullname"] = "{} {}".format(
-                userinfo["given_name"], userinfo["family_name"]
-            )
-        elif "name" in userinfo and "family_name" in userinfo:
-            userProps["fullname"] = "{} {}".format(
-                userinfo["name"], userinfo["family_name"]
-            )
+        email = userinfo.get("email", "")
+        name = userinfo.get("name", "")
+        given_name = userinfo.get("given_name", "")
+        family_name = userinfo.get("family_name", "")
+        if email:
+            userProps["email"] = email
+        if given_name and family_name:
+            userProps["fullname"] = f"{given_name} {family_name}"
+        elif name and family_name:
+            userProps["fullname"] = f"{name} {family_name}"
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
             user.setProperties(**userProps)
@@ -280,7 +262,7 @@ class OIDCPlugin(BasePlugin):
         request = self.REQUEST
         response = request["RESPONSE"]
         pas.session._setupSession(user_id, response)
-        logger.debug("Done setting up session/ticket for %s" % user_id)
+        logger.debug(f"Done setting up session/ticket for {user_id}")
 
     def _setupJWTTicket(self, user_id, user):
         """Set up JWT authentication ticket (auth_token cookie).
@@ -311,9 +293,7 @@ class OIDCPlugin(BasePlugin):
             #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
 
             # use WebFinger
-            provider_info = client.provider_config(
-                self.getProperty("issuer")
-            )  # noqa
+            provider_info = client.provider_config(self.getProperty("issuer"))  # noqa
             info = {
                 "client_id": self.getProperty("client_id"),
                 "client_secret": self.getProperty("client_secret"),
@@ -321,11 +301,12 @@ class OIDCPlugin(BasePlugin):
             client_reg = RegistrationResponse(**info)
             client.store_registration_info(client_reg)
             return client
-        except Exception as e:
+        except Exception as exc:
             # There may happen several connection errors in this process
             # we catch them here and raise a generic own exception to be able
             # to catch it wherever it happens without knowing the internals
             # of the OAuth2 process
+            logger.exception("Error getting OAuth2 client", exc_info=exc)
             raise OAuth2ConnectionException
 
     def get_redirect_uris(self):
@@ -333,7 +314,7 @@ class OIDCPlugin(BasePlugin):
         if redirect_uris:
             return [safe_text(uri) for uri in redirect_uris if uri]
         return [
-            "{}/callback".format(self.absolute_url()),
+            f"{self.absolute_url()}/callback",
         ]
 
     def get_scopes(self):
@@ -357,7 +338,7 @@ class OIDCPlugin(BasePlugin):
         """
         # Go to the login view of the PAS plugin.
         logger.info("Challenge. Came from %s", request.URL)
-        url = "{}/require_login?came_from={}".format(self.absolute_url(), request.URL)
+        url = f"{self.absolute_url()}/require_login?came_from={request.URL}"
         response.redirect(url, lock=1)
         return True
 

@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Security check - Bandit
       uses: ioggstream/bandit-report-artifacts@v0.0.2
@@ -17,7 +17,7 @@ jobs:
 
     # This is optional
     - name: Security check report artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: Security report
         path: output/security_report.txt
