@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  keycloak:
+    build:
+      context: keycloak
+      args:
+        KEYCLOAK_VERSION: 22.0.0
+    command: ['start-dev', '--import-realm']
+    depends_on:
+      - db
+    environment:
+      JAVA_OPTS_APPEND: -Dkeycloak.profile.feature.upload_scripts=enabled
+      KC_DB: postgres
+      KC_DB_PASSWORD: postgres
+      KC_DB_URL: jdbc:postgresql://db/keycloak
+      KC_DB_USERNAME: postgres
+      KC_HEALTH_ENABLED: false
+      KC_HTTP_ENABLED: true
+      KC_METRICS_ENABLED: false
+      KC_HOSTNAME_URL: http://127.0.0.1:8180/
+      KC_PROXY: reencrypt
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/import:/opt/keycloak/data/import
+    ports:
+      - 8180:8080
+
+  db:
+    image: postgres:14.9
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+      timeout: 45s
+      interval: 5s
+      retries: 10
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: keycloak
+      POSTGRES_HOST: postgres

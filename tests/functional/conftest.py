@@ -1,11 +1,37 @@
+from plone import api
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import SITE_OWNER_PASSWORD
 from plone.app.testing import TEST_USER_NAME
 from plone.app.testing import TEST_USER_PASSWORD
 from plone.restapi.testing import RelativeSession
 from plone.testing.zope import Browser
+from requests.exceptions import ConnectionError
+from zope.component.hooks import setSite
 
 import pytest
+import requests
+import transaction
+
+
+def is_responsive(url: str) -> bool:
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            return True
+    except ConnectionError:
+        return False
+
+
+@pytest.fixture(scope="session")
+def keycloak_service(docker_ip, docker_services):
+    """Ensure that keycloak service is up and responsive."""
+    # `port_for` takes a container port and returns the corresponding host port
+    port = docker_services.port_for("keycloak", 8080)
+    url = f"http://{docker_ip}:{port}"
+    docker_services.wait_until_responsive(
+        timeout=30.0, pause=0.1, check=lambda: is_responsive(url)
+    )
+    return url
 
 
 @pytest.fixture()
@@ -13,10 +39,32 @@ def app(functional):
     return functional["app"]
 
 
+@pytest.fixture(scope="session")
+def keycloak(keycloak_service):
+    return {
+        "issuer": f"{keycloak_service}/realms/plone-test",
+        "client_id": "plone",
+        "client_secret": "12345678",  # nosec B105
+        "scope": ("openid", "profile", "email"),
+    }
+
+
 @pytest.fixture()
-def portal(functional):
+def portal(functional, keycloak):
     portal = functional["portal"]
-    return portal
+    setSite(portal)
+    plugin = portal.acl_users.oidc
+    with api.env.adopt_roles(["Manager", "Member"]):
+        for key, value in keycloak.items():
+            setattr(plugin, key, value)
+    transaction.commit()
+    yield portal
+    with api.env.adopt_roles(["Manager", "Member"]):
+        for key, value in keycloak.items():
+            if key != "scope":
+                value = ""
+            setattr(plugin, key, value)
+    transaction.commit()
 
 
 @pytest.fixture()

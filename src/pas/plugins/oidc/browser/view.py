@@ -112,7 +112,6 @@ class LoginView(BrowserView):
             "nonce": session.get("nonce"),
             "redirect_uri": self.context.get_redirect_uris(),
         }
-
         if self.context.getProperty("use_pkce"):
             # Build a random string of 43 to 128 characters
             # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string

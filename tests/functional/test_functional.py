@@ -34,13 +34,14 @@ class TestFunctionalPlugin:
         location = browser.headers["location"]
         expected = f"{self.plugin_url}/login?came_from={quoted_url}"
         assert location == expected
-
-        # If we would follow the redirect, we would get a 500 Internal Server Error
-        # because the login view calls get_oauth2_client on the plugin,
-        # and we have not setup such a client in the tests.  We may need to mock
-        # some code.
-        # But the challenge plugin works: it makes sure we end up on the login view
-        # of our plugin, and not on the standard Plone login form.
+        # Follow one redirect, view the login page of the plugin
+        browser.handleErrors = False
+        browser.open(location)
+        assert browser.url == location
+        # The next redirect will send us to keycloak
+        location = browser.headers["location"]
+        expected = "http://127.0.0.1:8180/realms/plone-test/protocol/openid-connect/auth?client_id=plone"
+        assert location.startswith(expected)
 
     def test_challenge_authenticated_user(self, browser_user):
         browser = browser_user
