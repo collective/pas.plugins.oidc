@@ -5,30 +5,21 @@ from oic.oic.message import AuthorizationResponse
 from oic.oic.message import EndSessionRequest
 from oic.oic.message import IdToken
 from oic.oic.message import OpenIDSchema
+from pas.plugins.oidc import _
+from pas.plugins.oidc import logger
+from pas.plugins.oidc.plugins import OAuth2ConnectionException
 from pas.plugins.oidc.utils import SINGLE_OPTIONAL_BOOLEAN_AS_STRING
 from plone import api
 from Products.CMFCore.utils import getToolByName
 from Products.Five.browser import BrowserView
+from urllib.parse import quote
 from zExceptions import Unauthorized
-from pas.plugins.oidc.plugins import OAuth2ConnectionException
-from pas.plugins.oidc import _
 
 import base64
 import json
-import logging
-
-try:
-    # Python 3
-    from urllib.parse import quote
-except ImportError:
-    # Python 2
-    from urllib import quote
 
 
-logger = logging.getLogger(__name__)
-
-
-class Session(object):
+class Session:
     session_cookie_name = "__ac_session"
     _session = {}
 
@@ -75,13 +66,14 @@ class RequireLoginView(BrowserView):
     def __call__(self):
         if api.user.is_anonymous():
             # context is our PAS plugin
-            url = self.context.absolute_url() + "/login"
-            came_from = self.request.get('came_from', None)
+            base_url = self.context.absolute_url()
+            url = f"{base_url}/login"
+            came_from = self.request.get("came_from", None)
             if came_from:
-                url += "?came_from={}".format(quote(came_from))
+                url = f"{url}?came_from={quote(came_from)}"
         else:
             url = api.portal.get().absolute_url()
-            url += "/insufficient-privileges"
+            url = f"{url}/insufficient-privileges"
 
         self.request.response.redirect(url)
 
@@ -90,7 +82,9 @@ class LoginView(BrowserView):
     def __call__(self):
         session = Session(
             self.request,
-            use_session_data_manager=self.context.getProperty("use_session_data_manager"),
+            use_session_data_manager=self.context.getProperty(
+                "use_session_data_manager"
+            ),
         )
         # state is used to keep track of responses to outstanding requests (state).
         # nonce is a string value used to associate a Client session with an ID Token, and to mitigate replay attacks.
@@ -118,14 +112,11 @@ class LoginView(BrowserView):
             "nonce": session.get("nonce"),
             "redirect_uri": self.context.get_redirect_uris(),
         }
-
         if self.context.getProperty("use_pkce"):
             # Build a random string of 43 to 128 characters
             # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
             session.set("verifier", rndstr(128))
-            args["code_challenge"] = self.get_code_challenge(
-                session.get("verifier")
-            )
+            args["code_challenge"] = self.get_code_challenge(session.get("verifier"))
             args["code_challenge_method"] = "S256"
 
         try:
@@ -134,10 +125,7 @@ class LoginView(BrowserView):
         except Exception as e:
             logger.error(e)
             api.portal.show_message(
-                _(
-                    "There was an error during the login process. Please try"
-                    " again."
-                )
+                _("There was an error during the login process. Please try" " again.")
             )
             portal_url = api.portal.get_tool("portal_url")
             if came_from and portal_url.isURLInPortal(came_from):
@@ -147,9 +135,7 @@ class LoginView(BrowserView):
 
             return
 
-        self.request.response.setHeader(
-            "Cache-Control", "no-cache, must-revalidate"
-        )
+        self.request.response.setHeader("Cache-Control", "no-cache, must-revalidate")
         self.request.response.redirect(login_url)
         return
 
@@ -159,11 +145,7 @@ class LoginView(BrowserView):
         See https://www.stefaanlippens.net/oauth-code-flow-pkce.html#PKCE-code-verifier-and-challenge
         """
         hash_code = sha256(value.encode("utf-8")).digest()
-        return (
-            base64.urlsafe_b64encode(hash_code)
-            .decode("utf-8")
-            .replace("=", "")
-        )
+        return base64.urlsafe_b64encode(hash_code).decode("utf-8").replace("=", "")
 
 
 class LogoutView(BrowserView):
@@ -184,18 +166,18 @@ class LogoutView(BrowserView):
         redirect_uri = api.portal.get().absolute_url()
 
         # Volto frontend mapping exception
-        if redirect_uri.endswith('/api'):
+        if redirect_uri.endswith("/api"):
             redirect_uri = redirect_uri[:-4]
 
         if self.context.getProperty("use_deprecated_redirect_uri_for_logout"):
             args = {
                 "redirect_uri": redirect_uri,
-                }
+            }
         else:
             args = {
                 "post_logout_redirect_uri": redirect_uri,
                 "client_id": self.context.getProperty("client_id"),
-                }
+            }
 
         pas = getToolByName(self.context, "acl_users")
         auth_cookie_name = pas.credentials_cookie_auth.cookie_name
@@ -216,15 +198,20 @@ class CallbackView(BrowserView):
         response = self.request.environ["QUERY_STRING"]
         session = Session(
             self.request,
-            use_session_data_manager=self.context.getProperty("use_session_data_manager"),
+            use_session_data_manager=self.context.getProperty(
+                "use_session_data_manager"
+            ),
         )
         client = self.context.get_oauth2_client()
         aresp = client.parse_response(
             AuthorizationResponse, info=response, sformat="urlencoded"
         )
         if aresp["state"] != session.get("state"):
-            logger.error("invalid OAuth2 state response:%s != session:%s",
-                         aresp.get("state"), session.get("state"))
+            logger.error(
+                "invalid OAuth2 state response:%s != session:%s",
+                aresp.get("state"),
+                session.get("state"),
+            )
             # TODO: need to double check before removing the comment below
             # raise ValueError("invalid OAuth2 state")
 
@@ -281,7 +268,7 @@ class CallbackView(BrowserView):
                 return
             else:
                 logger.error(
-                    "authentication failed invaid response %s %s", resp, userinfo
+                    "authentication failed invalid response %s %s", resp, userinfo
                 )
                 raise Unauthorized()
         else:
@@ -298,7 +285,7 @@ class CallbackView(BrowserView):
             came_from = api.portal.get().absolute_url()
 
         # Volto frontend mapping exception
-        if came_from.endswith('/api'):
+        if came_from.endswith("/api"):
             came_from = came_from[:-4]
 
         return came_from

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2023-05-29 12:03+0000\n"
+"POT-Creation-Date: 2023-11-08 15:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,22 +17,22 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: pas.plugins.oidc\n"
 
-#: ../configure.zcml:28
+#: pas/plugins/oidc/configure.zcml:32
 msgid "Installs the pas.plugins.oidc add-on."
 msgstr ""
 
-#: ../browser/view.py:140
+#: pas/plugins/oidc/browser/view.py:129
 msgid "There was an error during the login process. Please try again."
 msgstr ""
 
-#: ../configure.zcml:37
+#: pas/plugins/oidc/configure.zcml:41
 msgid "Uninstalls the pas.plugins.oidc add-on."
 msgstr ""
 
-#: ../configure.zcml:28
+#: pas/plugins/oidc/configure.zcml:32
 msgid "pas.plugins.oidc"
 msgstr ""
 
-#: ../configure.zcml:37
+#: pas/plugins/oidc/configure.zcml:41
 msgid "pas.plugins.oidc (uninstall)"
 msgstr ""

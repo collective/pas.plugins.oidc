@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <layers>
-  <layer
-      name="pas.plugins.oidc"
-      interface="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
-      />
+  <layer interface="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
+         name="pas.plugins.oidc"
+  />
 </layers>
