@@ -50,9 +50,9 @@
 
   <genericsetup:upgradeStep
       title="Activate properties plugin"
+      profile="pas.plugins.oidc:default"
       source="1001"
       destination="1002"
-      profile="pas.plugins.oidc:default"
       handler=".setuphandlers.activate_properties_plugin"
       />
 

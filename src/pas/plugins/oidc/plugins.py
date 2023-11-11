@@ -37,6 +37,8 @@ class OAuth2ConnectionException(Exception):
 class IOIDCPlugin(Interface):
     """ """
 
+_marker = object()
+
 
 @implementer(IOIDCPlugin)
 class OIDCPlugin(BasePlugin):
