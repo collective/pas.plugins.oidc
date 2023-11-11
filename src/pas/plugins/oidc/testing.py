@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
 from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FIXTURE
-
-# from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
@@ -10,10 +7,7 @@ from plone.app.testing import PloneSandboxLayer
 import pas.plugins.oidc
 
 
-# from plone.testing import z2
-
-
-class PasPluginsOidcLayer(PloneSandboxLayer):
+class TestLayer(PloneSandboxLayer):
     defaultBases = (PLONE_APP_CONTENTTYPES_FIXTURE,)
 
     def setUpZope(self, app, configurationContext):
@@ -26,26 +20,16 @@ class PasPluginsOidcLayer(PloneSandboxLayer):
         applyProfile(portal, "pas.plugins.oidc:default")
 
 
-PAS_PLUGINS_OIDC_FIXTURE = PasPluginsOidcLayer()
+FIXTURE = TestLayer()
 
 
-PAS_PLUGINS_OIDC_INTEGRATION_TESTING = IntegrationTesting(
-    bases=(PAS_PLUGINS_OIDC_FIXTURE,),
+INTEGRATION_TESTING = IntegrationTesting(
+    bases=(FIXTURE,),
     name="PasPluginsOidcLayer:IntegrationTesting",
 )
 
 
-PAS_PLUGINS_OIDC_FUNCTIONAL_TESTING = FunctionalTesting(
-    bases=(PAS_PLUGINS_OIDC_FIXTURE,),
+FUNCTIONAL_TESTING = FunctionalTesting(
+    bases=(FIXTURE,),
     name="PasPluginsOidcLayer:FunctionalTesting",
 )
-
-
-# PAS_PLUGINS_OIDC_ACCEPTANCE_TESTING = FunctionalTesting(
-#     bases=(
-#         PAS_PLUGINS_OIDC_FIXTURE,
-#         REMOTE_LIBRARY_BUNDLE_FIXTURE,
-#         z2.ZSERVER_FIXTURE,
-#     ),
-#     name="PasPluginsOidcLayer:AcceptanceTesting",
-# )

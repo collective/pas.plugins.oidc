@@ -1,18 +1,13 @@
-# -*- coding: utf-8 -*-
+from pas.plugins.oidc import logger
 from pas.plugins.oidc.plugins import OIDCPlugin
 from pas.plugins.oidc.utils import PLUGIN_ID
-from Products.CMFCore.utils import getToolByName
+from plone import api
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
 
-import logging
-
-
-logger = logging.getLogger(__name__)
-
 
 @implementer(INonInstallable)
-class HiddenProfiles(object):
+class HiddenProfiles:
     def getNonInstallableProfiles(self):
         """Hide uninstall profile from site-creation and quickinstaller."""
         return [
@@ -23,7 +18,7 @@ class HiddenProfiles(object):
 def post_install(context):
     """Post install script"""
     # Setup our request oidc plugin.
-    pas = getToolByName(context, "acl_users")
+    pas = api.portal.get_tool("acl_users")
 
     # Create plugin if it does not exist.
     if PLUGIN_ID not in pas.objectIds():
@@ -36,9 +31,7 @@ def post_install(context):
         logger.info("Created %s in acl_users.", PLUGIN_ID)
     plugin = getattr(pas, PLUGIN_ID)
     if not isinstance(plugin, OIDCPlugin):
-        raise ValueError(
-            "Existing PAS plugin {0} is not a OIDCPlugin.".format(PLUGIN_ID)
-        )
+        raise ValueError(f"Existing PAS plugin {PLUGIN_ID} is not a OIDCPlugin.")
 
     # Activate all supported interfaces for this plugin.
     activate = []
@@ -48,9 +41,7 @@ def post_install(context):
         interface_name = info["id"]
         if plugin.testImplements(interface):
             activate.append(interface_name)
-            logger.info(
-                "Activating interface %s for plugin %s", interface_name, PLUGIN_ID
-            )
+            logger.info(f"Activating interface {interface_name} for plugin {PLUGIN_ID}")
 
     plugin.manage_activateInterfaces(activate)
     logger.info("Plugins activated.")
@@ -63,21 +54,19 @@ def post_install(context):
         if interface_name in ("IChallengePlugin", "IPropertiesPlugin"):
             iface = plugins._getInterfaceFromName(interface_name)
             plugins.movePluginsTop(iface, [PLUGIN_ID])
-            logger.info("Moved %s to top of %s.", PLUGIN_ID, interface_name)
+            logger.info(f"Moved {PLUGIN_ID} to top of {interface_name}.")
 
     return plugin
 
 
 def activate_plugin(context, interface_name, move_to_top=False):
-    pas = getToolByName(context, "acl_users")
+    pas = api.portal.get_tool("acl_users")
     if PLUGIN_ID not in pas.objectIds():
-        raise ValueError("acl_users has no plugin {}.".format(PLUGIN_ID))
+        raise ValueError(f"acl_users has no plugin {PLUGIN_ID}.")
 
     plugin = getattr(pas, PLUGIN_ID)
     if not isinstance(plugin, OIDCPlugin):
-        raise ValueError(
-            "Existing PAS plugin {0} is not a OIDCPlugin.".format(PLUGIN_ID)
-        )
+        raise ValueError(f"Existing PAS plugin {PLUGIN_ID} is not a OIDCPlugin.")
 
     # This would activate one interface and deactivate all others:
     # plugin.manage_activateInterfaces([interface_name])
@@ -86,13 +75,13 @@ def activate_plugin(context, interface_name, move_to_top=False):
     iface = plugins._getInterfaceFromName(interface_name)
     if PLUGIN_ID not in plugins.listPluginIds(iface):
         plugins.activatePlugin(iface, PLUGIN_ID)
-        logger.info("Activated interface %s for plugin %s", interface_name, PLUGIN_ID)
+        logger.info(f"Activated interface {interface_name} for plugin {PLUGIN_ID}")
 
     if move_to_top:
         # Order some plugins to make sure our plugin is at the top.
         # This is not needed for all plugin interfaces.
         plugins.movePluginsTop(iface, [PLUGIN_ID])
-        logger.info("Moved %s to top of %s.", PLUGIN_ID, interface_name)
+        logger.info(f"Moved {PLUGIN_ID} to top of {interface_name}.")
 
 
 def activate_challenge_plugin(context):
@@ -105,7 +94,9 @@ def activate_properties_plugin(context):
 
 def uninstall(context):
     """Uninstall script"""
-    pas = getToolByName(context, "acl_users")
+    from pas.plugins.oidc.utils import PLUGIN_ID
+
+    pas = api.portal.get_tool("acl_users")
 
     # Remove plugin if it exists.
     if PLUGIN_ID not in pas.objectIds():
@@ -113,7 +104,7 @@ def uninstall(context):
 
     plugin = getattr(pas, PLUGIN_ID)
     if not isinstance(plugin, OIDCPlugin):
-        logger.warning("PAS plugin %s not removed: it is not a OIDCPlugin.", PLUGIN_ID)
+        logger.warning(f"PAS plugin {PLUGIN_ID} not removed: it is not a OIDCPlugin.")
         return
     pas._delObject(PLUGIN_ID)
-    logger.info("Removed OIDCPlugin %s from acl_users.", PLUGIN_ID)
+    logger.info(f"Removed OIDCPlugin {PLUGIN_ID} from acl_users.")

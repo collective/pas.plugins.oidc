@@ -7,9 +7,6 @@ from oic.oic.message import OPTIONAL_ADDRESS
 from oic.oic.message import OPTIONAL_MESSAGE
 
 
-# from oic.oic.message import SINGLE_OPTIONAL_BOOLEAN
-
-
 PLUGIN_ID = "oidc"
 
 

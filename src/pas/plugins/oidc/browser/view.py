@@ -5,30 +5,21 @@ from oic.oic.message import AuthorizationResponse
 from oic.oic.message import EndSessionRequest
 from oic.oic.message import IdToken
 from oic.oic.message import OpenIDSchema
+from pas.plugins.oidc import _
+from pas.plugins.oidc import logger
+from pas.plugins.oidc.plugins import OAuth2ConnectionException
 from pas.plugins.oidc.utils import SINGLE_OPTIONAL_BOOLEAN_AS_STRING
 from plone import api
 from Products.CMFCore.utils import getToolByName
 from Products.Five.browser import BrowserView
+from urllib.parse import quote
 from zExceptions import Unauthorized
-from pas.plugins.oidc.plugins import OAuth2ConnectionException
-from pas.plugins.oidc import _
 
 import base64
 import json
-import logging
-
-try:
-    # Python 3
-    from urllib.parse import quote
-except ImportError:
-    # Python 2
-    from urllib import quote
 
 
-logger = logging.getLogger(__name__)
-
-
-class Session(object):
+class Session:
     session_cookie_name = "__ac_session"
     _session = {}
 
@@ -75,13 +66,14 @@ class RequireLoginView(BrowserView):
     def __call__(self):
         if api.user.is_anonymous():
             # context is our PAS plugin
-            url = self.context.absolute_url() + "/login"
+            base_url = self.context.absolute_url()
+            url = f"{base_url}/login"
             came_from = self.request.get("came_from", None)
             if came_from:
-                url += "?came_from={}".format(quote(came_from))
+                url = f"{url}?came_from={quote(came_from)}"
         else:
             url = api.portal.get().absolute_url()
-            url += "/insufficient-privileges"
+            url = f"{url}/insufficient-privileges"
 
         self.request.response.redirect(url)
 
@@ -120,7 +112,6 @@ class LoginView(BrowserView):
             "nonce": session.get("nonce"),
             "redirect_uri": self.context.get_redirect_uris(),
         }
-
         if self.context.getProperty("use_pkce"):
             # Build a random string of 43 to 128 characters
             # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
@@ -181,12 +172,12 @@ class LogoutView(BrowserView):
         if self.context.getProperty("use_deprecated_redirect_uri_for_logout"):
             args = {
                 "redirect_uri": redirect_uri,
-                }
+            }
         else:
             args = {
                 "post_logout_redirect_uri": redirect_uri,
                 "client_id": self.context.getProperty("client_id"),
-                }
+            }
 
         pas = getToolByName(self.context, "acl_users")
         auth_cookie_name = pas.credentials_cookie_auth.cookie_name
@@ -267,7 +258,8 @@ class CallbackView(BrowserView):
                 userinfo = resp.to_dict().get("id_token", {})
 
             # userinfo in an instance of OpenIDSchema or ErrorResponse
-            if isinstance(userinfo, OpenIDSchema):
+            # It could also be dict, if there is no userinfo_endpoint
+            if userinfo and isinstance(userinfo, (OpenIDSchema, dict)):
                 self.context.rememberIdentity(userinfo)
                 self.request.response.setHeader(
                     "Cache-Control", "no-cache, must-revalidate"
@@ -276,7 +268,7 @@ class CallbackView(BrowserView):
                 return
             else:
                 logger.error(
-                    "authentication failed invaid response %s %s", resp, userinfo
+                    "authentication failed invalid response %s %s", resp, userinfo
                 )
                 raise Unauthorized()
         else:

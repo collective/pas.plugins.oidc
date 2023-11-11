@@ -1,4 +1,13 @@
 graft src/pas
 graft docs
-include *.rst
 global-exclude *.pyc
+include *.md
+include *.txt
+include *.yaml
+include .coveragerc
+include Makefile
+recursive-include tests *.py
+recursive-include tests *.gitkeep
+recursive-include tests *.json
+recursive-include tests *.yml
+include tests/keycloak/Dockerfile
