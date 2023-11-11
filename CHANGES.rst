@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0a7 (unreleased)
+1.0.0 (2023-11-11)
 ------------------
 
 - Allow dict instances to hold userinfo
