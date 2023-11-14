@@ -1,13 +1,18 @@
+from hashlib import sha256
+from oic import rndstr
 from oic.oauth2.message import ParamDefinition
 from oic.oauth2.message import SINGLE_OPTIONAL_INT
 from oic.oauth2.message import SINGLE_OPTIONAL_STRING
 from oic.oauth2.message import SINGLE_REQUIRED_STRING
-from oic.oic.message import OpenIDSchema
-from oic.oic.message import OPTIONAL_ADDRESS
-from oic.oic.message import OPTIONAL_MESSAGE
+from oic.oic import message
+from pas.plugins.oidc import logger
+from pas.plugins.oidc import PLUGIN_ID
+from pas.plugins.oidc import plugins
+from pas.plugins.oidc.session import Session
+from plone import api
+from typing import Union
 
-
-PLUGIN_ID = "oidc"
+import base64
 
 
 def boolean_string_ser(val, sformat=None, lev=0):
@@ -31,7 +36,7 @@ SINGLE_OPTIONAL_BOOLEAN_AS_STRING = ParamDefinition(
 )
 
 
-class CustomOpenIDNonBooleanSchema(OpenIDSchema):
+class CustomOpenIDNonBooleanSchema(message.OpenIDSchema):
     c_param = {
         "sub": SINGLE_REQUIRED_STRING,
         "name": SINGLE_OPTIONAL_STRING,
@@ -51,8 +56,149 @@ class CustomOpenIDNonBooleanSchema(OpenIDSchema):
         "locale": SINGLE_OPTIONAL_STRING,
         "phone_number": SINGLE_OPTIONAL_STRING,
         "phone_number_verified": SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
-        "address": OPTIONAL_ADDRESS,
+        "address": message.OPTIONAL_ADDRESS,
         "updated_at": SINGLE_OPTIONAL_INT,
-        "_claim_names": OPTIONAL_MESSAGE,
-        "_claim_sources": OPTIONAL_MESSAGE,
+        "_claim_names": message.OPTIONAL_MESSAGE,
+        "_claim_sources": message.OPTIONAL_MESSAGE,
     }
+
+
+def url_cleanup(url: str) -> str:
+    """Clean up redirection url."""
+    # Volto frontend mapping exception
+    if url.endswith("/api") or url.endswith("/++api++"):
+        url = "/".join(url.split("/")[-1])
+    return url
+
+
+def get_plugin() -> plugins.OIDCPlugin:
+    """Return the OIDC plugin for the current portal."""
+    pas = api.portal.get_tool("acl_users")
+    return getattr(pas, PLUGIN_ID)
+
+
+# Flow: Start
+def initialize_session(plugin: plugins.OIDCPlugin, request) -> Session:
+    """Initialize a Session."""
+    use_session_data_manager: bool = plugin.getProperty("use_session_data_manager")
+    use_pkce: bool = plugin.getProperty("use_pkce")
+    session = Session(request, use_session_data_manager)
+    # state is used to keep track of responses to outstanding requests (state).
+    # nonce is a string value used to associate a Client session with an ID Token, and to mitigate replay attacks.
+    session.set("state", rndstr())
+    session.set("nonce", rndstr())
+    came_from = request.get("came_from")
+    if came_from:
+        session.set("came_from", came_from)
+    if use_pkce:
+        session.set("verifier", rndstr(128))
+    return session
+
+
+def pkce_code_verifier_challenge(value: str) -> str:
+    """Build a sha256 hash of the base64 encoded value of value
+
+    Be careful: this should be url-safe base64 and we should also remove the trailing '='
+    See https://www.stefaanlippens.net/oauth-code-flow-pkce.html#PKCE-code-verifier-and-challenge
+    """
+    hash_code = sha256(value.encode("utf-8")).digest()
+    return base64.urlsafe_b64encode(hash_code).decode("utf-8").replace("=", "")
+
+
+def authorization_flow_args(plugin: plugins.OIDCPlugin, session: Session) -> dict:
+    """Return the arguments used for the authorization flow."""
+    # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
+    args = {
+        "client_id": plugin.getProperty("client_id"),
+        "response_type": "code",
+        "scope": plugin.get_scopes(),
+        "state": session.get("state"),
+        "nonce": session.get("nonce"),
+        "redirect_uri": plugin.get_redirect_uris(),
+    }
+    if plugin.getProperty("use_pkce"):
+        # Build a random string of 43 to 128 characters
+        # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
+        args["code_challenge"] = pkce_code_verifier_challenge(session.get("verifier"))
+        args["code_challenge_method"] = "S256"
+    return args
+
+
+# Flow: Process
+def load_existing_session(plugin: plugins.OIDCPlugin, request) -> Session:
+    use_session_data_manager: bool = plugin.getProperty("use_session_data_manager")
+    session = Session(request, use_session_data_manager)
+    return session
+
+
+def parse_authorization_response(
+    plugin: plugins.OIDCPlugin, qs: str, client, session: Session
+) -> tuple:
+    """Parse a flow response and return arguments for client calls."""
+    use_pkce: bool = plugin.getProperty("use_pkce")
+    aresp = client.parse_response(
+        message.AuthorizationResponse, info=qs, sformat="urlencoded"
+    )
+    aresp_state = aresp["state"]
+    session_state = session.get("state")
+    if aresp_state != session_state:
+        logger.error(
+            f"Invalid OAuth2 state response: {aresp_state}" f"session: {session_state}"
+        )
+        # TODO: need to double check before removing the comment below
+        # raise ValueError("invalid OAuth2 state")
+
+    args = {
+        "code": aresp["code"],
+        "redirect_uri": plugin.get_redirect_uris(),
+    }
+
+    if use_pkce:
+        args["code_verifier"] = session.get("verifier")
+    return args, aresp["state"]
+
+
+def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
+    resp = client.do_access_token_request(
+        state=state,
+        request_args=args,
+        authn_method="client_secret_basic",
+    )
+    user_info = {}
+    if isinstance(resp, message.AccessTokenResponse):
+        # If it's an AccessTokenResponse the information in the response will be stored in the
+        # client instance with state as the key for future use.
+        if client.userinfo_endpoint:
+            # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
+
+            # XXX: Not completely sure if this is even needed
+            #      We do not have a OpenID connect provider with userinfo endpoint
+            #      enabled and with the weird treatment of boolean values, so we cannot test this
+            # if self.context.getProperty("use_modified_openid_schema"):
+            #     userinfo = client.do_user_info_request(state=aresp["state"], user_info_schema=CustomOpenIDNonBooleanSchema)
+            # else:
+            #     userinfo = client.do_user_info_request(state=aresp["state"])
+
+            user_info = client.do_user_info_request(state=state)
+        else:
+            user_info = resp.to_dict().get("id_token", {})
+
+        # userinfo in an instance of OpenIDSchema or ErrorResponse
+        # It could also be dict, if there is no userinfo_endpoint
+        if not (user_info and isinstance(user_info, (message.OpenIDSchema, dict))):
+            logger.error(f"Authentication failed,  invalid response {resp} {user_info}")
+            user_info = {}
+    elif isinstance(resp, message.TokenErrorResponse):
+        logger.error(f"Token error response: {resp.to_json()}")
+    else:
+        logger.error(f"Authentication failed {resp}")
+    return user_info
+
+
+def process_came_from(session: Session, came_from: str = "") -> str:
+    if not came_from:
+        came_from = session.get("came_from")
+    portal_url = api.portal.get_tool("portal_url")
+    if not (came_from and portal_url.isURLInPortal(came_from)):
+        came_from = api.portal.get().absolute_url()
+    return url_cleanup(came_from)
