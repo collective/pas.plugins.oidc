@@ -46,6 +46,10 @@ Add **pas.plugins.oidc** to the Plone installation using `pip`:
 pip install pas.plugins.oidc
 ``
 
+### Requirements
+
+As of version 2.* of this package the minimum requirements are Plone 6.0 and python 3.8.
+
 ### Warning
 
 Pay attention to the customization of `User info property used as userid` field, with the wrong configuration it's easy to impersonate another user.
