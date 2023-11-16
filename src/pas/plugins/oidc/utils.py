@@ -13,6 +13,7 @@ from plone import api
 from typing import Union
 
 import base64
+import re
 
 
 def boolean_string_ser(val, sformat=None, lev=0):
@@ -63,11 +64,19 @@ class CustomOpenIDNonBooleanSchema(message.OpenIDSchema):
     }
 
 
+_URL_MAPPING = (
+    (r"(.*)/api($|/.*)", r"\1\2"),
+    (r"(.*)/\+\+api\+\+($|/.*)", r"\1\2"),
+)
+
+
 def url_cleanup(url: str) -> str:
     """Clean up redirection url."""
     # Volto frontend mapping exception
-    if url.endswith("/api") or url.endswith("/++api++"):
-        url = "/".join(url.split("/")[-1])
+    for search, replace in _URL_MAPPING:
+        match = re.search(search, url)
+        if match:
+            url = re.sub(search, replace, url)
     return url
 
 
