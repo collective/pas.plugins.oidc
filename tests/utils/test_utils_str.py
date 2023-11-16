@@ -13,11 +13,12 @@ class TestUtilsBooleanSer:
             (1, True),
             (False, False),
             (True, True),
-        ]
+        ],
     )
     def test_boolean_string_ser(self, value, expected):
         func = utils.boolean_string_ser
         assert func(value) is expected
+
 
 class TestUtilsBooleanDeSer:
     @pytest.mark.parametrize(
@@ -27,7 +28,7 @@ class TestUtilsBooleanDeSer:
             ("true", True),
             ("false", False),
             (True, True),
-        ]
+        ],
     )
     def test_boolean_string_deser(self, value, expected):
         func = utils.boolean_string_deser
