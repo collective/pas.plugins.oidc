@@ -4,11 +4,12 @@ from pas.plugins.oidc import _
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OAuth2ConnectionException
+from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from plone.protect.interfaces import IDisableCSRFProtection
 from plone.restapi.deserializer import json_body
 from plone.restapi.services import Service
-from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
+from Products.PlonePAS.tools.memberdata import MemberData
 from transaction.interfaces import NoTransaction
 from zope.interface import alsoProvides
 from zope.interface import implementer
@@ -21,23 +22,24 @@ import transaction
 class LoginOIDC(Service):
     """Base class for OIDC login."""
 
-    _plugin = None
-    _data = None
+    _plugin: OIDCPlugin = None
+    _data: dict = None
+    provider_id: str = "oidc"
 
-    def publishTraverse(self, request, name):
+    def publishTraverse(self, request, name: str):
         # Store the first path segment as the provider
         request["TraversalRequestNameStack"] = []
         self.provider_id = name
         return self
 
     @property
-    def json_body(self):
+    def json_body(self) -> dict:
         if not self._data:
             self._data = json_body(self.request)
         return self._data
 
     @property
-    def plugin(self):
+    def plugin(self) -> OIDCPlugin:
         if not self._plugin:
             try:
                 self._plugin = utils.get_plugin()
@@ -65,7 +67,7 @@ class LoginOIDC(Service):
 class Get(LoginOIDC):
     """Provide information to start the OIDC flow."""
 
-    def check_permission(self):
+    def check_permission(self) -> bool:
         return True
 
     def reply(self) -> dict:
@@ -119,13 +121,13 @@ class LogoutGet(LoginOIDC):
 
         :returns: URL and session information.
         """
-        provider = self.provider_id or "oidc"
+        provider = "oidc"
         plugin = self.plugin
         if not (plugin and provider == "oidc"):
             return self._provider_not_found(provider)
 
         try:
-            client = self.context.get_oauth2_client()
+            client = plugin.get_oauth2_client()
         except OAuth2ConnectionException:
             self.request.response.setStatus(500)
             return {
@@ -163,36 +165,10 @@ class LogoutGet(LoginOIDC):
 class Post(LoginOIDC):
     """Handles OIDC login and returns a JSON web token (JWT)."""
 
-    _pas = None
-
-    def check_permission(self):
+    def check_permission(self) -> bool:
         return True
 
-    def _get_pas(self):
-        """Get the acl_users tool.
-
-        :returns: ACL tool.
-        """
-        if not self._pas:
-            self._pas = api.portal.get_tool("acl_users")
-        return self._pas
-
-    def _get_jwt_plugin(self):
-        """Get the JWT authentication plugin.
-
-        :returns: JWT Authentication plugin.
-        """
-        pas = self._get_pas()
-        plugins = pas._getOb("plugins")
-        authenticators = plugins.listPlugins(IAuthenticationPlugin)
-        plugin = None
-        for id_, authenticator in authenticators:
-            if authenticator.meta_type == "JWT Authentication Plugin":
-                plugin = authenticator
-                break
-        return plugin
-
-    def _annotate_transaction(self, action, user):
+    def _annotate_transaction(self, action: str, user: MemberData):
         """Add a note to the current transaction."""
         try:
             # Get the current transaction
@@ -214,7 +190,7 @@ class Post(LoginOIDC):
 
         :returns: Token information.
         """
-        provider = self.provider_id or "oidc"
+        provider = self.provider_id
         plugin = self.plugin
         if not (plugin and provider == "oidc"):
             return self._provider_not_found(provider)

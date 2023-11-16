@@ -1,7 +1,9 @@
+from pas.plugins.oidc import PACKAGE_NAME
 from urllib.parse import parse_qsl
 from urllib.parse import urlparse
 
 import pytest
+import transaction
 
 
 class TestServiceOIDCGet:
@@ -42,3 +44,39 @@ class TestServiceOIDCGet:
         assert qs["redirect_uri"].endswith("/plone/login_oidc/oidc")
         assert "state" in qs
         assert "nonce" in qs
+
+
+class TestServiceOIDCGetFailure:
+    endpoint: str = "@login-oidc/oidc"
+
+    @pytest.fixture(autouse=True)
+    def _initialize(self, api_anon_request, installer):
+        installer.uninstall_product(PACKAGE_NAME)
+        self.api_session = api_anon_request
+        transaction.commit()
+
+    def test_login_oidc_not_found(self):
+        response = self.api_session.get(self.endpoint)
+        assert response.status_code == 404
+        data = response.json()
+        assert isinstance(data, dict)
+
+
+class TestServiceOIDCLogout:
+    endpoint: str = "@logout-oidc"
+
+    @pytest.fixture(autouse=True)
+    def _initialize(self, api_anon_request, keycloak_login):
+        login_endpoint = "@login-oidc/oidc"
+        self.api_session = api_anon_request
+        response = self.api_session.get(login_endpoint)
+        data = response.json()
+        next_url = data["next_url"]
+        qs = keycloak_login(next_url)
+        self.api_session.post(login_endpoint, json={"qs": qs})
+
+    def test_logout(self):
+        response = self.api_session.get(self.endpoint)
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, dict)

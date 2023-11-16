@@ -17,7 +17,7 @@
       factory=".oidc.LogoutGet"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       permission="zope.Public"
-      name="@logout"
+      name="@logout-oidc"
       />
 
   <plone:service
