@@ -1,9 +1,6 @@
 from hashlib import sha256
 from oic import rndstr
-from oic.oauth2.message import ParamDefinition
-from oic.oauth2.message import SINGLE_OPTIONAL_INT
-from oic.oauth2.message import SINGLE_OPTIONAL_STRING
-from oic.oauth2.message import SINGLE_REQUIRED_STRING
+from oic.exception import RequestError
 from oic.oic import message
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import PLUGIN_ID
@@ -32,33 +29,33 @@ def boolean_string_deser(val, sformat=None, lev=0):
 
 
 # value type, required, serializer, deserializer, null value allowed
-SINGLE_OPTIONAL_BOOLEAN_AS_STRING = ParamDefinition(
+SINGLE_OPTIONAL_BOOLEAN_AS_STRING = message.ParamDefinition(
     str, False, boolean_string_ser, boolean_string_deser, False
 )
 
 
 class CustomOpenIDNonBooleanSchema(message.OpenIDSchema):
     c_param = {
-        "sub": SINGLE_REQUIRED_STRING,
-        "name": SINGLE_OPTIONAL_STRING,
-        "given_name": SINGLE_OPTIONAL_STRING,
-        "family_name": SINGLE_OPTIONAL_STRING,
-        "middle_name": SINGLE_OPTIONAL_STRING,
-        "nickname": SINGLE_OPTIONAL_STRING,
-        "preferred_username": SINGLE_OPTIONAL_STRING,
-        "profile": SINGLE_OPTIONAL_STRING,
-        "picture": SINGLE_OPTIONAL_STRING,
-        "website": SINGLE_OPTIONAL_STRING,
-        "email": SINGLE_OPTIONAL_STRING,
+        "sub": message.SINGLE_REQUIRED_STRING,
+        "name": message.SINGLE_OPTIONAL_STRING,
+        "given_name": message.SINGLE_OPTIONAL_STRING,
+        "family_name": message.SINGLE_OPTIONAL_STRING,
+        "middle_name": message.SINGLE_OPTIONAL_STRING,
+        "nickname": message.SINGLE_OPTIONAL_STRING,
+        "preferred_username": message.SINGLE_OPTIONAL_STRING,
+        "profile": message.SINGLE_OPTIONAL_STRING,
+        "picture": message.SINGLE_OPTIONAL_STRING,
+        "website": message.SINGLE_OPTIONAL_STRING,
+        "email": message.SINGLE_OPTIONAL_STRING,
         "email_verified": SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
-        "gender": SINGLE_OPTIONAL_STRING,
-        "birthdate": SINGLE_OPTIONAL_STRING,
-        "zoneinfo": SINGLE_OPTIONAL_STRING,
-        "locale": SINGLE_OPTIONAL_STRING,
-        "phone_number": SINGLE_OPTIONAL_STRING,
+        "gender": message.SINGLE_OPTIONAL_STRING,
+        "birthdate": message.SINGLE_OPTIONAL_STRING,
+        "zoneinfo": message.SINGLE_OPTIONAL_STRING,
+        "locale": message.SINGLE_OPTIONAL_STRING,
+        "phone_number": message.SINGLE_OPTIONAL_STRING,
         "phone_number_verified": SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
         "address": message.OPTIONAL_ADDRESS,
-        "updated_at": SINGLE_OPTIONAL_INT,
+        "updated_at": message.SINGLE_OPTIONAL_INT,
         "_claim_names": message.OPTIONAL_MESSAGE,
         "_claim_sources": message.OPTIONAL_MESSAGE,
     }
@@ -177,6 +174,7 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
     if isinstance(resp, message.AccessTokenResponse):
         # If it's an AccessTokenResponse the information in the response will be stored in the
         # client instance with state as the key for future use.
+        user_info = resp.to_dict().get("id_token", {})
         if client.userinfo_endpoint:
             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
 
@@ -187,11 +185,14 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
             #     userinfo = client.do_user_info_request(state=aresp["state"], user_info_schema=CustomOpenIDNonBooleanSchema)
             # else:
             #     userinfo = client.do_user_info_request(state=aresp["state"])
-
-            user_info = client.do_user_info_request(state=state)
-        else:
-            user_info = resp.to_dict().get("id_token", {})
-
+            try:
+                user_info = client.do_user_info_request(state=state)
+            except RequestError as exc:
+                logger.error(
+                    "Authentication failed, probably missing openid scope",
+                    exc_info=exc,
+                )
+                user_info = {}
         # userinfo in an instance of OpenIDSchema or ErrorResponse
         # It could also be dict, if there is no userinfo_endpoint
         if not (user_info and isinstance(user_info, (message.OpenIDSchema, dict))):
