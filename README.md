@@ -252,7 +252,7 @@ You need a working `python` environment (system, `virtualenv`, `pyenv`, etc) ver
 Then install the dependencies and a development instance using:
 
 ```bash
-make build
+make install
 ```
 
 ### Start Local Server
