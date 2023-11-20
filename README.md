@@ -126,6 +126,11 @@ The `plone` realm ships with an user that has the following credentials:
 * username: **user**
 * password: **12345678**
 
+And, to configure the oidc plugins, please use:
+
+* client id: **plone**
+* client secret: **12345678**
+
 #### Stop Keycloak
 
 To stop a running `Keycloak` (needed when running tests), use:
@@ -170,7 +175,7 @@ Specifically, here we will use a Docker image, so follow the instructions on how
 * Set these properties:
   * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8081/realms/plone/
   * `Client ID`: *plone* (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
-  * `Client secret`: *••••••••••••••••••••••••••••••••* (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
+  * `Client secret`: *12345678* (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
   * `Use deprecated redirect_uri for logout url` checked. Use this if you need to run old versions of Keycloak.
   * `Open ID scopes to request to the server`: this depends on which version of Keycloak you are using, and which scopes are available there.
     In recent Keycloak versions, you *must* include `openid` as scope.
