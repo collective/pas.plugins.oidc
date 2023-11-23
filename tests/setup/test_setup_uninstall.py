@@ -21,7 +21,7 @@ class TestSetupUninstall:
 
     def test_plugin_removed(self, portal):
         """Test if plugin is removed to acl_users."""
-        from pas.plugins.oidc.utils import PLUGIN_ID
+        from pas.plugins.oidc import PLUGIN_ID
 
         pas = api.portal.get_tool("acl_users")
         assert PLUGIN_ID not in pas.objectIds()

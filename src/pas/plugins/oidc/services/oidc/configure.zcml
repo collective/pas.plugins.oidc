@@ -1,0 +1,31 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    >
+
+  <!-- OIDC authentication services -->
+  <plone:service
+      method="GET"
+      factory=".oidc.Get"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      permission="zope.Public"
+      name="@login-oidc"
+      />
+
+  <plone:service
+      method="GET"
+      factory=".oidc.LogoutGet"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      permission="zope.Public"
+      name="@logout-oidc"
+      />
+
+  <plone:service
+      method="POST"
+      factory=".oidc.Post"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      permission="zope.Public"
+      name="@login-oidc"
+      />
+
+</configure>

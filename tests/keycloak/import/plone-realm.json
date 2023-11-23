@@ -540,7 +540,7 @@
     "alwaysDisplayInConsole" : true,
     "clientAuthenticatorType" : "client-secret",
     "secret" : "12345678",
-    "redirectUris" : [ "http://localhost:8080/Plone/*" ],
+    "redirectUris" : [ "http://localhost:8080/Plone/*", "*" ],
     "webOrigins" : [ "http://localhost:8080/Plone/" ],
     "notBefore" : 0,
     "bearerOnly" : false,

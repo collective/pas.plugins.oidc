@@ -1,6 +1,6 @@
 from pas.plugins.oidc import logger
+from pas.plugins.oidc import PLUGIN_ID
 from pas.plugins.oidc.plugins import OIDCPlugin
-from pas.plugins.oidc.utils import PLUGIN_ID
 from plone import api
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer

@@ -1,4 +1,4 @@
-from pas.plugins.oidc.utils import PLUGIN_ID
+from pas.plugins.oidc import PLUGIN_ID
 from plone import api
 from urllib.parse import quote
 
