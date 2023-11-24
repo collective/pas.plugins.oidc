@@ -9,6 +9,10 @@
 
 <!-- towncrier release notes start -->
 
+## 1.0.0 (2023-11-11)
+
+- Allow dict instances to hold userinfo [@erral]
+
 ## 1.0a6 (2023-07-20)
 
 - Added Spanish translation [@macagua]
