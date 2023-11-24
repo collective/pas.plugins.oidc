@@ -9,6 +9,23 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0a1 (2023-11-23)
+
+
+### New features:
+
+- Implement [plone/meta](https://github.com/plone/meta) and convert documentation to Markdown [@ericof] [#32](https://github.com/collective/pas.plugins.oidc/issues/32)
+- Drop support to Python 2.7 and Plone 5.2 [@ericof] [#33](https://github.com/collective/pas.plugins.oidc/issues/33)
+- Implement restapi services to handle authentication flow [@ericof] [#38](https://github.com/collective/pas.plugins.oidc/issues/38)
+
+
+### Internal:
+
+- Rewrite tests from unittest to pytest with [pytest-plone](https://pypi.org/project/pytest-plone/) [@ericof] [#34](https://github.com/collective/pas.plugins.oidc/issues/34)
+- Allow dict instances to hold userinfo [@erral] [#35](https://github.com/collective/pas.plugins.oidc/issues/35)
+- Declare the minimum requirements for Plone/python in the readme [mamico] [#36](https://github.com/collective/pas.plugins.oidc/issues/36)
+
+
 ## 1.0.0 (2023-11-11)
 
 - Allow dict instances to hold userinfo [@erral]

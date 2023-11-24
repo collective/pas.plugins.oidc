@@ -1,1 +1,0 @@
-Rewrite tests from unittest to pytest with [pytest-plone](https://pypi.org/project/pytest-plone/) [@ericof]
