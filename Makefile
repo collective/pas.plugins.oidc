@@ -16,6 +16,7 @@ RESET=`tput sgr0`
 YELLOW=`tput setaf 3`
 
 BACKEND_FOLDER=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+COMPOSE_FOLDER=${BACKEND_FOLDER}/tests
 DOCS_DIR=${BACKEND_FOLDER}/docs
 
 # Python checks
@@ -127,6 +128,22 @@ test: bin/tox ## run tests
 .PHONY: test-coverage
 test-coverage: bin/tox ## run tests
 	bin/tox -e coverage
+
+# Keycloak
+.PHONY: keycloak-start
+keycloak-start: ## Start Keycloak stack
+	@echo "$(GREEN)==> Start keycloak stack$(RESET)"
+	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml up -d
+
+.PHONY: keycloak-status
+keycloak-status: ## Check Keycloak stack status
+	@echo "$(GREEN)==> Check Keycloak stack status$(RESET)"
+	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml ps
+
+.PHONY: keycloak-stop
+keycloak-stop: ## Stop Keycloak stack
+	@echo "$(GREEN)==> Stop Keycloak stack$(RESET)"
+	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml down
 
 # Docs
 bin/sphinx-build: bin/pip

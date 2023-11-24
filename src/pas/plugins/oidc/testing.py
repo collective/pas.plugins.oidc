@@ -3,6 +3,7 @@ from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import PloneSandboxLayer
+from plone.testing.zope import WSGI_SERVER_FIXTURE
 
 import pas.plugins.oidc
 
@@ -17,6 +18,7 @@ class TestLayer(PloneSandboxLayer):
         self.loadZCML(package=pas.plugins.oidc)
 
     def setUpPloneSite(self, portal):
+        applyProfile(portal, "plone.restapi:default")
         applyProfile(portal, "pas.plugins.oidc:default")
 
 
@@ -32,4 +34,9 @@ INTEGRATION_TESTING = IntegrationTesting(
 FUNCTIONAL_TESTING = FunctionalTesting(
     bases=(FIXTURE,),
     name="PasPluginsOidcLayer:FunctionalTesting",
+)
+
+RESTAPI_TESTING = FunctionalTesting(
+    bases=(FIXTURE, WSGI_SERVER_FIXTURE),
+    name="PasPluginsOidcLayer:RestAPITesting",
 )

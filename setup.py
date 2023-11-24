@@ -13,7 +13,7 @@ long_description = f"""
 
 setup(
     name="pas.plugins.oidc",
-    version="1.0a7.dev1",
+    version="2.0.0a2.dev0",
     description="An add-on for Plone",
     long_description=long_description,
     long_description_content_type="text/markdown",

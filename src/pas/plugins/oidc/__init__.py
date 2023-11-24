@@ -7,6 +7,7 @@ import logging
 
 
 PACKAGE_NAME = "pas.plugins.oidc"
+PLUGIN_ID = "oidc"
 
 _ = MessageFactory(PACKAGE_NAME)
 

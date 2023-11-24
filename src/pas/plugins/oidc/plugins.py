@@ -18,6 +18,7 @@ from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.UserPropertySheet import UserPropertySheet
 from Products.PluggableAuthService.utils import classImplements
 from secrets import choice
+from typing import List
 from ZODB.POSException import ConflictError
 from zope.interface import implementer
 from zope.interface import Interface
@@ -28,6 +29,16 @@ import string
 
 
 PWCHARS = string.ascii_letters + string.digits + string.punctuation
+
+
+def format_redirect_uris(uris: List[str]) -> List[str]:
+    response = []
+    portal_url = api.portal.get().absolute_url()
+    for uri in uris:
+        if uri.startswith("/"):
+            uri = f"{portal_url}{uri}"
+        response.append(safe_text(uri))
+    return response
 
 
 class OAuth2ConnectionException(Exception):
@@ -380,7 +391,7 @@ class OIDCPlugin(BasePlugin):
     def get_redirect_uris(self):
         redirect_uris = self.getProperty("redirect_uris")
         if redirect_uris:
-            return [safe_text(uri) for uri in redirect_uris if uri]
+            return format_redirect_uris(redirect_uris)
         return [
             f"{self.absolute_url()}/callback",
         ]

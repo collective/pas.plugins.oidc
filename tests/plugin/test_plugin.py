@@ -1,6 +1,6 @@
 from base64 import b64decode
 from oic.oic.message import OpenIDSchema
-from pas.plugins.oidc.utils import PLUGIN_ID
+from pas.plugins.oidc import PLUGIN_ID
 from plone import api
 from plone.session.tktauth import splitTicket
 

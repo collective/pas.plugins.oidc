@@ -7,6 +7,11 @@
     i18n_domain="pas.plugins.oidc"
     >
 
+  <include
+      package="Products.CMFCore"
+      file="permissions.zcml"
+      />
+
   <five:registerPackage
       package="."
       initialize=".initialize"
@@ -14,13 +19,8 @@
 
   <i18n:registerTranslations directory="locales" />
 
-  <!--
-    Be careful if you use general includeDependencies, it can have side effects!
-    Better import explicit packages or configurations ;)
-  -->
-  <!--<includeDependencies package="." />-->
-
   <include package=".browser" />
+  <include package=".services" />
 
   <genericsetup:registerProfile
       name="default"

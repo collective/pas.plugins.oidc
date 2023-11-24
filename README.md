@@ -1,4 +1,4 @@
-<div align="center"><img alt="logo" src="./docs/_static/images/icon.png" width="70" /></div>
+<div align="center"><img alt="logo" src="./docs/icon.png" width="70" /></div>
 
 <h1 align="center">pas.plugins.oidc</h1>
 
@@ -46,6 +46,10 @@ Add **pas.plugins.oidc** to the Plone installation using `pip`:
 pip install pas.plugins.oidc
 ``
 
+### Requirements
+
+As of version 2.* of this package the minimum requirements are Plone 6.0 and python 3.8.
+
 ### Warning
 
 Pay attention to the customization of `User info property used as userid` field, with the wrong configuration it's easy to impersonate another user.
@@ -70,11 +74,20 @@ Pay attention to the customization of `User info property used as userid` field,
 
 ### Login and Logout URLs
 
+#### Default UI (Volto)
+
+When using this plugin with a [Volto frontend](https://6.docs.plone.org/volto/index.html), please install [@plone-collective/volto-authomatic](https://github.com/collective/volto-authomatic) add-on on your frontend project.
+
+* **Login URL**: `<Path to your Plone site>`/login
+* **Logout URL**: `<Path to your Plone site>`/logout
+
+Also, on the OpenID provider, configure the Redirect URL as **`<Path to your Plone site>`/login_oidc/oidc**.
+
+
+#### Classic UI
+
 When using this plugin with *Plone 6 Classic UI* the standard URLs used for login (`http://localhost:8080/Plone/login`) and logout (`http://localhost:8080/Plone/logout`)
 will not trigger the usage of the plugin.
-
-When using this plugin with a [Volto frontend](https://6.docs.plone.org/volto/index.html) the standard URLs for login (`http://localhost:3000/login`)
-and logout (`http://localhost:3000/logout`) will not trigger the usage of the plugin.
 
 To login into a site using the OIDC provider, you will need to change those login URLs to the following:
 
@@ -87,99 +100,50 @@ To login into a site using the OIDC provider, you will need to change those logi
 
   * `oidc pas plugin id`: is the id you gave to the OIDC plugin when you created it inside the Plone PAS administration panel. If you just used the default configuration and installed this plugin using Plone's Add-on Control Panel, this id will be `oidc`.
 
-When using Volto as a frontend, you need to expose those login and logout URLs somehow to make the login and logout process work.
-
-
 ### Example setup with Keycloak
 
-##### Setup Keycloak as server
+The `pas.plugins.oidc` repository has a working setup for a `Keycloak` development server using `Docker` and `Docker Compose`. To use it, in a terminal, run the command:
 
-Please refer to the [Keycloak documentation](https://www.keycloak.org/documentation>) for up to date instructions.
-Specifically, here we will use a Docker image, so follow the instructions on how to [get started with Keycloak on Docker](https://www.keycloak.org/getting-started/getting-started-docker).
+#### Start-up
+
+```bash
+make keycloak-start
+```
 
 This does **not** give you a production setup, but it is fine for local development.
 
-**Note:** Keycloak runs on port `8080` by default. Plone uses the same port. When you are reading this, you probably know how to let Plone use a different port.
-So let's indeed let Keycloak use its preferred port. At the moment of writing, this is how you start a Keycloak container:
+This command will use the [`docker-compose.yml`](./tests/docker-compose.yml) file available in the `tests` directory.
 
-```shell
-docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:19.0.3 start-dev
+#### Manage Keycloak
+
+After start up, Keycloak will be accessible on [http://127.0.0.1:8180](http://127.0.0.1:8180), and you can manage it with the following credentials:
+
+* **username**: admin
+* **password**: admin
+
+#### Realms
+
+There are two realms configured `plone` and `plone-test`. The later is used in automated tests, while the former should be used for your development environment.
+
+The `plone` realm ships with an user that has the following credentials:
+
+* username: **user**
+* password: **12345678**
+
+And, to configure the oidc plugins, please use:
+
+* client id: **plone**
+* client secret: **12345678**
+
+#### Stop Keycloak
+
+To stop a running `Keycloak` (needed when running tests), use:
+
+```bash
+make keycloak-stop
 ```
-The plugin can be used with legacy (deprecated) Keycloak `redirect_uri` parameter. To use this you need to enable the option
-in the plugin configuration. To test that you can run the Keycloak server with the `--spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true`
-option:
 
-```shell
-docker run -p 8080:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:19.0.3 start-dev --spi-login-protocol-openid-connect-legacy-logout-redirect-uri=true
-```
-
-**Note:** when you exit this container, it still exists and you can restart it so you don't lose your configuration.
-With `docker ps -a` figure out the name of the container and then use `docker container start -ai <name>`.
-
-Follow the Keycloak Docker documentation further:
-
-* Open the [Keycloak Admin Console](http://localhost:8080/admin), make sure you are logged in as `admin`.
-* Click the word `master` in the top-left corner, then click `Create Realm`.
-* Enter *plone* in the `Realm name` field.
-* Click `Create`.
-* Click the word `master` in the top-left corner, then click `plone`.
-* Click `Manage` -> `Users` in the left-hand menu.
-* Click `Create new user`.
-* Remember to set a password for this user in the `Credentials` tab.
-* Open a different browser and check that you can login to [Keycloak Account Console](http://localhost:8080/realms/plone/account) with this user.
-
-In the original browser, follow the steps for securing your first app.
-But we will be using different settings for Plone.
-And when last I checked, the actual UI differed from the documentation.
-
-So:
-* Open the [Keycloak Admin Console](http://localhost:8080/admin), make sure you are logged in as `admin`.
-* Click the word `master` in the top-left corner, then click `plone`.
-* Click `Manage` -> `Clients` in the left-hand menu.
-* Click `Create client`:
-  * `Client type`: *OpenID Connect*
-  * `Client ID`: *plone*
-  * Turn `Always display in console` to `On`, *Useful for testing*.
-  * Click `Next` and click `Save`.
-* Now you can fill in the `Settings` -> `Access settings`. We will assume Plone runs on port `8081`:
-  * `Root URL`: `http://localhost:8081/Plone/`
-  * `Home URL`: `http://localhost:8081/Plone/`
-  * `Valid redirect URIs`: `http://localhost:8081/Plone*`
-    **Tip:** Leave the rest at the defaults, unless you know what you are doing.
-* Now you can fill in the `Settings` -> `Capability config`.
-  * Turn `Client authentication` to `On`. This defines the type of the OIDC client. When it's ON, the
-    OIDC type is set to confidential access type. When it's OFF, it is set to public access type.
-  * Click `Save`.
-* Now you can access `Credentials` -> `Client secret` and click on the clipboard icon to copy it. This will
-  be necessary to configure the plugin in Plone.
-
-**Keycloak is ready done configured!**
-
-#### Setup Plone as a client
-
-* In your Zope instance configuration, make sure Plone runs on port 8081.
-* Make sure [pas.plugins.oidc` is installed with `pip <https://6.docs.plone.org/glossary.html#term-pip>`_ or `Buildout](https://www.buildout.org/).
-* Start Plone and create a Plone site with id Plone.
-* In the Add-ons control panel, install `pas.plugins.oidc`.
-* In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
-* Set these properties:
-  * `OIDC/Oauth2 Issuer`: http://localhost:8080/realms/plone/
-  * `Client ID`: *plone* (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
-  * `Client secret`: *••••••••••••••••••••••••••••••••* (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
-  * `Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)` checked. Use this if you need to run old versions of Keycloak.
-  * `Open ID scopes to request to the server`: this depends on which version of Keycloak you are using, and which scopes are available there.
-    In recent Keycloak versions, you *must* include `openid` as scope.
-    Suggestion is to use `openid` and `profile`.
-  *  **Tip:** Leave the rest at the defaults, unless you know what you are doing.
-  * Click `Save`.
-
-**Plone is ready done configured!**
-
-See this screenshot:
-
-.. image:: docs/screenshot-settings.png
-
-**Warning:**
+#### Warning
 
 Attention, before Keycloak 18, the parameter for logout was `redirect_uri` and it has been deprecated since version 18. But the
 Keycloak server can run with the `redirect_uri` if needed, it is possible to use the plugin with the legacy `redirect_uri`
@@ -201,6 +165,34 @@ So, for Keycloak, it does not matter if we use the default or legacy mode if the
 * The plugin will work only if the `Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`
   option is un-checked at the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm.
 
+#### Additional Documentation
+
+Please refer to the [Keycloak documentation](https://www.keycloak.org/documentation>) for up to date instructions.
+Specifically, here we will use a Docker image, so follow the instructions on how to [get started with Keycloak on Docker](https://www.keycloak.org/getting-started/getting-started-docker).
+
+#### Setup Plone as a client
+
+* Make sure **pas.plugins.oidc** is installed.
+* Start Plone and create a Plone site with id Plone.
+* In the Add-ons control panel, install `pas.plugins.oidc`.
+* In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
+* Set these properties:
+  * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8081/realms/plone/
+  * `Client ID`: *plone* (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
+  * `Client secret`: *12345678* (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
+  * `Use deprecated redirect_uri for logout url` checked. Use this if you need to run old versions of Keycloak.
+  * `Open ID scopes to request to the server`: this depends on which version of Keycloak you are using, and which scopes are available there.
+    In recent Keycloak versions, you *must* include `openid` as scope.
+    Suggestion is to use `openid` and `profile`.
+  *  **Tip:** Leave the rest at the defaults, unless you know what you are doing.
+  * Click `Save`.
+
+**Plone is ready done configured!**
+
+See this screenshot:
+
+.. image:: docs/screenshot-settings.png
+
 #### Login
 
 Go to the other browser, or logout as admin from [Keycloak Admin Console](http://localhost:8080/admin).
@@ -218,7 +210,9 @@ Currently, the Plone logout form is unchanged.
 Instead, for testing go to the logout page of the plugin: http://localhost:8081/Plone/acl_users/oidc/logout,
 this will take you to Keycloak to logout, and then return to the post-logout redirect URL.
 
-## Usage of sessions in the login process
+## Technical Decisions
+
+### Usage of sessions in the login process
 
 This plugin uses sessions during the login process to identify the user while he goes to the OIDC provider
 and comes back from there.
@@ -233,13 +227,13 @@ The plugin has 2 ways of working with sessions:
 - Use the cookie-based session management: if the `Use Zope session data manager` option in the plugin
   configuration is disabled, the plugin will use a Cookie to save that information in the client's browser.
 
-## Settings in environment variables
+### Settings in environment variables
 
 Optionally, instead of editing your OIDC provider settings through the ZMI, you can use [collective.regenv](https://pypi.org/project/collective.regenv/) and provide
 a `YAML` file with your settings. This is very useful if you have different settings in different environments
 and you do not want to edit the settings each time you move the contents.
 
-## Varnish
+### Varnish
 
 Optionally, if you are using the [Varnish caching server](https://6.docs.plone.org/glossary.html#term-Varnish) in front
 of Plone, you may see this plugin only partially working. Especially the `came_from` parameter may be ignored.
@@ -254,6 +248,79 @@ Check what the current default is in the buildout recipe, and update it:
 
 - Issue Tracker: https://github.com/collective/pas.plugins.oidc/issues
 - Source Code: https://github.com/collective/pas.plugins.oidc
+
+### Local Development Setup
+
+You need a working `python` environment (system, `virtualenv`, `pyenv`, etc) version 3.8 or superior.
+
+Then install the dependencies and a development instance using:
+
+```bash
+make install
+```
+
+### Start Local Server
+
+Start Plone, on port 8080, with the command:
+
+```bash
+make start
+```
+
+#### Keycloak
+
+The `pas.plugins.oidc` repository has a working setup for a `Keycloak` development server using `Docker` and `Docker Compose`. To use it, in a terminal, run the command:
+
+```bash
+make keycloak-start
+```
+
+There are two realms configured `plone` and `plone-test`. The later is used in automated tests, while the former should be used for your development environment.
+
+The `plone` realm ships with an user that has the following credentials:
+
+* username: **user**
+* password: **12345678**
+
+To stop a running `Keycloak` (needed when running tests), use:
+
+```bash
+make keycloak-stop
+```
+
+### Update translations
+
+```bash
+make i18n
+```
+
+### Format codebase
+
+```bash
+make format
+```
+
+### Run tests
+
+Testing of this package is done with [`pytest`](https://docs.pytest.org/) and [`tox`](https://tox.wiki/).
+
+Run all tests with:
+
+```bash
+make test
+```
+
+Run all tests but stop on the first error and open a `pdb` session:
+
+```bash
+./bin/tox -e test -- -x --pdb
+```
+
+Run tests named `TestServiceOIDCPost`:
+
+```bash
+./bin/tox -e test -- -k TestServiceOIDCPost
+```
 
 ## References
 

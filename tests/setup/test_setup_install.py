@@ -24,15 +24,15 @@ class TestSetupInstall:
 
     def test_plugin_added(self):
         """Test if plugin is added to acl_users."""
-        from pas.plugins.oidc.utils import PLUGIN_ID
+        from pas.plugins.oidc import PLUGIN_ID
 
         pas = api.portal.get_tool("acl_users")
         assert PLUGIN_ID in pas.objectIds()
 
     def test_plugin_is_oidc(self):
         """Test if we have the correct plugin."""
+        from pas.plugins.oidc import PLUGIN_ID
         from pas.plugins.oidc.plugins import OIDCPlugin
-        from pas.plugins.oidc.utils import PLUGIN_ID
 
         pas = api.portal.get_tool("acl_users")
         plugin = getattr(pas, PLUGIN_ID)
