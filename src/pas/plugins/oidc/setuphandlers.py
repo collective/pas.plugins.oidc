@@ -23,9 +23,9 @@ def post_install(context):
     # Create plugin if it does not exist.
     if PLUGIN_ID not in pas.objectIds():
         plugin = OIDCPlugin(
+            id=PLUGIN_ID,
             title="OpenID Connect",
         )
-        plugin.id = PLUGIN_ID
         pas._setObject(PLUGIN_ID, plugin)
         logger.info("Created %s in acl_users.", PLUGIN_ID)
     plugin = getattr(pas, PLUGIN_ID)
