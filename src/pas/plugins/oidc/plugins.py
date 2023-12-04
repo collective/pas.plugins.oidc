@@ -17,6 +17,7 @@ from Products.PluggableAuthService.utils import classImplements
 from secrets import choice
 from typing import List
 from ZODB.POSException import ConflictError
+from zope.globalrequest import getRequest
 from zope.interface import implementer
 from zope.interface import Interface
 
@@ -230,7 +231,7 @@ class OIDCPlugin(BasePlugin):
             self._setupJWTTicket(user_id, user)
 
         mtool = api.portal.get_tool("portal_membership")
-        mtool.loginUser(self.request)
+        mtool.loginUser(getRequest())
 
     def _updateUserProperties(self, user, userinfo):
         """Update the given user properties from the set of credentials.
