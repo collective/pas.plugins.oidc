@@ -229,7 +229,7 @@ class OIDCPlugin(BasePlugin):
         if user and self.getProperty("create_restapi_ticket"):
             self._setupJWTTicket(user_id, user)
 
-        mtool = api.portal.get_tool('portal_membership')
+        mtool = api.portal.get_tool("portal_membership")
         mtool.loginUser(self.request)
 
     def _updateUserProperties(self, user, userinfo):
