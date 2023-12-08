@@ -1,4 +1,4 @@
-<div align="center"><img alt="logo" src="./docs/icon.png" width="70" /></div>
+<div align="center"><img alt="pas.plugins.oidc logo" src="https://raw.githubusercontent.com/collective/pas.plugins.oidc/main/docs/icon.png" width="70" /></div>
 
 <h1 align="center">pas.plugins.oidc</h1>
 
@@ -191,7 +191,7 @@ Specifically, here we will use a Docker image, so follow the instructions on how
 
 See this screenshot:
 
-.. image:: docs/screenshot-settings.png
+![](https://raw.githubusercontent.com/collective/pas.plugins.oidc/main/docs/screenshot-settings.png "Setup Plone as a client")
 
 #### Login
 
