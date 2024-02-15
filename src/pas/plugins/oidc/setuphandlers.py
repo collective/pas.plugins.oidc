@@ -23,9 +23,9 @@ def post_install(context):
     # Create plugin if it does not exist.
     if PLUGIN_ID not in pas.objectIds():
         plugin = OIDCPlugin(
+            id=PLUGIN_ID,
             title="OpenID Connect",
         )
-        plugin.id = PLUGIN_ID
         pas._setObject(PLUGIN_ID, plugin)
         logger.info("Created %s in acl_users.", PLUGIN_ID)
     plugin = getattr(pas, PLUGIN_ID)
@@ -50,7 +50,7 @@ def post_install(context):
     for info in plugins.listPluginTypeInfo():
         interface_name = info["id"]
         # If we support IPropertiesPlugin, it should be added here.
-        if interface_name in ("IChallengePlugin",):
+        if interface_name in ("IChallengePlugin", "IPropertiesPlugin"):
             iface = plugins._getInterfaceFromName(interface_name)
             plugins.movePluginsTop(iface, [PLUGIN_ID])
             logger.info(f"Moved {PLUGIN_ID} to top of {interface_name}.")
@@ -87,6 +87,10 @@ def activate_challenge_plugin(context):
     activate_plugin(context, "IChallengePlugin", move_to_top=True)
 
 
+def activate_properties_plugin(context):
+    activate_plugin(context, "IPropertiesPlugin", move_to_top=True)
+
+
 def uninstall(context):
     """Uninstall script"""
     from pas.plugins.oidc.utils import PLUGIN_ID
@@ -96,7 +100,6 @@ def uninstall(context):
     # Remove plugin if it exists.
     if PLUGIN_ID not in pas.objectIds():
         return
-    from pas.plugins.oidc.plugins import OIDCPlugin
 
     plugin = getattr(pas, PLUGIN_ID)
     if not isinstance(plugin, OIDCPlugin):
