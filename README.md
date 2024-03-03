@@ -10,6 +10,7 @@
 [![PyPI - License](https://img.shields.io/pypi/l/pas.plugins.oidc)](https://pypi.org/project/pas.plugins.oidc/)
 [![PyPI - Status](https://img.shields.io/pypi/status/pas.plugins.oidc)](https://pypi.org/project/pas.plugins.oidc/)
 
+
 [![PyPI - Plone Versions](https://img.shields.io/pypi/frameworkversions/plone/pas.plugins.oidc)](https://pypi.org/project/pas.plugins.oidc/)
 
 [![Meta](https://github.com/collective/pas.plugins.oidc/actions/workflows/meta.yml/badge.svg)](https://github.com/collective/pas.plugins.oidc/actions/workflows/meta.yml)
@@ -21,7 +22,6 @@
 </div>
 
 ## Intro
-
 This is a Plone authentication plugin for OpenID Connect.
 OAuth 2.0 should work as well because OpenID Connect is built on top of this protocol.
 
@@ -30,45 +30,47 @@ OAuth 2.0 should work as well because OpenID Connect is built on top of this pro
 - PAS plugin, although currently no interfaces are activated.
 - Three browser views for this PAS plugin, which are the main interaction with the outside world.
 
+
 ## Installation
 
 This package supports Plone sites using Volto and ClassicUI.
 
 For proper Volto support, the requirements are:
 
-- plone.restapi >= 8.34.0
-- Volto >= 16.10.0
+* plone.restapi >= 8.34.0
+* Volto >= 16.10.0
 
 Add **pas.plugins.oidc** to the Plone installation using `pip`:
 
-`bash
+``bash
 pip install pas.plugins.oidc
-`
+``
 
 ### Requirements
 
-As of version 2.\* of this package the minimum requirements are Plone 6.0 and python 3.8.
+As of version 2.* of this package the minimum requirements are Plone 6.0 and python 3.8.
 
 ### Warning
 
 Pay attention to the customization of `User info property used as userid` field, with the wrong configuration it's easy to impersonate another user.
 
+
 ## Configure the plugin
 
-- Go to the Add-ons control panel and install `pas.plugins.oidc`.
-- In the ZMI go to the plugin properties at `http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm`
-- Configure the properties with the data obtained from your provider:
-  - `OIDC/Oauth2 Issuer`
-  - `Client ID`
-  - `Client secret`
-  - `redirect_uris`: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include
+* Go to the Add-ons control panel and install `pas.plugins.oidc`.
+* In the ZMI go to the plugin properties at `http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm`
+* Configure the properties with the data obtained from your provider:
+  * `OIDC/Oauth2 Issuer`
+  * `Client ID`
+  * `Client secret`
+  * `redirect_uris`: this needs to match the **public URL** where the user will be redirected after the login flow is completed. It needs to include
     the `/Plone/acl_users/oidc/callback` part. When using Volto you need to expose Plone somehow to have the login process finish correctly.
-  - `Use Zope session data manager`: see the section below about the usage of session.
-  - `Create user / update user properties`: when selected the user data in Plone will be updated with the data coming from the OIDC provider.
-  - `Create authentication __ac ticket`: when selected the user will be allowed to act as a logged-in user in Plone.
-  - `Create authentication auth_token (Volto/REST API) ticket`: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
-  - `Open ID scopes to request to the server`: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
-  - `Use PKCE`: when enabled uses [PKCE](https://datatracker.ietf.org/doc/html/rfc7636) when requesting authentication from the provider.
+  * `Use Zope session data manager`: see the section below about the usage of session.
+  * `Create user / update user properties`: when selected the user data in Plone will be updated with the data coming from the OIDC provider.
+  * `Create authentication __ac ticket`: when selected the user will be allowed to act as a logged-in user in Plone.
+  * `Create authentication auth_token (Volto/REST API) ticket`: when selected the user will be allowed to act as a logged-in user in the Volto frontend.
+  * `Open ID scopes to request to the server`: information requested to the OIDC provider. Leave it as it is or modify it according to your provider's information.
+  * `Use PKCE`: when enabled uses [PKCE](https://datatracker.ietf.org/doc/html/rfc7636) when requesting authentication from the provider.
 
 ### Login and Logout URLs
 
@@ -76,8 +78,8 @@ Pay attention to the customization of `User info property used as userid` field,
 
 When using this plugin with a [Volto frontend](https://6.docs.plone.org/volto/index.html), please install [@plone-collective/volto-authomatic](https://github.com/collective/volto-authomatic) add-on on your frontend project.
 
-- **Login URL**: `<Path to your Plone site>`/login
-- **Logout URL**: `<Path to your Plone site>`/logout
+* **Login URL**: `<Path to your Plone site>`/login
+* **Logout URL**: `<Path to your Plone site>`/logout
 
 Also, on the OpenID provider, configure the Redirect URL as **`<Path to your Plone site>`/login_oidc/oidc**.
 
@@ -88,14 +90,14 @@ will not trigger the usage of the plugin.
 
 To login into a site using the OIDC provider, you will need to change those login URLs to the following:
 
-- **Login URL**: /`<Plone Site Id>`/acl_users/`<oidc pas plugin id>`/login
-- **Logout URL**: /`<Plone Site Id>`/acl_users/`<oidc pas plugin id>`/logout
+* **Login URL**: /`<Plone Site Id>`/acl_users/`<oidc pas plugin id>`/login
+* **Logout URL**: /`<Plone Site Id>`/acl_users/`<oidc pas plugin id>`/logout
 
-_Where:_
+*Where:*
 
-- `Plone Site Id`: is the id you gave to the Plone site when you created it. It is usually `Plone` but may vary. It is the last part of the URL when you browse Plone directly without using any proxy server, ex. `http://localhost:8080/Plone+` -> `Plone`.
+  * `Plone Site Id`: is the id you gave to the Plone site when you created it. It is usually `Plone` but may vary. It is the last part of the URL when you browse Plone directly without using any proxy server, ex. `http://localhost:8080/Plone+` -> `Plone`.
 
-- `oidc pas plugin id`: is the id you gave to the OIDC plugin when you created it inside the Plone PAS administration panel. If you just used the default configuration and installed this plugin using Plone's Add-on Control Panel, this id will be `oidc`.
+  * `oidc pas plugin id`: is the id you gave to the OIDC plugin when you created it inside the Plone PAS administration panel. If you just used the default configuration and installed this plugin using Plone's Add-on Control Panel, this id will be `oidc`.
 
 ### Example setup with Keycloak
 
@@ -196,9 +198,9 @@ See this screenshot:
 Go to the other browser, or logout as admin from [Keycloak Admin Console](http://localhost:8080/admin).
 Currently, the Plone login form is unchanged.
 
-Instead, for testing go to the login page of the plugin: http://localhost:8081/Plone/acl_users/oidc/login,
+Instead, for testing go to the login page of the plugin: http://localhost:8081/Plone/acl*users/oidc/login,
 this will take you to Keycloak to login, and then return. You should now be logged in to Plone, and see the
-_full name_ and _email_, if you have set this in Keycloak.
+\_full name* and _email_, if you have set this in Keycloak.
 
 #### Logout
 
@@ -220,7 +222,7 @@ Go to the Apple Developer Portal and create a new App ID in the [Certificates, I
 
 2. Create a Service ID
 
-In the same page, create a new Service ID. The identifier you will add here will be the client_id to be used when configuring the login process. Use the reverse-domain-name style notation to create this id, something like: com.yourcompany.yoursite. Tick the _Sign in with Apple_ option. Click on _Configure_ next to the option and set your application domain and the callback url. You must enter an _https_ URL.
+In the same page, create a new Service ID. The identifier you will add here will be the client*id to be used when configuring the login process. Use the reverse-domain-name style notation to create this id, something like: com.yourcompany.yoursite. Tick the \_Sign in with Apple* option. Click on _Configure_ next to the option and set your application domain and the callback url. You must enter an _https_ URL.
 
 3. Create a Private key
 
