@@ -4,12 +4,8 @@
     >
 
   <!-- Login options -->
-  <plone:service
-      method="GET"
-      factory=".get.Get"
-      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-      permission="zope.Public"
-      name="@login"
+  <adapter
+      factory=".get.OIDCLoginProviders"
+      name="pas-plugins-oidc-providers"
       />
-
 </configure>
