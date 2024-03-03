@@ -127,6 +127,10 @@ def authorization_flow_args(plugin: plugins.OIDCPlugin, session: Session) -> dic
         # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
         args["code_challenge"] = pkce_code_verifier_challenge(session.get("verifier"))
         args["code_challenge_method"] = "S256"
+
+    if plugin.getProperty('apple_login_enabled'):
+        args['response_mode'] = 'form_post'
+
     return args
 
 
@@ -168,13 +172,14 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
     resp = client.do_access_token_request(
         state=state,
         request_args=args,
-        authn_method="client_secret_basic",
+        authn_method=client.registration_response.get('token_endpoint_auth_method', 'client_secret_basic'),
     )
     user_info = {}
     if isinstance(resp, message.AccessTokenResponse):
         # If it's an AccessTokenResponse the information in the response will be stored in the
         # client instance with state as the key for future use.
         user_info = resp.to_dict().get("id_token", {})
+
         if client.userinfo_endpoint:
             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
 
@@ -193,6 +198,8 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
                     exc_info=exc,
                 )
                 user_info = {}
+        else:
+            pass
         # userinfo in an instance of OpenIDSchema or ErrorResponse
         # It could also be dict, if there is no userinfo_endpoint
         if not (user_info and isinstance(user_info, (message.OpenIDSchema, dict))):
