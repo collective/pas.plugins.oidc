@@ -161,10 +161,10 @@ So, this is the way it works:
 
 So, for Keycloak, it does not matter if we use the default or legacy mode if the Keycloak runs in legacy mode.
 
-_Notes:_
+*Notes:*
 
 * If legacy `redirect_uri` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
-  to this comment in _Starck Overflow_: https://stackoverflow.com/a/72142887.
+  to this comment in *Stack Overflow*: https://stackoverflow.com/a/72142887.
 * The plugin will work only if the `Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`
   option is un-checked at the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm.
 
@@ -181,11 +181,11 @@ Specifically, here we will use a Docker image, so follow the instructions on how
 * In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
 * Set these properties:
   * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8081/realms/plone/
-  * `Client ID`: _plone_ (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
-  * `Client secret`: _12345678_ (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
+  * `Client ID`: *plone* (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
+  * `Client secret`: *12345678* (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
   * `Use deprecated redirect_uri for logout url` checked. Use this if you need to run old versions of Keycloak.
   * `Open ID scopes to request to the server`: this depends on which version of Keycloak you are using, and which scopes are available there.
-    In recent Keycloak versions, you _must_ include `openid` as scope.
+    In recent Keycloak versions, you *must* include `openid` as scope.
     Suggestion is to use `openid` and `profile`.
   * **Tip:** Leave the rest at the defaults, unless you know what you are doing.
   * Click `Save`.
@@ -201,9 +201,9 @@ See this screenshot:
 Go to the other browser, or logout as admin from [Keycloak Admin Console](http://localhost:8080/admin).
 Currently, the Plone login form is unchanged.
 
-Instead, for testing go to the login page of the plugin: http://localhost:8081/Plone/acl*users/oidc/login,
+Instead, for testing go to the login page of the plugin: http://localhost:8081/Plone/acl_users/oidc/login,
 this will take you to Keycloak to login, and then return. You should now be logged in to Plone, and see the
-\_full name* and _email_, if you have set this in Keycloak.
+*full name* and *email*, if you have set this in Keycloak.
 
 #### Logout
 
