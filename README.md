@@ -269,6 +269,7 @@ removes most cookies to improve anonymous caching.
 The solution is to make sure the `__ac_session` cookie is added to the `cookie-pass` option.
 Check what the current default is in the buildout recipe, and update it:
 
+
 ## Contribute
 
 - Issue Tracker: https://github.com/collective/pas.plugins.oidc/issues
@@ -304,8 +305,8 @@ There are two realms configured `plone` and `plone-test`. The later is used in a
 
 The `plone` realm ships with an user that has the following credentials:
 
-- username: **user**
-- password: **12345678**
+* username: **user**
+* password: **12345678**
 
 To stop a running `Keycloak` (needed when running tests), use:
 
@@ -349,7 +350,7 @@ Run tests named `TestServiceOIDCPost`:
 
 ## References
 
-- Blog post: https://www.codesyntax.com/en/blog/log-in-in-plone-using-your-google-workspace-account
+* Blog post: https://www.codesyntax.com/en/blog/log-in-in-plone-using-your-google-workspace-account
 
 ## License
 
