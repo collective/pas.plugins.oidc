@@ -6,6 +6,7 @@ from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from pas.plugins.oidc import logger
+from pas.plugins.oidc import PLUGIN_ID
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
@@ -24,7 +25,7 @@ import itertools
 import jwt
 import plone.api as api
 import string
-
+import time
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 
@@ -92,6 +93,9 @@ class OIDCPlugin(BasePlugin):
     use_deprecated_redirect_uri_for_logout = False
     use_modified_openid_schema = False
     user_property_as_userid = "sub"
+    apple_login_enabled = False
+    apple_consumer_team = ""
+    apple_consumer_id_key = ""
 
     _properties = (
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
@@ -159,7 +163,29 @@ class OIDCPlugin(BasePlugin):
             mode="w",
             label="User info property used as userid, default 'sub'",
         ),
+        dict(
+            id="apple_login_enabled",
+            type="boolean",
+            mode="w",
+            label="Check if you want to login with Apple",
+        ),
+        dict(
+            id="apple_consumer_team",
+            type="string",
+            mode="w",
+            label="Apple consumer team as defined by Apple",
+        ),
+        dict(
+            id="apple_consumer_id_key",
+            type="string",
+            mode="w",
+            label="Apple consumer id key as defined by Apple",
+        ),
+
     )
+
+    APPLE_TOKEN_TTL_SEC = 6 * 30 * 24 * 60 * 60
+    APPLE_TOKEN_AUDIENCE = "https://appleid.apple.com"
 
     def __init__(self, id, title=None):
         self._setId(id)
@@ -323,6 +349,26 @@ class OIDCPlugin(BasePlugin):
             # TODO: take care of path, cookiename and domain options ?
             response.setCookie("auth_token", token, path="/")
 
+    def _build_apple_secret(self):
+        now = int(time.time())
+
+        client_id = self.getProperty("client_id")
+        team_id = self.getProperty('apple_consumer_team')
+        key_id = self.getProperty('apple_consumer_id_key')
+        private_key = self.getProperty('client_secret')
+
+        headers = {"kid": key_id}
+        payload = {
+            "iss": team_id,
+            "iat": now,
+            "exp": now + self.APPLE_TOKEN_TTL_SEC,
+            "aud": self.APPLE_TOKEN_AUDIENCE,
+            "sub": client_id,
+        }
+
+        private_key = f'-----BEGIN PRIVATE KEY-----\n{private_key}\n-----END PRIVATE KEY-----'
+        return jwt.encode(payload, key=private_key.encode(), algorithm="ES256", headers=headers)
+
     # TODO: memoize (?)
     def get_oauth2_client(self):
         try:
@@ -335,8 +381,16 @@ class OIDCPlugin(BasePlugin):
             provider_info = client.provider_config(self.getProperty("issuer"))  # noqa
             info = {
                 "client_id": self.getProperty("client_id"),
-                "client_secret": self.getProperty("client_secret"),
+                "token_endpoint_auth_method": provider_info.get(
+                    "token_endpoint_auth_methods_supported"
+                ),
             }
+
+            if self.getProperty('apple_login_enabled'):
+                info.update({"client_secret": self._build_apple_secret()})
+            else:
+                info.update({"client_secret": self.getProperty("client_secret")})
+
             client_reg = RegistrationResponse(**info)
             client.store_registration_info(client_reg)
             return client
