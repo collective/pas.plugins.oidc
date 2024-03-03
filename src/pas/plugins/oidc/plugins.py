@@ -21,8 +21,32 @@ from zope.interface import implementer
 from zope.interface import Interface
 
 import itertools
+import jwt
 import plone.api as api
 import string
+
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+
+
+manage_addOIDCPluginForm = PageTemplateFile(
+    "www/oidcPluginForm", globals(), __name__="manage_addOIDCPluginForm"
+)
+
+
+def addOIDCPlugin(dispatcher, id, title=None, REQUEST=None):
+    """Add a HTTP Basic Auth Helper to a Pluggable Auth Service."""
+    plugin = OIDCPlugin(
+        id, title
+    )
+    dispatcher._setObject(plugin.getId(), plugin)
+
+
+    if REQUEST is not None:
+        REQUEST["RESPONSE"].redirect(
+            "%s/manage_workspace"
+            "?manage_tabs_message="
+            "OIDC+Plugin+added." % dispatcher.absolute_url()
+        )
 
 
 PWCHARS = string.ascii_letters + string.digits + string.punctuation
@@ -136,6 +160,10 @@ class OIDCPlugin(BasePlugin):
             label="User info property used as userid, default 'sub'",
         ),
     )
+
+    def __init__(self, id, title=None):
+        self._setId(id)
+        self.title = title
 
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, (OpenIDSchema, dict)):
@@ -365,12 +393,6 @@ classImplements(
     # IPropertiesPlugin,
     # IRolesPlugin,
 )
-
-
-def add_oidc_plugin():
-    # Form for manually adding our plugin.
-    # But we do this in setuphandlers.py always.
-    pass
 
 
 # https://github.com/collective/Products.AutoUserMakerPASPlugin/blob/master/Products/AutoUserMakerPASPlugin/auth.py
