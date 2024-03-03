@@ -60,32 +60,27 @@ def post_install(context):
 
 def activate_plugin(context, interface_name, move_to_top=False):
     pas = api.portal.get_tool("acl_users")
-    if PLUGIN_ID not in pas.objectIds():
-        raise ValueError(f"acl_users has no plugin {PLUGIN_ID}.")
+    for plugin in pas.objectValues():
+        if isinstance(plugin, OIDCPlugin):
 
-    plugin = getattr(pas, PLUGIN_ID)
-    if not isinstance(plugin, OIDCPlugin):
-        raise ValueError(f"Existing PAS plugin {PLUGIN_ID} is not a OIDCPlugin.")
+            # This would activate one interface and deactivate all others:
+            # plugin.manage_activateInterfaces([interface_name])
+            # So only take over the necessary code from manage_activateInterfaces.
+            plugins = pas.plugins
+            iface = plugins._getInterfaceFromName(interface_name)
+            if plugin.getId() not in plugins.listPluginIds(iface):
+                plugins.activatePlugin(iface, plugin.getId())
+                logger.info(f"Activated interface {interface_name} for plugin {plugin.getId()}")
 
-    # This would activate one interface and deactivate all others:
-    # plugin.manage_activateInterfaces([interface_name])
-    # So only take over the necessary code from manage_activateInterfaces.
-    plugins = pas.plugins
-    iface = plugins._getInterfaceFromName(interface_name)
-    if PLUGIN_ID not in plugins.listPluginIds(iface):
-        plugins.activatePlugin(iface, PLUGIN_ID)
-        logger.info(f"Activated interface {interface_name} for plugin {PLUGIN_ID}")
-
-    if move_to_top:
-        # Order some plugins to make sure our plugin is at the top.
-        # This is not needed for all plugin interfaces.
-        plugins.movePluginsTop(iface, [PLUGIN_ID])
-        logger.info(f"Moved {PLUGIN_ID} to top of {interface_name}.")
+            if move_to_top:
+                # Order some plugins to make sure our plugin is at the top.
+                # This is not needed for all plugin interfaces.
+                plugins.movePluginsTop(iface, [plugin.getId()])
+                logger.info(f"Moved {plugin.getId()} to top of {interface_name}.")
 
 
 def activate_challenge_plugin(context):
     activate_plugin(context, "IChallengePlugin", move_to_top=True)
-
 
 def uninstall(context):
     """Uninstall script"""
