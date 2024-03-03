@@ -23,5 +23,6 @@ def initialize(context):  # pragma: no cover
     context.registerClass(
         plugins.OIDCPlugin,
         permission=ManageUsers,
-        constructors=(plugins.add_oidc_plugin,),
+        constructors=(plugins.manage_addOIDCPluginForm, plugins.addOIDCPlugin),
+        visibility=None,
     )
