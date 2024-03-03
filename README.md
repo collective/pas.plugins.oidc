@@ -83,9 +83,10 @@ When using this plugin with a [Volto frontend](https://6.docs.plone.org/volto/in
 
 Also, on the OpenID provider, configure the Redirect URL as **`<Path to your Plone site>`/login_oidc/oidc**.
 
+
 #### Classic UI
 
-When using this plugin with _Plone 6 Classic UI_ the standard URLs used for login (`http://localhost:8080/Plone/login`) and logout (`http://localhost:8080/Plone/logout`)
+When using this plugin with *Plone 6 Classic UI* the standard URLs used for login (`http://localhost:8080/Plone/login`) and logout (`http://localhost:8080/Plone/logout`)
 will not trigger the usage of the plugin.
 
 To login into a site using the OIDC provider, you will need to change those login URLs to the following:
@@ -117,8 +118,8 @@ This command will use the [`docker-compose.yml`](./tests/docker-compose.yml) fil
 
 After start up, Keycloak will be accessible on [http://127.0.0.1:8180](http://127.0.0.1:8180), and you can manage it with the following credentials:
 
-- **username**: admin
-- **password**: admin
+* **username**: admin
+* **password**: admin
 
 #### Realms
 
@@ -126,13 +127,13 @@ There are two realms configured `plone` and `plone-test`. The later is used in a
 
 The `plone` realm ships with an user that has the following credentials:
 
-- username: **user**
-- password: **12345678**
+* username: **user**
+* password: **12345678**
 
 And, to configure the oidc plugins, please use:
 
-- client id: **plone**
-- client secret: **12345678**
+* client id: **plone**
+* client secret: **12345678**
 
 #### Stop Keycloak
 
@@ -151,18 +152,18 @@ will not work.
 
 So, this is the way it works:
 
-- With legacy `redirect_uri` parameter enabled in Keycloak, the plugin works in default mode.
-- With legacy `redirect_uri` parameter enabled in Keycloak, the plugin also works with legacy mode.
-- With legacy `redirect_uri` parameter disabled in Keycloak (default after version 18), the plugin works in default mode.
-- With legacy `redirect_uri` parameter disabled in Keycloak (default after version 18), the plugin does NOT work with legacy mode.
+* With legacy `redirect_uri` parameter enabled in Keycloak, the plugin works in default mode.
+* With legacy `redirect_uri` parameter enabled in Keycloak, the plugin also works with legacy mode.
+* With legacy `redirect_uri` parameter disabled in Keycloak (default after version 18), the plugin works in default mode.
+* With legacy `redirect_uri` parameter disabled in Keycloak (default after version 18), the plugin does NOT work with legacy mode.
 
 So, for Keycloak, it does not matter if we use the default or legacy mode if the Keycloak runs in legacy mode.
 
 _Notes:_
 
-- If legacy `redirect_uri` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
+* If legacy `redirect_uri` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
   to this comment in _Starck Overflow_: https://stackoverflow.com/a/72142887.
-- The plugin will work only if the `Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`
+* The plugin will work only if the `Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`
   option is un-checked at the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm.
 
 #### Additional Documentation
@@ -172,20 +173,20 @@ Specifically, here we will use a Docker image, so follow the instructions on how
 
 #### Setup Plone as a client
 
-- Make sure **pas.plugins.oidc** is installed.
-- Start Plone and create a Plone site with id Plone.
-- In the Add-ons control panel, install `pas.plugins.oidc`.
-- In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
-- Set these properties:
-  - `OIDC/Oauth2 Issuer`: http://127.0.0.1:8081/realms/plone/
-  - `Client ID`: _plone_ (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
-  - `Client secret`: _12345678_ (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
-  - `Use deprecated redirect_uri for logout url` checked. Use this if you need to run old versions of Keycloak.
-  - `Open ID scopes to request to the server`: this depends on which version of Keycloak you are using, and which scopes are available there.
+* Make sure **pas.plugins.oidc** is installed.
+* Start Plone and create a Plone site with id Plone.
+* In the Add-ons control panel, install `pas.plugins.oidc`.
+* In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
+* Set these properties:
+  * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8081/realms/plone/
+  * `Client ID`: _plone_ (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
+  * `Client secret`: _12345678_ (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
+  * `Use deprecated redirect_uri for logout url` checked. Use this if you need to run old versions of Keycloak.
+  * `Open ID scopes to request to the server`: this depends on which version of Keycloak you are using, and which scopes are available there.
     In recent Keycloak versions, you _must_ include `openid` as scope.
     Suggestion is to use `openid` and `profile`.
-  - **Tip:** Leave the rest at the defaults, unless you know what you are doing.
-  - Click `Save`.
+  * **Tip:** Leave the rest at the defaults, unless you know what you are doing.
+  * Click `Save`.
 
 **Plone is ready done configured!**
 
