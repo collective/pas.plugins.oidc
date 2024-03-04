@@ -63,7 +63,6 @@ def activate_plugin(context, interface_name, move_to_top=False):
     pas = api.portal.get_tool("acl_users")
     for plugin in pas.objectValues():
         if isinstance(plugin, OIDCPlugin):
-
             # This would activate one interface and deactivate all others:
             # plugin.manage_activateInterfaces([interface_name])
             # So only take over the necessary code from manage_activateInterfaces.
