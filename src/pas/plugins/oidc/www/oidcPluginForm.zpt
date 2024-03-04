@@ -1,33 +1,62 @@
 <h1 tal:replace="structure here/manage_page_header">Header</h1>
 
-<main class="container-fluid" i18n:domain="pas.plugins.oidc">
+<main class="container-fluid"
+      i18n:domain="pas.plugins.oidc"
+>
 
-  <h2 tal:define="form_title string:Add OIDC Plugin"
-      tal:replace="structure here/manage_form_title">Form Title</h2>
+  <h2 tal:define="
+        form_title string:Add OIDC Plugin;
+      "
+      tal:replace="structure here/manage_form_title"
+  >Form Title</h2>
 
-  <p class="form-help" i18n:translate="">
+  <p class="form-help"
+     i18n:translate=""
+  >
     OIDC Plugin manage the details of the OpenID Connect Authentication plugin
     Pluggable Auth Service functionality.
   </p>
 
-  <form action="addOIDCPlugin" method="post" enctype="multipart/form-data">
+  <form action="addOIDCPlugin"
+        enctype="multipart/form-data"
+        method="post"
+  >
 
     <div class="form-group row">
-      <label for="id" class="form-label col-sm-3 col-md-2" i18n:translate="">Id</label>
+      <label class="form-label col-sm-3 col-md-2"
+             for="id"
+             i18n:translate=""
+      >Id</label>
       <div class="col-sm-9 col-md-10">
-        <input id="id" name="id" class="form-control" type="text" />
+        <input class="form-control"
+               id="id"
+               name="id"
+               type="text"
+        />
       </div>
     </div>
 
     <div class="form-group row form-optional">
-      <label for="title" class="form-label col-sm-3 col-md-2" i18n:translate="">Title</label>
+      <label class="form-label col-sm-3 col-md-2"
+             for="title"
+             i18n:translate=""
+      >Title</label>
       <div class="col-sm-9 col-md-10">
-        <input id="title" name="title" class="form-control" type="text" />
+        <input class="form-control"
+               id="title"
+               name="title"
+               type="text"
+        />
       </div>
     </div>
 
     <div class="zmi-controls">
-      <input class="btn btn-primary" type="submit" name="submit" value="Add" i18n:attributes="value"/>
+      <input class="btn btn-primary"
+             name="submit"
+             type="submit"
+             value="Add"
+             i18n:attributes="value"
+      />
     </div>
 
   </form>
