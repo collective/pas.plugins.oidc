@@ -23,6 +23,7 @@ def post_install(context):
     # Create plugin if it does not exist.
     if PLUGIN_ID not in pas.objectIds():
         plugin = OIDCPlugin(
+            id=PLUGIN_ID,
             title="OpenID Connect",
         )
         plugin.id = PLUGIN_ID
