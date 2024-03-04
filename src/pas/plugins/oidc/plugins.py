@@ -9,6 +9,7 @@ from pas.plugins.oidc import logger
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
@@ -25,7 +26,6 @@ import jwt
 import plone.api as api
 import string
 import time
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 
 manage_addOIDCPluginForm = PageTemplateFile(
