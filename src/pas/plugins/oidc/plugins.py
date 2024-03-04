@@ -180,6 +180,7 @@ class OIDCPlugin(BasePlugin):
     )
 
     APPLE_TOKEN_TTL_SEC = 6 * 30 * 24 * 60 * 60
+    # nosec bandit: disable hardcoded_password_string
     APPLE_TOKEN_AUDIENCE = "https://appleid.apple.com"
 
     def __init__(self, id, title=None):
