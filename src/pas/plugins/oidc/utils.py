@@ -128,8 +128,8 @@ def authorization_flow_args(plugin: plugins.OIDCPlugin, session: Session) -> dic
         args["code_challenge"] = pkce_code_verifier_challenge(session.get("verifier"))
         args["code_challenge_method"] = "S256"
 
-    if plugin.getProperty('apple_login_enabled'):
-        args['response_mode'] = 'form_post'
+    if plugin.getProperty("apple_login_enabled"):
+        args["response_mode"] = "form_post"
 
     return args
 
@@ -172,7 +172,9 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
     resp = client.do_access_token_request(
         state=state,
         request_args=args,
-        authn_method=client.registration_response.get('token_endpoint_auth_method', 'client_secret_basic'),
+        authn_method=client.registration_response.get(
+            "token_endpoint_auth_method", "client_secret_basic"
+        ),
     )
     user_info = {}
     if isinstance(resp, message.AccessTokenResponse):

@@ -70,7 +70,9 @@ def activate_plugin(context, interface_name, move_to_top=False):
             iface = plugins._getInterfaceFromName(interface_name)
             if plugin.getId() not in plugins.listPluginIds(iface):
                 plugins.activatePlugin(iface, plugin.getId())
-                logger.info(f"Activated interface {interface_name} for plugin {plugin.getId()}")
+                logger.info(
+                    f"Activated interface {interface_name} for plugin {plugin.getId()}"
+                )
 
             if move_to_top:
                 # Order some plugins to make sure our plugin is at the top.
@@ -81,6 +83,7 @@ def activate_plugin(context, interface_name, move_to_top=False):
 
 def activate_challenge_plugin(context):
     activate_plugin(context, "IChallengePlugin", move_to_top=True)
+
 
 def uninstall(context):
     """Uninstall script"""

@@ -35,11 +35,8 @@ manage_addOIDCPluginForm = PageTemplateFile(
 
 def addOIDCPlugin(dispatcher, id, title=None, REQUEST=None):
     """Add a HTTP Basic Auth Helper to a Pluggable Auth Service."""
-    plugin = OIDCPlugin(
-        id, title
-    )
+    plugin = OIDCPlugin(id, title)
     dispatcher._setObject(plugin.getId(), plugin)
-
 
     if REQUEST is not None:
         REQUEST["RESPONSE"].redirect(
@@ -180,7 +177,6 @@ class OIDCPlugin(BasePlugin):
             mode="w",
             label="Apple consumer id key as defined by Apple",
         ),
-
     )
 
     APPLE_TOKEN_TTL_SEC = 6 * 30 * 24 * 60 * 60
@@ -352,9 +348,9 @@ class OIDCPlugin(BasePlugin):
         now = int(time.time())
 
         client_id = self.getProperty("client_id")
-        team_id = self.getProperty('apple_consumer_team')
-        key_id = self.getProperty('apple_consumer_id_key')
-        private_key = self.getProperty('client_secret')
+        team_id = self.getProperty("apple_consumer_team")
+        key_id = self.getProperty("apple_consumer_id_key")
+        private_key = self.getProperty("client_secret")
 
         headers = {"kid": key_id}
         payload = {
@@ -365,8 +361,12 @@ class OIDCPlugin(BasePlugin):
             "sub": client_id,
         }
 
-        private_key = f'-----BEGIN PRIVATE KEY-----\n{private_key}\n-----END PRIVATE KEY-----'
-        return jwt.encode(payload, key=private_key.encode(), algorithm="ES256", headers=headers)
+        private_key = (
+            f"-----BEGIN PRIVATE KEY-----\n{private_key}\n-----END PRIVATE KEY-----"
+        )
+        return jwt.encode(
+            payload, key=private_key.encode(), algorithm="ES256", headers=headers
+        )
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
@@ -385,7 +385,7 @@ class OIDCPlugin(BasePlugin):
                 ),
             }
 
-            if self.getProperty('apple_login_enabled'):
+            if self.getProperty("apple_login_enabled"):
                 info.update({"client_secret": self._build_apple_secret()})
             else:
                 info.update({"client_secret": self.getProperty("client_secret")})
