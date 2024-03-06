@@ -170,7 +170,9 @@ def parse_authorization_response(
 
 def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
     # Decide which authentication method to use
-    allowed_authn_methods = client.registration_response.get("token_endpoint_auth_method")
+    allowed_authn_methods = client.registration_response.get(
+        "token_endpoint_auth_method"
+    )
     if allowed_authn_methods and isinstance(allowed_authn_methods, list):
         # arbitrary decision: take the first one
         allowed_authn_method = allowed_authn_methods[0]
@@ -181,9 +183,7 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
         allowed_authn_method = "client_secret_basic"
 
     resp = client.do_access_token_request(
-        state=state,
-        request_args=args,
-        authn_method=allowed_authn_method
+        state=state, request_args=args, authn_method=allowed_authn_method
     )
     user_info = {}
     if isinstance(resp, message.AccessTokenResponse):
