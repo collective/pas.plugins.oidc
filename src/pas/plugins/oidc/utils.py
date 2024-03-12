@@ -5,6 +5,7 @@ from oic.oic import message
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import PLUGIN_ID
 from pas.plugins.oidc import plugins
+from pas.plugins.oidc.plugins import OIDCPlugin
 from pas.plugins.oidc.session import Session
 from plone import api
 from typing import Union
@@ -77,10 +78,15 @@ def url_cleanup(url: str) -> str:
     return url
 
 
-def get_plugin() -> plugins.OIDCPlugin:
-    """Return the OIDC plugin for the current portal."""
+def get_plugins() -> list:
+    """ Return all OIDC plugins for the current portal."""
     pas = api.portal.get_tool("acl_users")
-    return getattr(pas, PLUGIN_ID)
+    plugins_to_return = []
+    for plugin in pas.objectValues():
+        if isinstance(plugin, OIDCPlugin):
+            plugins_to_return.append(plugin)
+
+    return plugins_to_return
 
 
 # Flow: Start
