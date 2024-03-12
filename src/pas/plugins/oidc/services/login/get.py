@@ -23,8 +23,8 @@ class OIDCLoginProviders:
                         "id": plugin.getId(),
                         "plugin": "authomatic",
                         "title": plugin.title,
-                        "url": f"{self.context.absolute_url()}/@login-oidc/${plugin.getId()}",
+                        "url": f"{self.context.absolute_url()}/@login-oidc/{plugin.getId()}",
                     }
                 )
 
-        return {"options": options}
+        return options
