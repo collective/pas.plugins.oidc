@@ -42,7 +42,9 @@ class LoginOIDC(Service):
     def plugin(self) -> OIDCPlugin:
         if not self._plugin:
             try:
-                self._plugin = utils.get_plugin()
+                for plugin in utils.get_plugins():
+                    if plugin.getId() == self.provider_id:
+                        self._plugin = plugin
             except AttributeError:
                 # Plugin not installed yet
                 self._plugin = None
@@ -77,7 +79,8 @@ class Get(LoginOIDC):
         """
         provider = self.provider_id
         plugin = self.plugin
-        if not (plugin and provider == "oidc"):
+
+        if not plugin:
             return self._provider_not_found(provider)
 
         session = utils.initialize_session(plugin, self.request)

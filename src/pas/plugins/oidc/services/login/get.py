@@ -21,7 +21,7 @@ class OIDCLoginProviders:
                 options.append(
                     {
                         "id": plugin.getId(),
-                        "plugin": "authomatic",
+                        "plugin": "oidc",
                         "title": plugin.title,
                         "url": f"{self.context.absolute_url()}/@login-oidc/{plugin.getId()}",
                     }
