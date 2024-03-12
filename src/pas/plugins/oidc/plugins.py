@@ -384,7 +384,7 @@ class OIDCPlugin(BasePlugin):
                 "client_id": self.getProperty("client_id"),
                 "token_endpoint_auth_method": provider_info.get(
                     "token_endpoint_auth_methods_supported"
-                ),
+                )[0],
             }
 
             if self.getProperty("apple_login_enabled"):
@@ -392,7 +392,7 @@ class OIDCPlugin(BasePlugin):
             else:
                 info.update({"client_secret": self.getProperty("client_secret")})
 
-            client_reg = RegistrationResponse(**info)
+            client_reg = RegistrationResponse(**info)            
             client.store_registration_info(client_reg)
             return client
         except Exception as exc:
