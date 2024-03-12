@@ -55,7 +55,7 @@ setup(
         "plone.api",
         "plone.restapi>=8.34.0",
         "oic",
-        "jwt",
+        "PyJWT",
     ],
     extras_require={
         "test": [
