@@ -117,7 +117,7 @@ def pkce_code_verifier_challenge(value: str) -> str:
     return base64.urlsafe_b64encode(hash_code).decode("utf-8").replace("=", "")
 
 
-def authorization_flow_args(plugin: plugins.OIDCPlugin, session: Session) -> dict:
+def authorization_flow_args(plugin: plugins.OIDCPlugin, session: Session, redirect_uris: list = []) -> dict:
     """Return the arguments used for the authorization flow."""
     # https://pyoidc.readthedocs.io/en/latest/examples/rp.html#authorization-code-flow
     args = {
@@ -126,8 +126,12 @@ def authorization_flow_args(plugin: plugins.OIDCPlugin, session: Session) -> dic
         "scope": plugin.get_scopes(),
         "state": session.get("state"),
         "nonce": session.get("nonce"),
-        "redirect_uri": plugin.get_redirect_uris(),
     }
+    if redirect_uris:
+        args.update({'redirect_uri': redirect_uris})
+    else:
+        args.update({'redirect_uri': plugin.get_redirect_uris()})
+
     if plugin.getProperty("use_pkce"):
         # Build a random string of 43 to 128 characters
         # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
