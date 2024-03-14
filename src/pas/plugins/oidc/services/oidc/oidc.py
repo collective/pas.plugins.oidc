@@ -83,8 +83,14 @@ class Get(LoginOIDC):
         if not plugin:
             return self._provider_not_found(provider)
 
+        redirect_uris = []
+        if self.request.get('publicUrl'):
+            redirect_uris = [self.request.get('publicUrl')]
+
         session = utils.initialize_session(plugin, self.request)
-        args = utils.authorization_flow_args(plugin, session)
+        args = utils.authorization_flow_args(
+            plugin, session, redirect_uris=redirect_uris
+        )
         try:
             client = plugin.get_oauth2_client()
         except OAuth2ConnectionException:
