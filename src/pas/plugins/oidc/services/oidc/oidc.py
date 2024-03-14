@@ -201,7 +201,7 @@ class Post(LoginOIDC):
         """
         provider = self.provider_id
         plugin = self.plugin
-        if not (plugin and provider == "oidc"):
+        if not plugin:
             return self._provider_not_found(provider)
 
         session = utils.load_existing_session(plugin, self.request)
