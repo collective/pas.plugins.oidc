@@ -195,7 +195,6 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
         # If it's an AccessTokenResponse the information in the response will be stored in the
         # client instance with state as the key for future use.
         user_info = resp.to_dict().get("id_token", {})
-
         if client.userinfo_endpoint:
             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
 
@@ -214,8 +213,6 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
                     exc_info=exc,
                 )
                 user_info = {}
-        else:
-            pass
         # userinfo in an instance of OpenIDSchema or ErrorResponse
         # It could also be dict, if there is no userinfo_endpoint
         if not (user_info and isinstance(user_info, (message.OpenIDSchema, dict))):

@@ -165,10 +165,6 @@ class OIDCPlugin(BasePlugin):
         "https://appleid.apple.com"  # nosec bandit: disable hardcoded_password_string
     )
 
-    def __init__(self, id, title=None):
-        self._setId(id)
-        self.title = title
-
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, (OpenIDSchema, dict)):
             raise AssertionError(
