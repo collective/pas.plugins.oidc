@@ -77,6 +77,7 @@ class OIDCPlugin(BasePlugin):
     meta_type = "OIDC Plugin"
     security = ClassSecurityInfo()
 
+    title = "OIDC Plugin"
     issuer = ""
     client_id = ""
     client_secret = ""  # nosec B105
@@ -94,6 +95,7 @@ class OIDCPlugin(BasePlugin):
     user_property_as_userid = "sub"
 
     _properties = (
+        dict(id="title", type="string", mode="w", label="Title"),
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
         dict(id="client_id", type="string", mode="w", label="Client ID"),
         dict(id="client_secret", type="string", mode="w", label="Client secret"),
