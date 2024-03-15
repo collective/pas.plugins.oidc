@@ -1,6 +1,4 @@
-from pas.plugins.oidc import PACKAGE_NAME
 from pas.plugins.oidc.plugins import OIDCPlugin
-from plone import api
 
 import pytest
 
