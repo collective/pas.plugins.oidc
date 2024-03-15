@@ -1,9 +1,10 @@
 from pas.plugins.oidc import logger
+from pas.plugins.oidc import PLUGIN_ID
+from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from Products.CMFPlone.interfaces import INonInstallable
 from zope.interface import implementer
-from pas.plugins.oidc import utils
 
 
 @implementer(INonInstallable)
@@ -95,4 +96,3 @@ def uninstall(context):
     for plugin in utils.get_plugins():
         pas._delObject(plugin.getId())
         logger.info(f"Removed OIDCPlugin {plugin.getId()} from acl_users.")
-
