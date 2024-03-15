@@ -26,11 +26,11 @@ class TestSetupInstall:
             [0, "id", "oidc"],
             [0, "plugin", "oidc"],
             [0, "url", "/@login-oidc/oidc"],
-            [0, "title", "OIDC Connect"],
-            [0, "id", "google"],
-            [0, "plugin", "oidc"],
-            [0, "url", "/@login-oidc/google"],
-            [0, "title", "Google"],
+            [0, "title", "OpenID Connect"],
+            [1, "id", "google"],
+            [1, "plugin", "oidc"],
+            [1, "url", "/@login-oidc/google"],
+            [1, "title", "Google"],
         ],
     )
     def test_login_get_options(self, idx: int, key: str, expected: str):
