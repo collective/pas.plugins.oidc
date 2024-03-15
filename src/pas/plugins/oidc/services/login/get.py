@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from plone.restapi.services import Service
@@ -19,9 +20,8 @@ class Get(Service):
         :returns: List of login options.
         """
         portal_url = api.portal.get().absolute_url()
-        acl_users = api.portal.get_tool("acl_users")
         plugins = []
-        for plugin in acl_users.objectValues():
+        for plugin in utils.get_plugins():
             if isinstance(plugin, OIDCPlugin):
                 plugins.append(
                     {

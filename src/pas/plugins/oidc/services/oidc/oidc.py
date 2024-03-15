@@ -124,10 +124,9 @@ class LogoutGet(LoginOIDC):
 
         :returns: URL and session information.
         """
-        provider = "oidc"
         plugin = self.plugin
-        if not (plugin and provider == "oidc"):
-            return self._provider_not_found(provider)
+        if not plugin:
+            return self._provider_not_found(self.provider_id)
 
         try:
             client = plugin.get_oauth2_client()
@@ -195,7 +194,7 @@ class Post(LoginOIDC):
         """
         provider = self.provider_id
         plugin = self.plugin
-        if not (plugin and provider == "oidc"):
+        if not plugin:
             return self._provider_not_found(provider)
 
         session = utils.load_existing_session(plugin, self.request)
