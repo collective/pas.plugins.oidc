@@ -186,6 +186,11 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
             allowed_authn_method = "client_secret_post"
         elif "client_secret_basic" in allowed_authn_methods:
             allowed_authn_method = "client_secret_basic"
+    elif allowed_authn_methods and isinstance(allowed_authn_methods, str):
+        # Yay, Apple returns a string in the allowed_authn_methods
+        # We may face the same in some other providers, so we keep it
+        # as we receive it
+        allowed_authn_method = allowed_authn_methods
 
     resp = client.do_access_token_request(
         state=state, request_args=args, authn_method=allowed_authn_method
