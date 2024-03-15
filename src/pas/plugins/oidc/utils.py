@@ -3,7 +3,6 @@ from oic import rndstr
 from oic.exception import RequestError
 from oic.oic import message
 from pas.plugins.oidc import logger
-from pas.plugins.oidc import PLUGIN_ID
 from pas.plugins.oidc import plugins
 from pas.plugins.oidc.plugins import OIDCPlugin
 from pas.plugins.oidc.session import Session
