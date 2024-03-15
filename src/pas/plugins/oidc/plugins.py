@@ -6,7 +6,6 @@ from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from pas.plugins.oidc import logger
-from pas.plugins.oidc import PLUGIN_ID
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
@@ -22,8 +21,10 @@ from zope.interface import implementer
 from zope.interface import Interface
 
 import itertools
+import jwt
 import plone.api as api
 import string
+import time
 
 
 PWCHARS = string.ascii_letters + string.digits + string.punctuation
@@ -157,11 +158,8 @@ class OIDCPlugin(BasePlugin):
             mode="w",
             label="Apple consumer id key as defined by Apple",
         ),
-
     )
 
-<<<<<<< HEAD
-=======
     APPLE_TOKEN_TTL_SEC = 6 * 30 * 24 * 60 * 60
     APPLE_TOKEN_AUDIENCE = (
         "https://appleid.apple.com"  # nosec bandit: disable hardcoded_password_string
@@ -171,7 +169,6 @@ class OIDCPlugin(BasePlugin):
         self._setId(id)
         self.title = title
 
->>>>>>> 5c68af3 (add login with apple support)
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, (OpenIDSchema, dict)):
             raise AssertionError(
@@ -334,9 +331,9 @@ class OIDCPlugin(BasePlugin):
         now = int(time.time())
 
         client_id = self.getProperty("client_id")
-        team_id = self.getProperty('apple_consumer_team')
-        key_id = self.getProperty('apple_consumer_id_key')
-        private_key = self.getProperty('client_secret')
+        team_id = self.getProperty("apple_consumer_team")
+        key_id = self.getProperty("apple_consumer_id_key")
+        private_key = self.getProperty("client_secret")
 
         headers = {"kid": key_id}
         payload = {
@@ -347,8 +344,12 @@ class OIDCPlugin(BasePlugin):
             "sub": client_id,
         }
 
-        private_key = f'-----BEGIN PRIVATE KEY-----\n{private_key}\n-----END PRIVATE KEY-----'
-        return jwt.encode(payload, key=private_key.encode(), algorithm="ES256", headers=headers)
+        private_key = (
+            f"-----BEGIN PRIVATE KEY-----\n{private_key}\n-----END PRIVATE KEY-----"
+        )
+        return jwt.encode(
+            payload, key=private_key.encode(), algorithm="ES256", headers=headers
+        )
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
@@ -367,7 +368,7 @@ class OIDCPlugin(BasePlugin):
                 )[0],
             }
 
-            if self.getProperty('apple_login_enabled'):
+            if self.getProperty("apple_login_enabled"):
                 info.update({"client_secret": self._build_apple_secret()})
             else:
                 info.update({"client_secret": self.getProperty("client_secret")})

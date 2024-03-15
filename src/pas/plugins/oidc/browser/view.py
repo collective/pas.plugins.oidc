@@ -140,29 +140,29 @@ class CallbackView(BrowserView):
         # The response you get back is an instance of an AccessTokenResponse
         # or again possibly an ErrorResponse instance.
 
-        if self.context.getProperty('apple_login_enabled'):
+        if self.context.getProperty("apple_login_enabled"):
             args.update(
                 {
                     "client_id": self.context.getProperty("client_id"),
-                    "client_secret": self.context._build_apple_secret()
+                    "client_secret": self.context._build_apple_secret(),
                 }
             )
 
         initial_user_info = {}
-        if self.context.getProperty('apple_login_enabled'):
+        if self.context.getProperty("apple_login_enabled"):
             # Let's check if this is this user's first login
             # if so, their name and email could come in the first
             # response from authorization response
             # Weird Apple issues...
-            user = self.request.form.get('user', "")
+            user = self.request.form.get("user", "")
             if user:
                 user_decoded = json.loads(user)
                 first_name = user_decoded.get("name", {}).get("firstName", "")
                 last_name = user_decoded.get("name", {}).get("lastName", "")
                 email = user_decoded.get("email", "")
-                initial_user_info['given_name'] = first_name
-                initial_user_info['family_name'] = last_name
-                initial_user_info['email'] = email
+                initial_user_info["given_name"] = first_name
+                initial_user_info["family_name"] = last_name
+                initial_user_info["email"] = email
 
         user_info = utils.get_user_info(client, state, args)
         user_info.update(initial_user_info)
