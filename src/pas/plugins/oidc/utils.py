@@ -79,7 +79,7 @@ def url_cleanup(url: str) -> str:
 
 
 def get_plugins() -> list:
-    """ Return all OIDC plugins for the current portal."""
+    """Return all OIDC plugins for the current portal."""
     pas = api.portal.get_tool("acl_users")
     plugins_to_return = []
     for plugin in pas.objectValues():

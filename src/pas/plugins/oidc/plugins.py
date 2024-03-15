@@ -35,11 +35,8 @@ manage_addOIDCPluginForm = PageTemplateFile(
 
 def addOIDCPlugin(dispatcher, id, title=None, REQUEST=None):
     """Add a HTTP Basic Auth Helper to a Pluggable Auth Service."""
-    plugin = OIDCPlugin(
-        id, title
-    )
+    plugin = OIDCPlugin(id, title)
     dispatcher._setObject(plugin.getId(), plugin)
-
 
     if REQUEST is not None:
         REQUEST["RESPONSE"].redirect(
