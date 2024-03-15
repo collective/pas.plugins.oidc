@@ -1,16 +1,11 @@
-from pas.plugins.oidc.plugins import OIDCPlugin
-
 import pytest
 
 
 class TestSetupInstall:
     @pytest.fixture(autouse=True)
-    def _initialize(self, portal, api_anon_request):
-        self.portal = portal
+    def _initialize(self, google, api_anon_request):
+        self.portal = google
         self.api_session = api_anon_request
-        self.portal.acl_users._setObject(
-            "google", OIDCPlugin(id="google", title="Google")
-        )
 
     def test_login_get_available(self):
         response = self.api_session.get("@login")

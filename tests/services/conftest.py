@@ -7,6 +7,7 @@ from plone.app.testing import TEST_USER_PASSWORD
 from plone.restapi.testing import RelativeSession
 from urllib.parse import urlparse
 from zope.component.hooks import setSite
+from pas.plugins.oidc.plugins import OIDCPlugin
 
 import pytest
 import requests
@@ -102,3 +103,17 @@ def keycloak_login():
         return qs
 
     return func
+
+
+@pytest.fixture()
+def google(restapi):
+    portal = restapi["portal"]
+    setSite(portal)
+    with api.env.adopt_roles(["Manager", "Member"]):
+        portal.acl_users._setObject(
+            "google",
+            OIDCPlugin("google", "Google")
+        )
+
+    transaction.commit()
+    yield portal
