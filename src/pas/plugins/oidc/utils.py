@@ -1,15 +1,17 @@
-import base64
-import re
 from hashlib import sha256
-from typing import Union
-
 from oic import rndstr
 from oic.exception import RequestError
 from oic.oic import message
-from pas.plugins.oidc import PLUGIN_ID, logger, plugins
+from pas.plugins.oidc import logger
+from pas.plugins.oidc import PLUGIN_ID
+from pas.plugins.oidc import plugins
 from pas.plugins.oidc.plugins import OIDCPlugin
 from pas.plugins.oidc.session import Session
 from plone import api
+from typing import Union
+
+import base64
+import re
 
 
 def boolean_string_ser(val, sformat=None, lev=0):

@@ -1,9 +1,9 @@
-from typing import Dict, List
-
 from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from plone.restapi.services import Service
+from typing import Dict
+from typing import List
 
 
 class Get(Service):
