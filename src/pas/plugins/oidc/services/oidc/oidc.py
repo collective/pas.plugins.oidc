@@ -1,21 +1,15 @@
-from oic.oic.message import EndSessionRequest
-from oic.oic.message import IdToken
-from pas.plugins.oidc import _
-from pas.plugins.oidc import logger
-from pas.plugins.oidc import utils
-from pas.plugins.oidc.plugins import OAuth2ConnectionException
-from pas.plugins.oidc.plugins import OIDCPlugin
+import transaction
+from oic.oic.message import EndSessionRequest, IdToken
+from pas.plugins.oidc import _, logger, utils
+from pas.plugins.oidc.plugins import OAuth2ConnectionException, OIDCPlugin
 from plone import api
 from plone.protect.interfaces import IDisableCSRFProtection
 from plone.restapi.deserializer import json_body
 from plone.restapi.services import Service
 from Products.PlonePAS.tools.memberdata import MemberData
 from transaction.interfaces import NoTransaction
-from zope.interface import alsoProvides
-from zope.interface import implementer
+from zope.interface import alsoProvides, implementer
 from zope.publisher.interfaces import IPublishTraverse
-
-import transaction
 
 
 @implementer(IPublishTraverse)
