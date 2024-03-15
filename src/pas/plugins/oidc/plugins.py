@@ -1,32 +1,26 @@
+import itertools
+import string
+from contextlib import contextmanager
+from secrets import choice
+from typing import List
+
+import plone.api as api
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
-from contextlib import contextmanager
 from oic.oic import Client
-from oic.oic.message import OpenIDSchema
-from oic.oic.message import RegistrationResponse
+from oic.oic.message import OpenIDSchema, RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from pas.plugins.oidc import logger
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
-from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
-from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
-from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.PluggableAuthService.interfaces.plugins import (
+    IAuthenticationPlugin, IChallengePlugin, IUserAdderPlugin)
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
-from secrets import choice
-from typing import List
 from ZODB.POSException import ConflictError
-from zope.interface import implementer
-from zope.interface import Interface
-
-import itertools
-import jwt
-import plone.api as api
-import string
-
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-
+from zope.interface import Interface, implementer
 
 manage_addOIDCPluginForm = PageTemplateFile(
     "www/oidcPluginForm", globals(), __name__="manage_addOIDCPluginForm"
