@@ -179,9 +179,9 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
         # offered by the provider.
         # But we would need extra information to implement some of those
         # methods such as private_key_jwt or client_secret_jwt.
-        # So that's the reason why we only allow `client_secret_post`
-        # or `client_secret_basic`, which are the most basic ones.
-        #
+        # So that's the reason why we only allow `client_secret_post` (the
+        # only one allowed by Apple) or `client_secret_basic` (the most
+        # basic one, allowed by most of the providers we have worked with)
         if 'client_secret_post' in allowed_authn_methods:
             allowed_authn_method = 'client_secret_post'
         elif 'client_secret_basic' in allowed_authn_methods:
