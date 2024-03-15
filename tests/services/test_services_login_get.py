@@ -18,7 +18,7 @@ class TestServiceLoginGet:
             [0, "id", "oidc"],
             [0, "plugin", "oidc"],
             [0, "url", "/@login-oidc/oidc"],
-            [0, "title", "OIDC Authentication"],
+            [0, "title", "OIDC Connect"],
         ],
     )
     def test_login_get_options(self, idx: int, key: str, expected: str):
