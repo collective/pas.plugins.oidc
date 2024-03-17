@@ -10,7 +10,7 @@ class TestUtilsFlowStart:
     def _initialize(self, portal, http_request):
         self.portal = portal
         self.http_request = http_request
-        self.plugin = utils.get_plugin()
+        self.plugin = utils.get_plugins()[0]
 
     @pytest.fixture()
     def session_factory(self):

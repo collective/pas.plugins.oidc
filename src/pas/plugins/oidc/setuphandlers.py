@@ -1,5 +1,6 @@
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import PLUGIN_ID
+from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from Products.CMFPlone.interfaces import INonInstallable
@@ -23,6 +24,7 @@ def post_install(context):
     # Create plugin if it does not exist.
     if PLUGIN_ID not in pas.objectIds():
         plugin = OIDCPlugin(
+            id=PLUGIN_ID,
             title="OpenID Connect",
         )
         plugin.id = PLUGIN_ID
@@ -89,18 +91,8 @@ def activate_challenge_plugin(context):
 
 def uninstall(context):
     """Uninstall script"""
-    from pas.plugins.oidc.utils import PLUGIN_ID
-
     pas = api.portal.get_tool("acl_users")
 
-    # Remove plugin if it exists.
-    if PLUGIN_ID not in pas.objectIds():
-        return
-    from pas.plugins.oidc.plugins import OIDCPlugin
-
-    plugin = getattr(pas, PLUGIN_ID)
-    if not isinstance(plugin, OIDCPlugin):
-        logger.warning(f"PAS plugin {PLUGIN_ID} not removed: it is not a OIDCPlugin.")
-        return
-    pas._delObject(PLUGIN_ID)
-    logger.info(f"Removed OIDCPlugin {PLUGIN_ID} from acl_users.")
+    for plugin in utils.get_plugins():
+        pas._delObject(plugin.getId())
+        logger.info(f"Removed OIDCPlugin {plugin.getId()} from acl_users.")

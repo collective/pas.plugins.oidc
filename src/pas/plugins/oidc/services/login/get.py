@@ -1,3 +1,5 @@
+from pas.plugins.oidc import utils
+from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from plone.restapi.services import Service
 from typing import Dict
@@ -18,14 +20,17 @@ class Get(Service):
         :returns: List of login options.
         """
         portal_url = api.portal.get().absolute_url()
-        plugins = [
-            {
-                "id": "oidc",
-                "plugin": "oidc",
-                "url": f"{portal_url}/@login-oidc/oidc",
-                "title": "OIDC Authentication",
-            }
-        ]
+        plugins = []
+        for plugin in utils.get_plugins():
+            if isinstance(plugin, OIDCPlugin):
+                plugins.append(
+                    {
+                        "id": plugin.getId(),
+                        "plugin": "oidc",
+                        "url": f"{portal_url}/@login-oidc/{plugin.getId()}",
+                        "title": plugin.title,
+                    }
+                )
         return plugins
 
     def reply(self) -> Dict[str, List[Dict]]:

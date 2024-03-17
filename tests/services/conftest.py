@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from plone.app.testing import SITE_OWNER_NAME
 from plone.app.testing import SITE_OWNER_PASSWORD
@@ -102,3 +103,14 @@ def keycloak_login():
         return qs
 
     return func
+
+
+@pytest.fixture()
+def google(restapi):
+    portal = restapi["portal"]
+    setSite(portal)
+    with api.env.adopt_roles(["Manager", "Member"]):
+        portal.acl_users._setObject("google", OIDCPlugin("google", "Google"))
+
+    transaction.commit()
+    yield portal
