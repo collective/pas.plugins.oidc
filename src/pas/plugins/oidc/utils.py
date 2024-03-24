@@ -230,6 +230,8 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
         logger.error(f"Token error response: {resp.to_json()}")
     else:
         logger.error(f"Authentication failed {resp}")
+
+    logger.info(user_info)
     return user_info
 
 
