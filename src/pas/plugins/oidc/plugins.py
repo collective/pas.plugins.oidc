@@ -299,6 +299,11 @@ class OIDCPlugin(BasePlugin):
             userProps["fullname"] = f"{given_name} {family_name}"
         elif name and family_name:
             userProps["fullname"] = f"{name} {family_name}"
+        elif given_name:
+            userProps["fullname"] = given_name
+        elif name:
+            userProps["fullname"] = name
+
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
             user.setProperties(**userProps)
@@ -392,7 +397,7 @@ class OIDCPlugin(BasePlugin):
             else:
                 info.update({"client_secret": self.getProperty("client_secret")})
 
-            client_reg = RegistrationResponse(**info)            
+            client_reg = RegistrationResponse(**info)
             client.store_registration_info(client_reg)
             return client
         except Exception as exc:
