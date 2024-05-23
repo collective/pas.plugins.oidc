@@ -3,10 +3,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pas.plugins.oidc\n"
-"POT-Creation-Date: 2024-05-23 11:20+0000\n"
-"PO-Revision-Date: 2023-05-29 05:41-0400\n"
+"POT-Creation-Date: 2024-05-23 10:58+0000\n"
+"PO-Revision-Date: 2024-05-23 07:00-0400\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>\n"
 "Language-Team: ES <LL@li.org>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -15,16 +16,16 @@ msgstr ""
 "Language-Name: Español\n"
 "Preferred-Encodings: utf-8\n"
 "Domain: pas.plugins.oidc\n"
-"Language: es\n"
 "X-Is-Fallback-For: es-ar es-bo es-cl es-co es-cr es-do es-ec es-es es-sv es-gt es-hn es-mx es-ni es-pa es-py es-pe es-pr es-us es-uy es-ve\n"
+"X-Generator: Poedit 3.4.4\n"
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:54
 msgid "Add"
-msgstr ""
+msgstr "Añadir"
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:26
 msgid "Id"
-msgstr ""
+msgstr "Id"
 
 #: pas/plugins/oidc/configure.zcml:32
 msgid "Installs the pas.plugins.oidc add-on."
@@ -32,11 +33,11 @@ msgstr "Instala el complemento pas.plugins.oidc."
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:13
 msgid "OIDC Plugin manage the details of the OpenID Connect Authentication plugin Pluggable Auth Service functionality."
-msgstr ""
+msgstr "El plugin OIDC gestiona los detalles de la funcionalidad del plugin de autenticación OpenID Connect Pluggable Auth Service."
 
 #: pas/plugins/oidc/services/oidc/oidc.py:95
 msgid "Provider is not properly configured."
-msgstr ""
+msgstr "El proveedor no está configurado correctamente."
 
 #: pas/plugins/oidc/browser/view.py:61
 #: pas/plugins/oidc/services/oidc/oidc.py:107
@@ -45,11 +46,11 @@ msgstr "Hubo un error durante el proceso de inicio de sesión. Inténtalo de nue
 
 #: pas/plugins/oidc/browser/view.py:54
 msgid "There was an error getting the oauth2 client."
-msgstr ""
+msgstr "Hubo un error al obtener el cliente oauth2."
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:40
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
 #: pas/plugins/oidc/configure.zcml:41
 msgid "Uninstalls the pas.plugins.oidc add-on."
