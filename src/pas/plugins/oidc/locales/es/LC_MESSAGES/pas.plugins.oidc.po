@@ -3,7 +3,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pas.plugins.oidc\n"
-"POT-Creation-Date: 2023-11-08 15:55+0000\n"
+"POT-Creation-Date: 2024-05-23 11:20+0000\n"
 "PO-Revision-Date: 2023-05-29 05:41-0400\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>\n"
 "Language-Team: ES <LL@li.org>\n"
@@ -18,13 +18,38 @@ msgstr ""
 "Language: es\n"
 "X-Is-Fallback-For: es-ar es-bo es-cl es-co es-cr es-do es-ec es-es es-sv es-gt es-hn es-mx es-ni es-pa es-py es-pe es-pr es-us es-uy es-ve\n"
 
+#: pas/plugins/oidc/www/oidcPluginForm.zpt:54
+msgid "Add"
+msgstr ""
+
+#: pas/plugins/oidc/www/oidcPluginForm.zpt:26
+msgid "Id"
+msgstr ""
+
 #: pas/plugins/oidc/configure.zcml:32
 msgid "Installs the pas.plugins.oidc add-on."
 msgstr "Instala el complemento pas.plugins.oidc."
 
-#: pas/plugins/oidc/browser/view.py:129
+#: pas/plugins/oidc/www/oidcPluginForm.zpt:13
+msgid "OIDC Plugin manage the details of the OpenID Connect Authentication plugin Pluggable Auth Service functionality."
+msgstr ""
+
+#: pas/plugins/oidc/services/oidc/oidc.py:95
+msgid "Provider is not properly configured."
+msgstr ""
+
+#: pas/plugins/oidc/browser/view.py:61
+#: pas/plugins/oidc/services/oidc/oidc.py:107
 msgid "There was an error during the login process. Please try again."
 msgstr "Hubo un error durante el proceso de inicio de sesión. Inténtalo de nuevo."
+
+#: pas/plugins/oidc/browser/view.py:54
+msgid "There was an error getting the oauth2 client."
+msgstr ""
+
+#: pas/plugins/oidc/www/oidcPluginForm.zpt:40
+msgid "Title"
+msgstr ""
 
 #: pas/plugins/oidc/configure.zcml:41
 msgid "Uninstalls the pas.plugins.oidc add-on."
