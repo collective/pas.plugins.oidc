@@ -1,5 +1,5 @@
 # Generated from:
-# https://github.com/plone/meta/tree/master/config/default
+# https://github.com/plone/meta/tree/main/config/default
 # See the inline comments on how to expand/tweak this configuration file
 [build-system]
 requires = ["setuptools>=68.2"]
@@ -122,7 +122,7 @@ Zope = [
   'Products.CMFCore', 'Products.CMFDynamicViewFTI',
 ]
 python-dateutil = ['dateutil']
-ignore-packages = ['plone.restapi', 'plone.volto', 'zestreleaser.towncrier', 'zest.releaser', 'pytest', 'pytest-cov', 'pytest-plone', 'pytest-docker', 'pytest-vcr', 'pytest-mock', 'gocept.pytestlayer', 'requests-mock', 'vcrpy']
+ignore-packages = ['plone.restapi', 'plone.volto', 'zestreleaser.towncrier', 'zest.releaser', 'pytest', 'pytest-cov', 'pytest-plone', 'pytest-docker', 'pytest-vcr', 'pytest-mock', 'zope.pytestlayer', 'requests-mock', 'vcrpy']
 Plone = ['Products.CMFPlone', 'Products.CMFCore', 'Products.GenericSetup', 'Products.PluggableAuthService', 'Products.PlonePAS']
 
 ##
@@ -138,22 +138,29 @@ Plone = ['Products.CMFPlone', 'Products.CMFCore', 'Products.GenericSetup', 'Prod
 [tool.check-manifest]
 ignore = [
     ".editorconfig",
+    ".flake8",
     ".meta.toml",
     ".pre-commit-config.yaml",
-    "tox.ini",
-    ".flake8",
+    "dependabot.yml",
     "mx.ini",
+    "tox.ini",
     "news/*",
     "constraints-mxdev.txt",
     "requirements-mxdev.txt",
 
 ]
+
 ##
 # Add extra configuration options in .meta.toml:
 #  [pyproject]
 #  check_manifest_ignores = """
 #      "*.map.js",
 #      "*.pyc",
+#  """
+#  check_manifest_extra_lines = """
+#  ignore-bad-ideas = [
+#      "some/test/file/PKG-INFO",
+#  ]
 #  """
 ##
 
