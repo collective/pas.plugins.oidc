@@ -9,6 +9,7 @@ from pas.plugins.oidc import logger
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
@@ -25,6 +26,24 @@ import jwt
 import plone.api as api
 import string
 import time
+
+
+manage_addOIDCPluginForm = PageTemplateFile(
+    "www/oidcPluginForm", globals(), __name__="manage_addOIDCPluginForm"
+)
+
+
+def addOIDCPlugin(dispatcher, id, title=None, REQUEST=None):
+    """Add a HTTP Basic Auth Helper to a Pluggable Auth Service."""
+    plugin = OIDCPlugin(id, title)
+    dispatcher._setObject(plugin.getId(), plugin)
+
+    if REQUEST is not None:
+        REQUEST["RESPONSE"].redirect(
+            "%s/manage_workspace"
+            "?manage_tabs_message="
+            "OIDC+Plugin+added." % dispatcher.absolute_url()
+        )
 
 
 PWCHARS = string.ascii_letters + string.digits + string.punctuation
@@ -55,6 +74,7 @@ class OIDCPlugin(BasePlugin):
     meta_type = "OIDC Plugin"
     security = ClassSecurityInfo()
 
+    title = "OIDC Plugin"
     issuer = ""
     client_id = ""
     client_secret = ""  # nosec B105
@@ -75,6 +95,7 @@ class OIDCPlugin(BasePlugin):
     apple_consumer_id_key = ""
 
     _properties = (
+        dict(id="title", type="string", mode="w", label="Title"),
         dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
         dict(id="client_id", type="string", mode="w", label="Client ID"),
         dict(id="client_secret", type="string", mode="w", label="Client secret"),
@@ -164,6 +185,10 @@ class OIDCPlugin(BasePlugin):
     APPLE_TOKEN_AUDIENCE = (
         "https://appleid.apple.com"  # nosec bandit: disable hardcoded_password_string
     )
+
+    def __init__(self, id, title=None):
+        self._setId(id)
+        self.title = title
 
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, (OpenIDSchema, dict)):
@@ -425,12 +450,6 @@ classImplements(
     # IPropertiesPlugin,
     # IRolesPlugin,
 )
-
-
-def add_oidc_plugin():
-    # Form for manually adding our plugin.
-    # But we do this in setuphandlers.py always.
-    pass
 
 
 # https://github.com/collective/Products.AutoUserMakerPASPlugin/blob/master/Products/AutoUserMakerPASPlugin/auth.py
