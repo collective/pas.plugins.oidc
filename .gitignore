@@ -48,6 +48,11 @@ local.cfg
 
 requirements-mxdev.txt
 
+/.python-version
+/dependencies.svg
+/forest.*
+
+
 ##
 # Add extra configuration options in .meta.toml:
 #  [gitignore]

@@ -59,7 +59,7 @@ setup(
     ],
     extras_require={
         "test": [
-            "gocept.pytestlayer",
+            "zope.pytestlayer",
             "plone.app.testing",
             "plone.restapi[test]",
             "pytest-cov",
