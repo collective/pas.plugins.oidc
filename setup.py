@@ -53,15 +53,21 @@ setup(
     install_requires=[
         "setuptools",
         "Plone",
+        "Zope",
+        "Products.CMFCore",
         "plone.api",
+        "plone.base",
+        "plone.protect",
         "plone.restapi>=8.34.0",
         "oic",
     ],
     extras_require={
         "test": [
             "zope.pytestlayer",
+            "plone.app.contenttypes",
             "plone.app.testing",
             "plone.restapi[test]",
+            "plone.testing",
             "pytest-cov",
             "pytest-plone>=0.2.0",
             "pytest-docker",

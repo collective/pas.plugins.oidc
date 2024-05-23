@@ -122,7 +122,7 @@ Zope = [
   'Products.CMFCore', 'Products.CMFDynamicViewFTI',
 ]
 python-dateutil = ['dateutil']
-ignore-packages = ['plone.restapi', 'plone.volto', 'zestreleaser.towncrier', 'zest.releaser', 'pytest', 'pytest-cov', 'pytest-plone', 'pytest-docker', 'pytest-vcr', 'pytest-mock', 'gocept.pytestlayer', 'requests-mock', 'vcrpy']
+ignore-packages = ['plone.restapi', 'plone.volto', 'zestreleaser.towncrier', 'zest.releaser', 'pytest', 'pytest-cov', 'pytest-plone', 'pytest-docker', 'pytest-vcr', 'pytest-mock', 'zope.pytestlayer', 'requests-mock', 'vcrpy']
 Plone = ['Products.CMFPlone', 'Products.CMFCore', 'Products.GenericSetup', 'Products.PluggableAuthService', 'Products.PlonePAS']
 
 ##
