@@ -132,6 +132,10 @@ def authorization_flow_args(plugin: plugins.OIDCPlugin, session: Session) -> dic
         # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
         args["code_challenge"] = pkce_code_verifier_challenge(session.get("verifier"))
         args["code_challenge_method"] = "S256"
+
+    if plugin.getProperty("apple_login_enabled"):
+        args["response_mode"] = "form_post"
+
     return args
 
 
@@ -170,10 +174,31 @@ def parse_authorization_response(
 
 
 def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
+    # Decide which authentication method to use
+    allowed_authn_methods = client.registration_response.get(
+        "token_endpoint_auth_method"
+    )
+    allowed_authn_method = "client_secret_basic"
+    if allowed_authn_methods and isinstance(allowed_authn_methods, list):
+        # Here we should decide which method we will use among the ones
+        # offered by the provider.
+        # But we would need extra information to implement some of those
+        # methods such as private_key_jwt or client_secret_jwt.
+        # So that's the reason why we only allow `client_secret_post` (the
+        # only one allowed by Apple) or `client_secret_basic` (the most
+        # basic one, allowed by most of the providers we have worked with)
+        if "client_secret_post" in allowed_authn_methods:
+            allowed_authn_method = "client_secret_post"
+        elif "client_secret_basic" in allowed_authn_methods:
+            allowed_authn_method = "client_secret_basic"
+    elif allowed_authn_methods and isinstance(allowed_authn_methods, str):
+        # Yay, Apple returns a string in the allowed_authn_methods
+        # We may face the same in some other providers, so we keep it
+        # as we receive it
+        allowed_authn_method = allowed_authn_methods
+
     resp = client.do_access_token_request(
-        state=state,
-        request_args=args,
-        authn_method="client_secret_basic",
+        state=state, request_args=args, authn_method=allowed_authn_method
     )
     user_info = {}
     if isinstance(resp, message.AccessTokenResponse):
