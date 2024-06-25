@@ -15,12 +15,12 @@ long_description = f"""
 setup(
     name="pas.plugins.oidc",
     version="2.0.0a2.dev0",
-    description="An add-on for Plone",
+    description="OIDC support for Plone sites",
     long_description=long_description,
     long_description_content_type="text/markdown",
     # Get more from https://pypi.org/classifiers/
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
         "Framework :: Plone",
         "Framework :: Plone :: Addon",
@@ -33,7 +33,7 @@ setup(
         "Operating System :: OS Independent",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
     ],
-    keywords="Python Plone CMS",
+    keywords="Python Plone CMS PAS Authentication OAuth OIDC",
     author="mamico",
     author_email="mauro.amico@gmail.com",
     url="https://github.com/collective/pas.plugins.oidc",

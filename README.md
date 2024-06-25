@@ -84,7 +84,7 @@ When using this plugin with a [Volto frontend](https://6.docs.plone.org/volto/in
 * **Login URL**: `<Path to your Plone site>`/login
 * **Logout URL**: `<Path to your Plone site>`/logout
 
-Also, on the OpenID provider, configure the Redirect URL as **`<Path to your Plone site>`/login_oidc/oidc**.
+Also, on the OpenID provider, configure the Redirect URL as **`<Path to your Plone site>`/login-oidc/oidc**.
 
 
 #### Classic UI
