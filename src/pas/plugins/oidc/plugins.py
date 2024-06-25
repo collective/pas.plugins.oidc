@@ -10,6 +10,9 @@ from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.PlonePAS.events import UserInitialLoginInEvent
+from Products.PlonePAS.events import UserLoggedInEvent
+from Products.PluggableAuthService.events import PrincipalCreated
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
@@ -18,6 +21,7 @@ from Products.PluggableAuthService.utils import classImplements
 from secrets import choice
 from typing import List
 from ZODB.POSException import ConflictError
+from zope.event import notify
 from zope.interface import implementer
 from zope.interface import Interface
 
@@ -214,12 +218,17 @@ class OIDCPlugin(BasePlugin):
                                 # depending on your setup.
                                 # https://bandit.readthedocs.io/en/1.7.4/plugins/b110_try_except_pass.html
                                 pass
-                            self._updateUserProperties(user, userinfo)
-                            break
+                            else:
+                                notify(PrincipalCreated(user))
+                                self._updateUserProperties(user, userinfo)
+                                notify(UserInitialLoginInEvent(user))
+                                notify(UserLoggedInEvent(user))
+                                break
             else:
                 # if time.time() > user.getProperty(LAST_UPDATE_USER_PROPERTY_KEY) + config.get(autoUpdateUserPropertiesIntervalKey, 0):
                 with safe_write(self.REQUEST):
                     self._updateUserProperties(user, userinfo)
+                notify(UserLoggedInEvent(user))
 
         if self.getProperty("create_groups"):
             groupid_property = self.getProperty("user_property_as_groupid")
