@@ -9,6 +9,30 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0b1 (2024-06-25)
+
+
+### New features:
+
+- Added Deutsch translation
+  [@macagua] [#45](https://github.com/collective/pas.plugins.oidc/issues/45)
+- Allow multiple instances of OIDC plugin in a given Plone site @erral [#48](https://github.com/collective/pas.plugins.oidc/issues/48)
+- Notify user events on creation and authentication. [@Arkusm][@ericof] [#53](https://github.com/collective/pas.plugins.oidc/issues/53)
+- Updated the latest .po templates for translate
+  Updated Spanish translation
+  [@macagua] [#55](https://github.com/collective/pas.plugins.oidc/issues/55)
+
+
+### Internal:
+
+- Update configuration files @plone 
+
+
+### Documentation:
+
+- Recommend using `[pas.plugins.keycloakgroups](https://pypi.org/project/pas.plugins.keycloakgroups/)` for groups support with Keycloak [@ericof] [#42](https://github.com/collective/pas.plugins.oidc/issues/42)
+
+
 ## 2.0.0a1 (2023-11-23)
 
 

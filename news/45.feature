@@ -1,2 +1,0 @@
-Added Deutsch translation
-[@macagua]
