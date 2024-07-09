@@ -36,7 +36,7 @@ If you need to support group enumeration from a Keycloak server, we recommend in
 
 ## Installation
 
-This package supports Plone sites using Volto and ClassicUI.
+This package supports Plone sites using Volto and Classic UI.
 
 For proper Volto support, the requirements are:
 
@@ -164,7 +164,7 @@ So, for Keycloak, it does not matter if we use the default or legacy mode if the
 *Notes:*
 
 * If legacy `redirect_uri` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
-  to this comment in *Starck Overflow*: https://stackoverflow.com/a/72142887.
+  to this comment in *Stack Overflow*: https://stackoverflow.com/a/72142887.
 * The plugin will work only if the `Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`
   option is un-checked at the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm.
 
@@ -223,8 +223,8 @@ and comes back from there.
 The plugin has 2 ways of working with sessions:
 
 - Use the Zope Session Management: if the `Use Zope session data manager` option in the plugin configuration is enabled,
-  the plugin will use the sessioning configuration configured in Zope. To do so we advise using [Products.mcdutils](https://pypi.org/project/Products.mcdutils/)
-  to save the session data in a memcached based storage. Otherwise Zope will try to use ZODB based sessioning
+  the plugin will use the session configuration configured in Zope. To do so we advise using [Products.mcdutils](https://pypi.org/project/Products.mcdutils/)
+  to save the session data in a memcached based storage. Otherwise, Zope will try to use a ZODB-based session
   which has shown several problems in the past.
 
 - Use the cookie-based session management: if the `Use Zope session data manager` option in the plugin
