@@ -180,7 +180,7 @@ Specifically, here we will use a Docker image, so follow the instructions on how
 * In the Add-ons control panel, install `pas.plugins.oidc`.
 * In the ZMI go to the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm
 * Set these properties:
-  * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8081/realms/plone/
+  * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8180/realms/plone/
   * `Client ID`: *plone* (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
   * `Client secret`: *12345678* (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
   * `Use deprecated redirect_uri for logout url` checked. Use this if you need to run old versions of Keycloak.
@@ -198,7 +198,7 @@ See this screenshot:
 
 #### Login
 
-Go to the other browser, or logout as admin from [Keycloak Admin Console](http://localhost:8180/admin).
+Go to the other browser, or logout as admin from [Keycloak Admin Console](http://127.0.0.1:8180/admin).
 Currently, the Plone login form is unchanged.
 
 Instead, for testing go to the login page of the plugin: http://localhost:8080/Plone/acl_users/oidc/login,
