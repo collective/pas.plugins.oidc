@@ -166,7 +166,7 @@ So, for Keycloak, it does not matter if we use the default or legacy mode if the
 * If legacy `redirect_uri` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
   to this comment in *Starck Overflow*: https://stackoverflow.com/a/72142887.
 * The plugin will work only if the `Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`
-  option is un-checked at the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm.
+  option is un-checked at the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm.
 
 #### Additional Documentation
 
@@ -178,7 +178,7 @@ Specifically, here we will use a Docker image, so follow the instructions on how
 * Make sure **pas.plugins.oidc** is installed.
 * Start Plone and create a Plone site with id Plone.
 * In the Add-ons control panel, install `pas.plugins.oidc`.
-* In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
+* In the ZMI go to the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm
 * Set these properties:
   * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8081/realms/plone/
   * `Client ID`: *plone* (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
@@ -198,10 +198,10 @@ See this screenshot:
 
 #### Login
 
-Go to the other browser, or logout as admin from [Keycloak Admin Console](http://localhost:8080/admin).
+Go to the other browser, or logout as admin from [Keycloak Admin Console](http://localhost:8180/admin).
 Currently, the Plone login form is unchanged.
 
-Instead, for testing go to the login page of the plugin: http://localhost:8081/Plone/acl_users/oidc/login,
+Instead, for testing go to the login page of the plugin: http://localhost:8080/Plone/acl_users/oidc/login,
 this will take you to Keycloak to login, and then return. You should now be logged in to Plone, and see the
 *full name* and *email*, if you have set this in Keycloak.
 
@@ -210,7 +210,7 @@ this will take you to Keycloak to login, and then return. You should now be logg
 If the login did work as expected you can try to Plone logout.
 Currently, the Plone logout form is unchanged.
 
-Instead, for testing go to the logout page of the plugin: http://localhost:8081/Plone/acl_users/oidc/logout,
+Instead, for testing go to the logout page of the plugin: http://localhost:8080/Plone/acl_users/oidc/logout,
 this will take you to Keycloak to logout, and then return to the post-logout redirect URL.
 
 ## Technical Decisions
