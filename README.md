@@ -32,7 +32,7 @@ OAuth 2.0 should work as well because OpenID Connect is built on top of this pro
 
 ### Group Enumeration
 
-If you need to support group enumeration from a Keycloak server, we recommend installing the package `[pas.plugins.keycloakgroups](https://pypi.org/project/pas.plugins.keycloakgroups/)`.
+If you need to support group enumeration from a Keycloak server, we recommend installing the package [pas.plugins.keycloakgroups](https://pypi.org/project/pas.plugins.keycloakgroups/).
 
 ## Installation
 
