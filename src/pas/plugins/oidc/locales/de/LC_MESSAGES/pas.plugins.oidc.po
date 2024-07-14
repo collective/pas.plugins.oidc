@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Plone\n"
 "POT-Creation-Date: 2024-05-23 11:20+0000\n"
-"PO-Revision-Date: 2024-01-25 15:55+0000\n"
+"PO-Revision-Date: 2024-07-09 15:55+0000\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>\n"
 "Language-Team: Deutsch <plone-i18n@lists.sourceforge.net>\n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:54
 msgid "Add"
-msgstr ""
+msgstr "Hinzufügen"
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:26
 msgid "Id"
@@ -31,11 +31,11 @@ msgstr "Installiert das Add-on pas.plugins.oidc."
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:13
 msgid "OIDC Plugin manage the details of the OpenID Connect Authentication plugin Pluggable Auth Service functionality."
-msgstr ""
+msgstr "OIDC Plugin verwaltet die Details der OpenID Connect Authentication Plugin Pluggable Auth Service Funktionalität."
 
 #: pas/plugins/oidc/services/oidc/oidc.py:95
 msgid "Provider is not properly configured."
-msgstr ""
+msgstr "Der Provider ist nicht richtig konfiguriert."
 
 #: pas/plugins/oidc/browser/view.py:61
 #: pas/plugins/oidc/services/oidc/oidc.py:107
@@ -44,11 +44,11 @@ msgstr "Beim Anmeldevorgang ist ein Fehler aufgetreten. Bitte versuche es erneut
 
 #: pas/plugins/oidc/browser/view.py:54
 msgid "There was an error getting the oauth2 client."
-msgstr ""
+msgstr "Es ist ein Fehler beim Abrufen des oauth2-Clients aufgetreten."
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:40
 msgid "Title"
-msgstr ""
+msgstr "Titel"
 
 #: pas/plugins/oidc/configure.zcml:41
 msgid "Uninstalls the pas.plugins.oidc add-on."
