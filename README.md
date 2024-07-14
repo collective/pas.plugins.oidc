@@ -32,11 +32,11 @@ OAuth 2.0 should work as well because OpenID Connect is built on top of this pro
 
 ### Group Enumeration
 
-If you need to support group enumeration from a Keycloak server, we recommend installing the package `[pas.plugins.keycloakgroups](https://pypi.org/project/pas.plugins.keycloakgroups/)`.
+If you need to support group enumeration from a Keycloak server, we recommend installing the package [pas.plugins.keycloakgroups](https://pypi.org/project/pas.plugins.keycloakgroups/).
 
 ## Installation
 
-This package supports Plone sites using Volto and ClassicUI.
+This package supports Plone sites using Volto and Classic UI.
 
 For proper Volto support, the requirements are:
 
@@ -164,9 +164,9 @@ So, for Keycloak, it does not matter if we use the default or legacy mode if the
 *Notes:*
 
 * If legacy `redirect_uri` parameter is disabled in Keycloak, this is the default since version 18 of Keycloak according
-  to this comment in *Starck Overflow*: https://stackoverflow.com/a/72142887.
+  to this comment in *Stack Overflow*: https://stackoverflow.com/a/72142887.
 * The plugin will work only if the `Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)`
-  option is un-checked at the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm.
+  option is un-checked at the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm.
 
 #### Additional Documentation
 
@@ -178,9 +178,9 @@ Specifically, here we will use a Docker image, so follow the instructions on how
 * Make sure **pas.plugins.oidc** is installed.
 * Start Plone and create a Plone site with id Plone.
 * In the Add-ons control panel, install `pas.plugins.oidc`.
-* In the ZMI go to the plugin properties at http://localhost:8081/Plone/acl_users/oidc/manage_propertiesForm
+* In the ZMI go to the plugin properties at http://localhost:8080/Plone/acl_users/oidc/manage_propertiesForm
 * Set these properties:
-  * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8081/realms/plone/
+  * `OIDC/Oauth2 Issuer`: http://127.0.0.1:8180/realms/plone/
   * `Client ID`: *plone* (**Warning:** This property must match the `Client ID` you have set in Keycloak.)
   * `Client secret`: *12345678* (**Warning:** This property must match the `Client secret` you have get in Keycloak.)
   * `Use deprecated redirect_uri for logout url` checked. Use this if you need to run old versions of Keycloak.
@@ -198,10 +198,10 @@ See this screenshot:
 
 #### Login
 
-Go to the other browser, or logout as admin from [Keycloak Admin Console](http://localhost:8080/admin).
+Go to the other browser, or logout as admin from [Keycloak Admin Console](http://127.0.0.1:8180/admin).
 Currently, the Plone login form is unchanged.
 
-Instead, for testing go to the login page of the plugin: http://localhost:8081/Plone/acl_users/oidc/login,
+Instead, for testing go to the login page of the plugin: http://localhost:8080/Plone/acl_users/oidc/login,
 this will take you to Keycloak to login, and then return. You should now be logged in to Plone, and see the
 *full name* and *email*, if you have set this in Keycloak.
 
@@ -210,7 +210,7 @@ this will take you to Keycloak to login, and then return. You should now be logg
 If the login did work as expected you can try to Plone logout.
 Currently, the Plone logout form is unchanged.
 
-Instead, for testing go to the logout page of the plugin: http://localhost:8081/Plone/acl_users/oidc/logout,
+Instead, for testing go to the logout page of the plugin: http://localhost:8080/Plone/acl_users/oidc/logout,
 this will take you to Keycloak to logout, and then return to the post-logout redirect URL.
 
 ## Technical Decisions
@@ -223,8 +223,8 @@ and comes back from there.
 The plugin has 2 ways of working with sessions:
 
 - Use the Zope Session Management: if the `Use Zope session data manager` option in the plugin configuration is enabled,
-  the plugin will use the sessioning configuration configured in Zope. To do so we advise using [Products.mcdutils](https://pypi.org/project/Products.mcdutils/)
-  to save the session data in a memcached based storage. Otherwise Zope will try to use ZODB based sessioning
+  the plugin will use the session configuration configured in Zope. To do so we advise using [Products.mcdutils](https://pypi.org/project/Products.mcdutils/)
+  to save the session data in a memcached based storage. Otherwise, Zope will try to use a ZODB-based session
   which has shown several problems in the past.
 
 - Use the cookie-based session management: if the `Use Zope session data manager` option in the plugin
