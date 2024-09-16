@@ -60,6 +60,7 @@ setup(
         "plone.protect",
         "plone.restapi>=8.34.0",
         "oic",
+        "PyJWT",
     ],
     extras_require={
         "test": [
