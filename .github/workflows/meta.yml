@@ -62,7 +62,6 @@ jobs:
 # py_versions = "['3.12', '3.11']"
 ##
 
-
 ##
 # Specify additional jobs in .meta.toml:
 #  [github]
