@@ -10,6 +10,7 @@
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       permission="zope.Public"
       name="@login"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
 
 </configure>
