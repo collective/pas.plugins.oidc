@@ -333,6 +333,8 @@ class OIDCPlugin(BasePlugin):
     def get_oauth2_client(self):
         try:
             client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
+            client.allow["issuer_mismatch"] = True  # Some providers aren't configured with configured and issuer urls the same even though they should.
+
             # registration_response = client.register(provider_info["registration_endpoint"], redirect_uris=...)
             # ... oic.exception.RegistrationError: {'error': 'insufficient_scope',
             #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
