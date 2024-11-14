@@ -10,6 +10,9 @@ from Products.Five.browser import BrowserView
 from urllib.parse import quote
 from zExceptions import Unauthorized
 
+import json
+import urllib.parse
+
 
 class RequireLoginView(BrowserView):
     """Our version of the require-login view from Plone.
@@ -120,6 +123,10 @@ class CallbackView(BrowserView):
         session = utils.load_existing_session(self.context, self.request)
         client = self.context.get_oauth2_client()
         qs = self.request.environ["QUERY_STRING"]
+        if not qs:
+            # With Apple, the response comes as a POST, thus it does not
+            # com in the QUERY_STRING but in the request.form
+            qs = urllib.parse.urlencode(self.request.form)
         args, state = utils.parse_authorization_response(
             self.context, qs, client, session
         )
@@ -130,10 +137,35 @@ class CallbackView(BrowserView):
                     "phone_number_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
                 }
             )
-
         # The response you get back is an instance of an AccessTokenResponse
         # or again possibly an ErrorResponse instance.
+
+        if self.context.getProperty("apple_login_enabled"):
+            args.update(
+                {
+                    "client_id": self.context.getProperty("client_id"),
+                    "client_secret": self.context._build_apple_secret(),
+                }
+            )
+
+        initial_user_info = {}
+        if self.context.getProperty("apple_login_enabled"):
+            # Let's check if this is this user's first login
+            # if so, their name and email could come in the first
+            # response from authorization response
+            # Weird Apple issues...
+            user = self.request.form.get("user", "")
+            if user:
+                user_decoded = json.loads(user)
+                first_name = user_decoded.get("name", {}).get("firstName", "")
+                last_name = user_decoded.get("name", {}).get("lastName", "")
+                email = user_decoded.get("email", "")
+                initial_user_info["given_name"] = first_name
+                initial_user_info["family_name"] = last_name
+                initial_user_info["email"] = email
+
         user_info = utils.get_user_info(client, state, args)
+        user_info.update(initial_user_info)
         if user_info:
             self.context.rememberIdentity(user_info)
             self.request.response.setHeader(
