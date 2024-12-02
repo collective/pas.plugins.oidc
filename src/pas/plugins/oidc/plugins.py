@@ -94,6 +94,7 @@ class OIDCPlugin(BasePlugin):
     use_deprecated_redirect_uri_for_logout = False
     use_modified_openid_schema = False
     user_property_as_userid = "sub"
+    identity_domain_name = ""
 
     _properties = (
         dict(id="title", type="string", mode="w", label="Title"),
