@@ -2,6 +2,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from contextlib import contextmanager
 from oic.oic import Client
+from oic.oic.settings import ClientSettings
 from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
@@ -28,6 +29,7 @@ from zope.interface import Interface
 import itertools
 import plone.api as api
 import string
+import requests
 
 
 manage_addOIDCPluginForm = PageTemplateFile(
@@ -159,6 +161,12 @@ class OIDCPlugin(BasePlugin):
             type="string",
             mode="w",
             label="User info property used as userid, default 'sub'",
+        ),
+        dict(
+            id="identity_domain_name",
+            type="string",
+            mode="w",
+            label="Required for Oracle Authentication Manager",
         ),
     )
 
@@ -331,8 +339,16 @@ class OIDCPlugin(BasePlugin):
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
+        domain = self.getProperty("identity_domain_name")
+        if domain:
+            settings = ClientSettings()
+            session = requests.Session()
+            session.headers.update({'x-oauth-identity-domain-name': domain})
+            settings.requests_session = session
+        else:
+            settings = None
         try:
-            client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
+            client = Client(client_authn_method=CLIENT_AUTHN_METHOD, settings=settings)
             client.allow["issuer_mismatch"] = True  # Some providers aren't configured with configured and issuer urls the same even though they should.
 
             # registration_response = client.register(provider_info["registration_endpoint"], redirect_uris=...)
@@ -341,6 +357,16 @@ class OIDCPlugin(BasePlugin):
 
             # use WebFinger
             provider_info = client.provider_config(self.getProperty("issuer"))  # noqa
+            if domain:
+                # TODO: we need to modify jwks_uri in the provider_info to add the identityDomain for OAM
+                # gets used in https://github.com/CZ-NIC/pyoidc/blob/0bd1eadcefc5ccb7ef6c69d9b631537a7d3cfe30/src/oic/oauth2/__init__.py#L1132
+                # we could
+                # - override client.handle_provider_info to change jwks_uri. - https://github.com/CZ-NIC/pyoidc/blob/0bd1eadcefc5ccb7ef6c69d9b631537a7d3cfe30/src/oic/oauth2/__init__.py#L1055
+                # - monkey patch KeyBundle and modify source - https://github.com/CZ-NIC/pyoidc/blob/master/src/oic/utils/keyio.py#L66
+                # - modify the keybundle objects after provider_config but before they are used.
+                #   - client.keyjar.issuer_keys[issuer].source = ...
+                jwks_uri = client.keyjar.issuer_keys[self.getProperty("issuer")].source
+                client.keyjar.issuer_keys[self.getProperty("issuer")].source = f'{jwks_uri}?identityDomainName={domain}'
             info = {
                 "client_id": self.getProperty("client_id"),
                 "client_secret": self.getProperty("client_secret"),
