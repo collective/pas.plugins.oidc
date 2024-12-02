@@ -2,10 +2,10 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from contextlib import contextmanager
 from oic.oic import Client
-from oic.oic.settings import ClientSettings
 from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
+from oic.utils.settings import ClientSettings
 from pas.plugins.oidc import logger
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
@@ -28,8 +28,8 @@ from zope.interface import Interface
 
 import itertools
 import plone.api as api
-import string
 import requests
+import string
 
 
 manage_addOIDCPluginForm = PageTemplateFile(
@@ -343,13 +343,15 @@ class OIDCPlugin(BasePlugin):
         if domain:
             settings = ClientSettings()
             session = requests.Session()
-            session.headers.update({'x-oauth-identity-domain-name': domain})
+            session.headers.update({"x-oauth-identity-domain-name": domain})
             settings.requests_session = session
         else:
             settings = None
         try:
             client = Client(client_authn_method=CLIENT_AUTHN_METHOD, settings=settings)
-            client.allow["issuer_mismatch"] = True  # Some providers aren't configured with configured and issuer urls the same even though they should.
+            client.allow["issuer_mismatch"] = (
+                True  # Some providers aren't configured with configured and issuer urls the same even though they should.
+            )
 
             # registration_response = client.register(provider_info["registration_endpoint"], redirect_uris=...)
             # ... oic.exception.RegistrationError: {'error': 'insufficient_scope',
@@ -366,7 +368,9 @@ class OIDCPlugin(BasePlugin):
                 # - modify the keybundle objects after provider_config but before they are used.
                 #   - client.keyjar.issuer_keys[issuer].source = ...
                 jwks_uri = client.keyjar.issuer_keys[self.getProperty("issuer")].source
-                client.keyjar.issuer_keys[self.getProperty("issuer")].source = f'{jwks_uri}?identityDomainName={domain}'
+                client.keyjar.issuer_keys[self.getProperty("issuer")].source = (
+                    f"{jwks_uri}?identityDomainName={domain}"
+                )
             info = {
                 "client_id": self.getProperty("client_id"),
                 "client_secret": self.getProperty("client_secret"),
