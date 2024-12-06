@@ -23,6 +23,7 @@ def keycloak(keycloak_service):
         "scope": ("openid", "profile", "email"),
         "redirect_uris": ("/login_oidc/oidc",),
         "create_restapi_ticket": True,
+        "identity_domain_name": "blah",  # ensure non OAM SP ignores extra params/header
     }
 
 
