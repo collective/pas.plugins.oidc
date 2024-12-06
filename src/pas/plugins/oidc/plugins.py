@@ -370,7 +370,8 @@ class OIDCPlugin(BasePlugin):
                 #   - client.keyjar.issuer_keys[issuer].source = ...
                 for key in client.keyjar.issuer_keys[self.getProperty("issuer")]:
                     req = requests.PreparedRequest()
-                    key.source = req.prepare_url(key.source, dict(identityDomainName=domain)).url
+                    req.prepare_url(key.source, dict(identityDomainName=domain))
+                    key.source = req.url
             info = {
                 "client_id": self.getProperty("client_id"),
                 "client_secret": self.getProperty("client_secret"),
