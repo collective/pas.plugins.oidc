@@ -368,10 +368,8 @@ class OIDCPlugin(BasePlugin):
                 # - monkey patch KeyBundle and modify source - https://github.com/CZ-NIC/pyoidc/blob/master/src/oic/utils/keyio.py#L66
                 # - modify the keybundle objects after provider_config but before they are used.
                 #   - client.keyjar.issuer_keys[issuer].source = ...
-                jwks_uri = client.keyjar.issuer_keys[self.getProperty("issuer")].source
-                client.keyjar.issuer_keys[self.getProperty("issuer")].source = (
-                    f"{jwks_uri}?identityDomainName={domain}"
-                )
+                for key in client.keyjar.issuer_keys[self.getProperty("issuer")]:
+                    key.source = requests.PreparedRequest().prepare_request(key.source, dict(identityDomainName=domain)).url
             info = {
                 "client_id": self.getProperty("client_id"),
                 "client_secret": self.getProperty("client_secret"),
