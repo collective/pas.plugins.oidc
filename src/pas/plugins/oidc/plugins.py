@@ -369,7 +369,8 @@ class OIDCPlugin(BasePlugin):
                 # - modify the keybundle objects after provider_config but before they are used.
                 #   - client.keyjar.issuer_keys[issuer].source = ...
                 for key in client.keyjar.issuer_keys[self.getProperty("issuer")]:
-                    key.source = requests.PreparedRequest().prepare_request(key.source, dict(identityDomainName=domain)).url
+                    req = requests.PreparedRequest()
+                    key.source = req.prepare_url(key.source, dict(identityDomainName=domain)).url
             info = {
                 "client_id": self.getProperty("client_id"),
                 "client_secret": self.getProperty("client_secret"),
