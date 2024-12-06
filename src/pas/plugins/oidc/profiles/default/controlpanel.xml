@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<object xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+        name="portal_controlpanel"
+        purge="False"
+        i18n:domain="pas.plugins.oidc"
+>
+
+  <configlet action_id="oidc_admin"
+             appId="pas.plugins.oidc"
+             category="plone-users"
+             condition_expr=""
+             icon_expr="string:people-fill"
+             title="OIDC Settings"
+             url_expr="string:${portal_url}/@@oidc-controlpanel"
+             visible="True"
+             i18n:attributes="title"
+  >
+    <permission>Manage portal</permission>
+  </configlet>
+
+</object>
