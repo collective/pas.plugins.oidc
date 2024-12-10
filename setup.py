@@ -56,10 +56,12 @@ setup(
         "Zope",
         "Products.CMFCore",
         "plone.api",
+        "plone.app.registry",
         "plone.base",
         "plone.protect",
         "plone.restapi>=8.34.0",
         "oic",
+        "z3c.form",
     ],
     extras_require={
         "test": [
