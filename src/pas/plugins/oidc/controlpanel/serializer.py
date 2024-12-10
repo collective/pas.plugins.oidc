@@ -1,3 +1,4 @@
+from pas.plugins.oidc import PLUGIN_ID
 from pas.plugins.oidc.interfaces import IOIDCControlpanel
 from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
@@ -15,7 +16,7 @@ class OIDCControlpanelSerializeToJson(ControlpanelSerializeToJson):
     def config_data(self) -> dict:
         data = {}
         portal = api.portal.get()
-        plugin = portal.acl_users.oidc
+        plugin = portal.acl_users[PLUGIN_ID]
         properties = OIDCPlugin._properties
         for prop in properties:
             key = prop["id"]

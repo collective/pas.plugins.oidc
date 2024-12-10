@@ -1,3 +1,4 @@
+from pas.plugins.oidc import PLUGIN_ID
 from pas.plugins.oidc.interfaces import IOIDCControlpanel
 from plone import api
 from plone.restapi.deserializer import json_body
@@ -21,7 +22,7 @@ class OIDCControlpanelDeserializeFromJson(ControlpanelDeserializeFromJson):
     @property
     def proxy(self):
         portal = api.portal.get()
-        plugin = portal.acl_users.oidc
+        plugin = portal.acl_users[PLUGIN_ID]
         return plugin
 
     def __call__(self, mask_validation_errors=True):

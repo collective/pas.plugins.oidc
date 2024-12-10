@@ -1,4 +1,5 @@
 from pas.plugins.oidc import _
+from pas.plugins.oidc import PLUGIN_ID
 from pas.plugins.oidc.interfaces import IOIDCSettings
 from plone import api
 from plone.app.registry.browser import controlpanel
@@ -15,7 +16,7 @@ class OIDCControlPanelAdapter:
         self.context = context
         self.portal = api.portal.get()
         self.encoding = "utf-8"
-        self.settings = self.portal.acl_users.oidc
+        self.settings = self.portal.acl_users[PLUGIN_ID]
 
     @property
     def issuer(self):
