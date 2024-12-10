@@ -9,6 +9,20 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0b2 (2024-12-09)
+
+
+### New features:
+
+- Update the Deutsch translation [macagua] [#60](https://github.com/collective/pas.plugins.oidc/issues/60)
+- Implement control panel to configure pas.plugins.oidc [@ericof] [#65](https://github.com/collective/pas.plugins.oidc/issues/65)
+
+
+### Documentation:
+
+- Fixed port numbers on README file [macagua] [#51](https://github.com/collective/pas.plugins.oidc/issues/51)
+
+
 ## 2.0.0b1 (2024-06-25)
 
 
