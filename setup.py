@@ -14,7 +14,7 @@ long_description = f"""
 
 setup(
     name="pas.plugins.oidc",
-    version="2.0.0b2.dev0",
+    version="2.0.0b3.dev0",
     description="OIDC support for Plone sites",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -56,11 +56,13 @@ setup(
         "Zope",
         "Products.CMFCore",
         "plone.api",
+        "plone.app.registry",
         "plone.base",
         "plone.protect",
         "plone.restapi>=8.34.0",
         "oic",
         "requests",
+        "z3c.form",
     ],
     extras_require={
         "test": [

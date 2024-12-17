@@ -1,1 +1,0 @@
-Update the Deutsch translation [macagua]
