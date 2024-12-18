@@ -167,7 +167,7 @@ class OIDCPlugin(BasePlugin):
             id="identity_domain_name",
             type="string",
             mode="w",
-            label="Required for Oracle Authentication Manager",
+            label="Required for Oracle Authentication Manager only",
         ),
     )
 
