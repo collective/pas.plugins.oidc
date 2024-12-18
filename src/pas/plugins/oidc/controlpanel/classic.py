@@ -146,6 +146,7 @@ class OIDCControlPanelAdapter:
     def identity_domain_name(self, value):
         self.settings.identity_domain_name = value
 
+
 class OIDCSettingsForm(controlpanel.RegistryEditForm):
     schema = IOIDCSettings
     schema_prefix = "oidc_admin"
