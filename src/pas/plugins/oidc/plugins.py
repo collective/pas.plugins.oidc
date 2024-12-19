@@ -5,7 +5,6 @@ from oic.oic import Client
 from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
-from oic.utils.settings import ClientSettings
 from pas.plugins.oidc import logger
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
@@ -72,7 +71,7 @@ class IOIDCPlugin(Interface):
 
 
 class OAMClient(Client):
-    """Override so we can adjust the jwks_uri to add param needed for OAM"""
+    """Override so we can adjust the jwks_uri to add domain needed for OAM"""
 
     def __init__(self, *args, domain=None, **xargs):
         super().__init__(self, *args, **xargs)
@@ -85,13 +84,8 @@ class OAMClient(Client):
     def handle_provider_config(self, pcr, issuer, keys=True, endpoints=True):
         domain = self.domain
         if domain:
-            # TODO: we need to modify jwks_uri in the provider_info to add the identityDomain for OAM
+            # we need to modify jwks_uri in the provider_info to add the identityDomain for OAM
             # gets used in https://github.com/CZ-NIC/pyoidc/blob/0bd1eadcefc5ccb7ef6c69d9b631537a7d3cfe30/src/oic/oauth2/__init__.py#L1132
-            # we could
-            # - override client.handle_provider_info to change jwks_uri. - https://github.com/CZ-NIC/pyoidc/blob/0bd1eadcefc5ccb7ef6c69d9b631537a7d3cfe30/src/oic/oauth2/__init__.py#L1055
-            # - monkey patch KeyBundle and modify source - https://github.com/CZ-NIC/pyoidc/blob/master/src/oic/utils/keyio.py#L66
-            # - modify the keybundle objects after provider_config but before they are used.
-            #   - client.keyjar.issuer_keys[issuer].source = ...
             url = pcr["jwks_uri"]
             req = requests.PreparedRequest()
             req.prepare_url(url, dict(identityDomainName=domain))
