@@ -75,8 +75,12 @@ class OAMClient(Client):
     """Override so we can adjust the jwks_uri to add param needed for OAM"""
 
     def __init__(self, *args, domain=None, **xargs):
+        super().__init__(self, *args, **xargs)
         self.domain = domain
-        return super().__init__(self, *args, **xargs)
+        if domain:
+            session = requests.Session()
+            session.headers.update({"x-oauth-identity-domain-name": domain})
+            self.settings.requests_session = session
 
     def handle_provider_config(self, pcr, issuer, keys=True, endpoints=True):
         domain = self.domain
@@ -365,18 +369,10 @@ class OIDCPlugin(BasePlugin):
     # TODO: memoize (?)
     def get_oauth2_client(self):
         domain = self.getProperty("identity_domain_name")
-        if domain:
-            settings = ClientSettings()
-            session = requests.Session()
-            session.headers.update({"x-oauth-identity-domain-name": domain})
-            settings.requests_session = session
-        else:
-            settings = None
         try:
             if domain:
                 client = OAMClient(
                     client_authn_method=CLIENT_AUTHN_METHOD,
-                    settings=settings,
                     domain=domain,
                 )
             else:
