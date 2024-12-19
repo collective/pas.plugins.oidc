@@ -72,12 +72,12 @@ class IOIDCPlugin(Interface):
 
 
 class OAMClient(Client):
-    """ Override so we can adjust the jwks_uri to add param needed for OAM """
+    """Override so we can adjust the jwks_uri to add param needed for OAM"""
 
     def __init__(self, *args, domain=None, **xargs):
         self.domain = domain
         return super().__init__(self, *args, **xargs)
-    
+
     def handle_provider_config(self, pcr, issuer, keys=True, endpoints=True):
         domain = self.domain
         if domain:
@@ -88,10 +88,10 @@ class OAMClient(Client):
             # - monkey patch KeyBundle and modify source - https://github.com/CZ-NIC/pyoidc/blob/master/src/oic/utils/keyio.py#L66
             # - modify the keybundle objects after provider_config but before they are used.
             #   - client.keyjar.issuer_keys[issuer].source = ...
-            url = pcr['jwks_uri']
+            url = pcr["jwks_uri"]
             req = requests.PreparedRequest()
             req.prepare_url(url, dict(identityDomainName=domain))
-            pcr['jwks_uri'] = req.url
+            pcr["jwks_uri"] = req.url
         return super().handle_provider_config(pcr, issuer, keys, endpoints)
 
 
@@ -374,7 +374,11 @@ class OIDCPlugin(BasePlugin):
             settings = None
         try:
             if domain:
-                client = OAMClient(client_authn_method=CLIENT_AUTHN_METHOD, settings=settings, domain=domain)
+                client = OAMClient(
+                    client_authn_method=CLIENT_AUTHN_METHOD,
+                    settings=settings,
+                    domain=domain,
+                )
             else:
                 client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
             client.allow["issuer_mismatch"] = (
