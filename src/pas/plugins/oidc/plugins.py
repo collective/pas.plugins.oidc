@@ -73,8 +73,13 @@ class IOIDCPlugin(Interface):
 
 class OAMClient(Client):
     """ Override so we can adjust the jwks_uri to add param needed for OAM """
+
+    def __init__(self, *args, domain=None, **xargs):
+        self.domain = domain
+        return super().__init__(self, *args, **xargs)
+    
     def handle_provider_config(self, pcr, issuer, keys=True, endpoints=True):
-        domain = self.settings.domain
+        domain = self.domain
         if domain:
             # TODO: we need to modify jwks_uri in the provider_info to add the identityDomain for OAM
             # gets used in https://github.com/CZ-NIC/pyoidc/blob/0bd1eadcefc5ccb7ef6c69d9b631537a7d3cfe30/src/oic/oauth2/__init__.py#L1132
@@ -365,12 +370,11 @@ class OIDCPlugin(BasePlugin):
             session = requests.Session()
             session.headers.update({"x-oauth-identity-domain-name": domain})
             settings.requests_session = session
-            settings.domain = domain # Used just by us
         else:
             settings = None
         try:
             if domain:
-                client = OAMClient(client_authn_method=CLIENT_AUTHN_METHOD, settings=settings)
+                client = OAMClient(client_authn_method=CLIENT_AUTHN_METHOD, settings=settings, domain=domain)
             else:
                 client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
             client.allow["issuer_mismatch"] = (
