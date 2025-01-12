@@ -2,13 +2,13 @@
 from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from plone.base.interfaces import IPloneSiteRoot
-from plone.restapi.interfaces import IExternalLoginProviders
+from plone.restapi.interfaces import ILoginProviders
 from zope.component import adapter
 from zope.interface import implementer
 
 
 @adapter(IPloneSiteRoot)
-@implementer(IExternalLoginProviders)
+@implementer(ILoginProviders)
 class OIDCLoginProviders:
     def __init__(self, context):
         self.context = context
