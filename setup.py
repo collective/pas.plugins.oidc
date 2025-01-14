@@ -61,6 +61,7 @@ setup(
         "plone.protect",
         "plone.restapi>=8.34.0",
         "oic",
+        "requests",
         "z3c.form",
     ],
     extras_require={

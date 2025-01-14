@@ -27,6 +27,7 @@ from zope.interface import Interface
 
 import itertools
 import plone.api as api
+import requests
 import string
 
 
@@ -69,6 +70,29 @@ class IOIDCPlugin(Interface):
     """ """
 
 
+class OAMClient(Client):
+    """Override so we can adjust the jwks_uri to add domain needed for OAM"""
+
+    def __init__(self, *args, domain=None, **xargs):
+        super().__init__(self, *args, **xargs)
+        self.domain = domain
+        if domain:
+            session = requests.Session()
+            session.headers.update({"x-oauth-identity-domain-name": domain})
+            self.settings.requests_session = session
+
+    def handle_provider_config(self, pcr, issuer, keys=True, endpoints=True):
+        domain = self.domain
+        if domain:
+            # we need to modify jwks_uri in the provider_info to add the identityDomain for OAM
+            # gets used in https://github.com/CZ-NIC/pyoidc/blob/0bd1eadcefc5ccb7ef6c69d9b631537a7d3cfe30/src/oic/oauth2/__init__.py#L1132
+            url = pcr["jwks_uri"]
+            req = requests.PreparedRequest()
+            req.prepare_url(url, dict(identityDomainName=domain))
+            pcr["jwks_uri"] = req.url
+        return super().handle_provider_config(pcr, issuer, keys, endpoints)
+
+
 @implementer(IOIDCPlugin)
 class OIDCPlugin(BasePlugin):
     """PAS Plugin OpenID Connect."""
@@ -92,6 +116,7 @@ class OIDCPlugin(BasePlugin):
     use_deprecated_redirect_uri_for_logout = False
     use_modified_openid_schema = False
     user_property_as_userid = "sub"
+    identity_domain_name = ""
 
     _properties = (
         dict(id="title", type="string", mode="w", label="Title"),
@@ -159,6 +184,12 @@ class OIDCPlugin(BasePlugin):
             type="string",
             mode="w",
             label="User info property used as userid, default 'sub'",
+        ),
+        dict(
+            id="identity_domain_name",
+            type="string",
+            mode="w",
+            label="Identity Domain Name (required for Oracle Authentication Manager only)",
         ),
     )
 
@@ -331,8 +362,19 @@ class OIDCPlugin(BasePlugin):
 
     # TODO: memoize (?)
     def get_oauth2_client(self):
+        domain = self.getProperty("identity_domain_name")
         try:
-            client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
+            if domain:
+                client = OAMClient(
+                    client_authn_method=CLIENT_AUTHN_METHOD,
+                    domain=domain,
+                )
+            else:
+                client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
+            client.allow["issuer_mismatch"] = (
+                True  # Some providers aren't configured with configured and issuer urls the same even though they should.
+            )
+
             # registration_response = client.register(provider_info["registration_endpoint"], redirect_uris=...)
             # ... oic.exception.RegistrationError: {'error': 'insufficient_scope',
             #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}

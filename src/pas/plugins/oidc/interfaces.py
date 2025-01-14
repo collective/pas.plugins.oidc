@@ -119,6 +119,13 @@ class IOIDCSettings(Interface):
         default="sub",
     )
 
+    identity_domain_name = schema.TextLine(
+        title=_("Identity Domain Name"),
+        description=_("Required for Oracle Authentication Manager only"),
+        required=False,
+        default="",
+    )
+
 
 class IOIDCControlpanel(IControlpanel):
     """OIDC Control panel"""

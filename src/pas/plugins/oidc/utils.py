@@ -127,6 +127,8 @@ def authorization_flow_args(plugin: plugins.OIDCPlugin, session: Session) -> dic
         "nonce": session.get("nonce"),
         "redirect_uri": plugin.get_redirect_uris(),
     }
+    if plugin.getProperty("identity_domain_name"):
+        args["domain"] = plugin.getProperty("identity_domain_name", "")
     if plugin.getProperty("use_pkce"):
         # Build a random string of 43 to 128 characters
         # and send it in the request as a base64-encoded urlsafe string of the sha256 hash of that string
