@@ -1,3 +1,4 @@
+from oic.oic.message import BackChannelLogoutRequest
 from oic.oic.message import EndSessionRequest
 from oic.oic.message import IdToken
 from pas.plugins.oidc import _
@@ -133,9 +134,11 @@ class CallbackView(BrowserView):
 
         # The response you get back is an instance of an AccessTokenResponse
         # or again possibly an ErrorResponse instance.
-        user_info = utils.get_user_info(client, state, args)
-        if user_info:
-            self.context.rememberIdentity(user_info)
+        creds = utils.get_credentials(client, state, args)
+        userinfo = utils.get_user_info(client, creds, state)
+        if userinfo:
+            self.context.storeSession(creds)
+            self.context.rememberIdentity(userinfo)
             self.request.response.setHeader(
                 "Cache-Control", "no-cache, must-revalidate"
             )
@@ -143,3 +146,27 @@ class CallbackView(BrowserView):
             self.request.response.redirect(return_url)
         else:
             raise Unauthorized()
+
+
+# class RefreshTokenView(BrowserView):
+#     def __call__(self):
+
+
+class BackChannelLogoutView(BrowserView):
+    def __call__(self):
+        if not self.request.method == "POST" or not self.request.get("logout_token"):
+            raise Unauthorized()
+        logout_request = BackChannelLogoutRequest(
+            logout_token=self.request.get("logout_token")
+        )
+        client = self.context.get_oauth2_client()
+        # try:
+        if logout_request.verify(
+            aud=client.client_id, iss=client.issuer, keyjar=client.keyjar
+        ):
+            # TODO: invalidate session
+            self.context.invalidateSession(logout_request)
+            return ""
+        # except Exception as e:
+        #     logger.error(e)
+        #     raise Unauthorized()

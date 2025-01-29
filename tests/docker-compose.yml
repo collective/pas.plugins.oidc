@@ -26,6 +26,9 @@ services:
       - ./keycloak/import:/opt/keycloak/data/import
     ports:
       - 8180:8080
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
 
   db:
     image: postgres:14.9
@@ -39,3 +42,5 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: keycloak
       POSTGRES_HOST: postgres
+    extra_hosts:
+      - host.docker.internal:host-gateway

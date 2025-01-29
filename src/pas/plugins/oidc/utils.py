@@ -171,17 +171,32 @@ def parse_authorization_response(
     return args, aresp["state"]
 
 
-def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
-    resp = client.do_access_token_request(
+def get_credentials(client, state, args) -> Union[message.OpenIDSchema, dict]:
+    logger.debug("Getting credentials")
+    creds = client.do_access_token_request(
         state=state,
         request_args=args,
         authn_method="client_secret_basic",
     )
+    id_token = creds.get("id_token", {})
+    if not id_token:
+        logger.debug("No ID token")
+        return {}
+    # TODO: check if this is needed
+    # if not self._is_id_token_valid(id_token):
+    #     logger.debug("Invalid ID token")
+    #     return {}
+
+    return creds
+
+
+def get_user_info(client, credentials, state) -> Union[message.OpenIDSchema, dict]:
+    # import pdb; pdb.set_trace()
     user_info = {}
-    if isinstance(resp, message.AccessTokenResponse):
+    if isinstance(credentials, message.AccessTokenResponse):
         # If it's an AccessTokenResponse the information in the response will be stored in the
         # client instance with state as the key for future use.
-        user_info = resp.to_dict().get("id_token", {})
+        user_info = credentials.to_dict().get("id_token", {})
         if client.userinfo_endpoint:
             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
 
@@ -203,13 +218,59 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
         # userinfo in an instance of OpenIDSchema or ErrorResponse
         # It could also be dict, if there is no userinfo_endpoint
         if not (user_info and isinstance(user_info, (message.OpenIDSchema, dict))):
-            logger.error(f"Authentication failed,  invalid response {resp} {user_info}")
+            logger.error(
+                f"Authentication failed,  invalid response {credentials} {user_info}"
+            )
             user_info = {}
-    elif isinstance(resp, message.TokenErrorResponse):
-        logger.error(f"Token error response: {resp.to_json()}")
+    elif isinstance(credentials, message.TokenErrorResponse):
+        logger.error(f"Token error response: {credentials.to_json()}")
     else:
-        logger.error(f"Authentication failed {resp}")
+        logger.error(f"Authentication failed {credentials}")
     return user_info
+
+
+# @deprecated
+# def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
+#     resp = client.do_access_token_request(
+#         state=state,
+#         request_args=args,
+#         authn_method="client_secret_basic",
+#     )
+#     # resp = get_credentials(client, state, args)
+#     # import pdb; pdb.set_trace()
+#     user_info = {}
+#     if isinstance(resp, message.AccessTokenResponse):
+#         # If it's an AccessTokenResponse the information in the response will be stored in the
+#         # client instance with state as the key for future use.
+#         user_info = resp.to_dict().get("id_token", {})
+#         if client.userinfo_endpoint:
+#             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
+
+#             # XXX: Not completely sure if this is even needed
+#             #      We do not have a OpenID connect provider with userinfo endpoint
+#             #      enabled and with the weird treatment of boolean values, so we cannot test this
+#             # if self.context.getProperty("use_modified_openid_schema"):
+#             #     userinfo = client.do_user_info_request(state=aresp["state"], user_info_schema=CustomOpenIDNonBooleanSchema)
+#             # else:
+#             #     userinfo = client.do_user_info_request(state=aresp["state"])
+#             try:
+#                 user_info = client.do_user_info_request(state=state)
+#             except RequestError as exc:
+#                 logger.error(
+#                     "Authentication failed, probably missing openid scope",
+#                     exc_info=exc,
+#                 )
+#                 user_info = {}
+#         # userinfo in an instance of OpenIDSchema or ErrorResponse
+#         # It could also be dict, if there is no userinfo_endpoint
+#         if not (user_info and isinstance(user_info, (message.OpenIDSchema, dict))):
+#             logger.error(f"Authentication failed,  invalid response {resp} {user_info}")
+#             user_info = {}
+#     elif isinstance(resp, message.TokenErrorResponse):
+#         logger.error(f"Token error response: {resp.to_json()}")
+#     else:
+#         logger.error(f"Authentication failed {resp}")
+#     return user_info
 
 
 def process_came_from(session: Session, came_from: str = "") -> str:

@@ -4,6 +4,7 @@
     >
 
   <!-- Login options -->
+  <!--
   <plone:service
       method="GET"
       factory=".get.Get"
@@ -11,5 +12,6 @@
       permission="zope.Public"
       name="@login"
       />
+   -->
 
 </configure>
