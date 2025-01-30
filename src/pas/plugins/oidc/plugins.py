@@ -477,7 +477,7 @@ class OIDCPlugin(BasePlugin):
                 request.response.setCookie("__ac_oidc_sub", "", expires=0, path="/")
                 if "__ac" in request.cookies:
                     del request.cookies["__ac"]
-                    request.response.setCookie("__ac", "", expires=0, path="/")
+                request.response.setCookie("__ac", "", expires=0, path="/")
                 logger.info(
                     f"Credentials not found in credentials store for {oidc_sub} go to login"
                 )
