@@ -1,42 +1,29 @@
-from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
-from plone.restapi.services import Service
-from typing import Dict
-from typing import List
+from plone.base.interfaces import IPloneSiteRoot
+from plone.restapi.interfaces import ILoginProviders
+from zope.component import adapter
+from zope.interface import implementer
 
 
-class Get(Service):
-    """List available login options for the site."""
+@adapter(IPloneSiteRoot)
+@implementer(ILoginProviders)
+class OIDCLoginProviders:
+    def __init__(self, context):
+        self.context = context
 
-    def check_permission(self):
-        return True
-
-    @staticmethod
-    def list_login_providers() -> List[Dict]:
-        """List all configured login providers.
-
-        This should be moved to plone.restapi and be extendable.
-        :returns: List of login options.
-        """
-        portal_url = api.portal.get().absolute_url()
-        plugins = []
-        for plugin in utils.get_plugins():
+    def get_providers(self):
+        options = []
+        acl_users = api.portal.get_tool("acl_users")
+        for plugin in acl_users.objectValues():
             if isinstance(plugin, OIDCPlugin):
-                plugins.append(
+                options.append(
                     {
                         "id": plugin.getId(),
                         "plugin": "oidc",
-                        "url": f"{portal_url}/@login-oidc/{plugin.getId()}",
                         "title": plugin.title,
+                        "url": f"{self.context.absolute_url()}/@login-oidc/{plugin.getId()}",
                     }
                 )
-        return plugins
 
-    def reply(self) -> Dict[str, List[Dict]]:
-        """List login options available for the site.
-
-        :returns: Login options information.
-        """
-        providers = self.list_login_providers()
-        return {"options": providers}
+        return options
