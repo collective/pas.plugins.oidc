@@ -7,9 +7,11 @@ from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OAuth2ConnectionException
 from pas.plugins.oidc.session import Session
 from plone import api
+from plone.keyring.interfaces import IKeyManager
 from Products.Five.browser import BrowserView
 from urllib.parse import quote
 from zExceptions import Unauthorized
+from zope.component import getUtility
 
 
 class RequireLoginView(BrowserView):
@@ -137,7 +139,7 @@ class CallbackView(BrowserView):
         creds = utils.get_credentials(client, state, args)
         userinfo = utils.get_user_info(client, creds, state)
         if userinfo:
-            self.context.storeSession(creds)
+            # self.context.storeSession(creds)
             self.context.rememberIdentity(userinfo)
             self.request.response.setHeader(
                 "Cache-Control", "no-cache, must-revalidate"
@@ -165,7 +167,20 @@ class BackChannelLogoutView(BrowserView):
             aud=client.client_id, iss=client.issuer, keyjar=client.keyjar
         ):
             # TODO: invalidate session
-            self.context.invalidateSession(logout_request)
+            # self.context.invalidateSession(logout_request)
+            # reset user secretkey
+            userid = logout_request.to_dict()["logout_token"]["sub"]
+            session = api.portal.get_tool("acl_users").session
+            if session.per_user_keyring:
+                secret_key = session._getSecretKey(userid)
+                manager = getUtility(IKeyManager)
+                if manager[secret_key]:
+                    manager.clear(ring=secret_key)
+                    manager.rotate(ring=secret_key)
+            else:
+                logger.error(
+                    "For the backchannel logout, the session PAS needs to be configured with 'per user keyring'."
+                )
             return ""
         # except Exception as e:
         #     logger.error(e)

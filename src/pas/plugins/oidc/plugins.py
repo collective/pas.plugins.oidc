@@ -6,7 +6,8 @@ from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from pas.plugins.oidc import logger
-from persistent.mapping import PersistentMapping
+
+# from persistent.mapping import PersistentMapping
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
@@ -436,51 +437,51 @@ class OIDCPlugin(BasePlugin):
         response.redirect(url, lock=1)
         return True
 
-    def storeSession(self, creds):
-        id_token = creds["id_token"]
-        # TODO: storeBackendSession ?
-        if not hasattr(self, "_credentials_store"):
-            self._credentials_store = PersistentMapping()
-            safeWrite(self)
-        self._credentials_store[id_token["sub"]] = creds.to_json()
-        safeWrite(self._credentials_store)
+    # def storeSession(self, creds):
+    #     id_token = creds["id_token"]
+    #     # TODO: storeBackendSession ?
+    #     if not hasattr(self, "_credentials_store"):
+    #         self._credentials_store = PersistentMapping()
+    #         safeWrite(self)
+    #     self._credentials_store[id_token["sub"]] = creds.to_json()
+    #     safeWrite(self._credentials_store)
 
-    def invalidateSession(self, logout_request):
-        oidc_sub = logout_request.to_dict()["logout_token"]["sub"]
-        if hasattr(self, "_credentials_store") and oidc_sub in self._credentials_store:
-            del self._credentials_store[oidc_sub]
-            safeWrite(self._credentials_store)
-            logger.info("Invalidated access_token for %s", oidc_sub)
+    # def invalidateSession(self, logout_request):
+    #     oidc_sub = logout_request.to_dict()["logout_token"]["sub"]
+    #     if hasattr(self, "_credentials_store") and oidc_sub in self._credentials_store:
+    #         del self._credentials_store[oidc_sub]
+    #         safeWrite(self._credentials_store)
+    #         logger.info("Invalidated access_token for %s", oidc_sub)
 
     # IExtractionPlugin implementation
     def extractCredentials(self, request):
         # XXX: this is more a wsgi middleware than an extractionplugin...
         creds = {}
-        oidc_sub = request.get(
-            "__ac_oidc_sub"
-        )  # , f"{self.getId()}_{userinfo['sub']}", path="/")
-        # logger.info("Extracting credentials for %s", oidc_sub)
-        # for key in self._credentials_store.keys():
-        #     logger.info("KEY: %s", key)
-        if oidc_sub:  # potential oidc_session
-            if (
-                hasattr(self, "_credentials_store")
-                and oidc_sub in self._credentials_store
-            ):
-                # TODO: verify expired acces_token
-                # creds = self._credentials_store[oidc_sub]
-                logger.debug(
-                    f"Found credentials in credentials store for {oidc_sub} go on"
-                )
-            else:
-                del request.cookies["__ac_oidc_sub"]
-                request.response.setCookie("__ac_oidc_sub", "", expires=0, path="/")
-                if "__ac" in request.cookies:
-                    del request.cookies["__ac"]
-                request.response.setCookie("__ac", "", expires=0, path="/")
-                logger.info(
-                    f"Credentials not found in credentials store for {oidc_sub} go to login"
-                )
+        # oidc_sub = request.get(
+        #     "__ac_oidc_sub"
+        # )  # , f"{self.getId()}_{userinfo['sub']}", path="/")
+        # # logger.info("Extracting credentials for %s", oidc_sub)
+        # # for key in self._credentials_store.keys():
+        # #     logger.info("KEY: %s", key)
+        # if oidc_sub:  # potential oidc_session
+        #     if (
+        #         hasattr(self, "_credentials_store")
+        #         and oidc_sub in self._credentials_store
+        #     ):
+        #         # TODO: verify expired acces_token
+        #         # creds = self._credentials_store[oidc_sub]
+        #         logger.debug(
+        #             f"Found credentials in credentials store for {oidc_sub} go on"
+        #         )
+        #     else:
+        #         del request.cookies["__ac_oidc_sub"]
+        #         request.response.setCookie("__ac_oidc_sub", "", expires=0, path="/")
+        #         if "__ac" in request.cookies:
+        #             del request.cookies["__ac"]
+        #         request.response.setCookie("__ac", "", expires=0, path="/")
+        #         logger.info(
+        #             f"Credentials not found in credentials store for {oidc_sub} go to login"
+        #         )
         return creds
 
     # TODO: use access_token for authentication ?
