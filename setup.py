@@ -14,7 +14,7 @@ long_description = f"""
 
 setup(
     name="pas.plugins.oidc",
-    version="2.0.0b3.dev0",
+    version="2.0.0b3",
     description="OIDC support for Plone sites",
     long_description=long_description,
     long_description_content_type="text/markdown",
