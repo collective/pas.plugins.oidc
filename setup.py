@@ -59,7 +59,7 @@ setup(
         "plone.app.registry",
         "plone.base",
         "plone.protect",
-        "plone.restapi>=8.34.0",
+        "plone.restapi>=9.10.0",
         "oic",
         "requests",
         "z3c.form",
