@@ -35,6 +35,7 @@ ifeq ($(PYTHON_VERSION_OK),0)
 endif
 
 all: build
+build: install
 
 # Add the following 'help' target to your Makefile
 # And add help text after each target name starting with '\#\#'

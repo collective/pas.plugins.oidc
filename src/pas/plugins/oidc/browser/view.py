@@ -1,3 +1,4 @@
+from oic.oic.message import BackChannelLogoutRequest
 from oic.oic.message import EndSessionRequest
 from oic.oic.message import IdToken
 from pas.plugins.oidc import _
@@ -6,9 +7,11 @@ from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OAuth2ConnectionException
 from pas.plugins.oidc.session import Session
 from plone import api
+from plone.keyring.interfaces import IKeyManager
 from Products.Five.browser import BrowserView
 from urllib.parse import quote
 from zExceptions import Unauthorized
+from zope.component import getUtility
 
 
 class RequireLoginView(BrowserView):
@@ -142,4 +145,33 @@ class CallbackView(BrowserView):
             return_url = utils.process_came_from(session, self.request.get("came_from"))
             self.request.response.redirect(return_url)
         else:
+            raise Unauthorized()
+
+
+class BackChannelLogoutView(BrowserView):
+    def __call__(self):
+        if not self.request.method == "POST" or not self.request.get("logout_token"):
+            raise Unauthorized()
+        logout_request = BackChannelLogoutRequest(
+            logout_token=self.request.get("logout_token")
+        )
+        client = self.context.get_oauth2_client()
+        if logout_request.verify(
+            aud=client.client_id, iss=client.issuer, keyjar=client.keyjar
+        ):
+            userid = logout_request.to_dict()["logout_token"]["sub"]
+            session = api.portal.get_tool("acl_users").session
+            if session.per_user_keyring:
+                secret_key = session._getSecretKey(userid)
+                manager = getUtility(IKeyManager)
+                if manager[secret_key]:
+                    manager.clear(ring=secret_key)
+                    manager.rotate(ring=secret_key)
+            else:
+                logger.error(
+                    "For the backchannel logout, the session PAS needs to be configured with 'per user keyring'."
+                )
+            return ""
+        else:
+            logger.error("invalid backchannel logout request")
             raise Unauthorized()
