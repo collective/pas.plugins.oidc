@@ -15,6 +15,7 @@
 ### New features:
 
 - Register the adapter as needed by the @login endpoint present in plone.restapi @erral [#47](https://github.com/collective/pas.plugins.oidc/issues/47)
+- Changes to make compatible with OAM (Oracle Access Manager) @djay [#65](https://github.com/collective/pas.plugins.oidc/pull/64)
 
 
 ### Internal:
