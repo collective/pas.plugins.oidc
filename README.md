@@ -213,6 +213,19 @@ Currently, the Plone logout form is unchanged.
 Instead, for testing go to the logout page of the plugin: http://localhost:8080/Plone/acl_users/oidc/logout,
 this will take you to Keycloak to logout, and then return to the post-logout redirect URL.
 
+#### Backchannel SLO (experimental)
+
+OIDC Backchannel Logout is a server-to-server mechanism where the IdP notifies RPs via an HTTP POST request to terminate user sessions upon logout, ensuring secure and seamless Single Logout (SLO) without relying on the user's browser.
+See the specification [OpenID Connect Back-Channel Logout 1.0](https://openid.net/specs/openid-connect-backchannel-1_0.html).
+
+Current backchannel logout implementation, in this product, utilizes functionality introduced in plone.session >= 4.0.0 (Plone 6 and later) for server-side session invalidation (see plone.session PR [plone.session#26](https://github.com/plone/plone.session/pull/26)), and, at the moment, applies only to Plone Classic UI.
+
+To enable this functionality:
+
+1. Navigate to `.../acl_users/session/manage_secret` and enable the `Enable per-user keyring` option.
+
+2. Configure the OpenID Provider (e.g., Keycloak) to use the backchannel logout endpoint with the url: `.../acl_users/oidc/backchannel-logout`
+
 ## Technical Decisions
 
 ### Usage of sessions in the login process
