@@ -9,6 +9,13 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0b4 (2025-02-28)
+
+
+### New features:
+
+- Add backchannel logout implementation for classic ui session @mamico [#67](https://github.com/collective/pas.plugins.oidc/issues/67)
+
 ## 2.0.0b3 (2025-02-03)
 
 
