@@ -43,6 +43,14 @@
 
   <include package=".upgrades" />
 
+  <genericsetup:upgradeStep
+      title="Activate properties plugin"
+      profile="pas.plugins.oidc:default"
+      source="1001"
+      destination="1002"
+      handler=".setuphandlers.activate_properties_plugin"
+      />
+
   <utility
       factory=".setuphandlers.HiddenProfiles"
       name="pas.plugins.oidc-hiddenprofiles"

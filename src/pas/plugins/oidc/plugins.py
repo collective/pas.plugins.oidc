@@ -1,5 +1,6 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
+from BTrees.OOBTree import OOBTree
 from contextlib import contextmanager
 from oic.oic import Client
 from oic.oic.message import OpenIDSchema
@@ -15,8 +16,10 @@ from Products.PlonePAS.events import UserLoggedInEvent
 from Products.PluggableAuthService.events import PrincipalCreated
 from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlugin
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
+from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
+from Products.PluggableAuthService.UserPropertySheet import UserPropertySheet
 from Products.PluggableAuthService.utils import classImplements
 from secrets import choice
 from typing import List
@@ -70,6 +73,9 @@ class IOIDCPlugin(Interface):
     """ """
 
 
+_marker = object()
+
+
 class OAMClient(Client):
     """Override so we can adjust the jwks_uri to add domain needed for OAM"""
 
@@ -111,11 +117,12 @@ class OIDCPlugin(BasePlugin):
     create_user = True
     create_groups = False
     user_property_as_groupid = "groups"
-    scope = ("profile", "email", "phone")
+    scope = ("openid", "profile", "email", "phone")
     use_pkce = False
     use_deprecated_redirect_uri_for_logout = False
     use_modified_openid_schema = False
     user_property_as_userid = "sub"
+    userinfo_to_memberdata = ()
     identity_domain_name = ""
 
     _properties = (
@@ -186,6 +193,13 @@ class OIDCPlugin(BasePlugin):
             label="User info property used as userid, default 'sub'",
         ),
         dict(
+            id="userinfo_to_memberdata",
+            type="lines",
+            mode="w",
+            label="Mapping from userinfo to memberdata property. "
+            "Format: userinfo_propname|memberdata_propname",
+        ),
+        dict(
             id="identity_domain_name",
             type="string",
             mode="w",
@@ -196,6 +210,7 @@ class OIDCPlugin(BasePlugin):
     def __init__(self, id, title=None):
         self._setId(id)
         self.title = title
+        self._userdata_by_userid = OOBTree()
 
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, (OpenIDSchema, dict)):
@@ -206,7 +221,6 @@ class OIDCPlugin(BasePlugin):
         #      this value is guaranteed to be unique per user, stable over time,
         #      and never re-used
         user_id = userinfo[self.getProperty("user_property_as_userid") or "sub"]
-        # TODO: configurare userinfo/plone mapping
         pas = self._getPAS()
         if pas is None:
             return
@@ -260,6 +274,10 @@ class OIDCPlugin(BasePlugin):
                 with safe_write(self.REQUEST):
                     self._updateUserProperties(user, userinfo)
                 notify(UserLoggedInEvent(user))
+        elif user is not None:
+            with safe_write(self.REQUEST):
+                self._updateUserProperties(user, userinfo)
+                notify(UserLoggedInEvent(user))
 
         if self.getProperty("create_groups"):
             groupid_property = self.getProperty("user_property_as_groupid")
@@ -299,23 +317,70 @@ class OIDCPlugin(BasePlugin):
         This is utilised when first creating a user, and to update
         their information when logging in again later.
         """
-        # TODO: modificare solo se ci sono dei cambiamenti sui dati ?
-        # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
-        # TODO: warning nel caso non vengono tornati dati dell'utente
-        userProps = {}
-        email = userinfo.get("email", "")
-        name = userinfo.get("name", "")
-        given_name = userinfo.get("given_name", "")
-        family_name = userinfo.get("family_name", "")
-        if email:
-            userProps["email"] = email
-        if given_name and family_name:
-            userProps["fullname"] = f"{given_name} {family_name}"
-        elif name and family_name:
-            userProps["fullname"] = f"{name} {family_name}"
+        userProps = self._get_all_userinfo_properties(userinfo)
         # userProps[LAST_UPDATE_USER_PROPERTY_KEY] = time.time()
         if userProps:
-            user.setProperties(**userProps)
+            if not hasattr(self, "_userdata_by_userid"):
+                self._userdata_by_userid = OOBTree()
+            if (
+                user.getId() not in self._userdata_by_userid
+                or self._userdata_by_userid[user.getId()]._properties != userProps
+            ):
+                self._userdata_by_userid[user.getId()] = UserPropertySheet(
+                    user.getId(), **userProps
+                )
+            if self.create_user:
+                user.setProperties(**userProps)
+
+    def _parse_userinfo_to_memberdata(self):
+        """Parse the userinfo_to_memberdata property."""
+        result = []
+        for line in self.getProperty("userinfo_to_memberdata"):
+            line = line.strip()
+            if not line:
+                continue
+            if isinstance(line, bytes):
+                line = line.decode("utf-8")
+            if line.startswith("#"):
+                continue
+            pipes = line.count("|")
+            if pipes == 1:
+                userinfo_prop, member_prop = line.split("|")
+            else:
+                continue
+            member_prop = member_prop.strip()
+            if not member_prop:
+                continue
+            userinfo_prop = userinfo_prop.strip()
+            if not userinfo_prop:
+                continue
+            result.append((userinfo_prop, member_prop))
+        return result
+
+    def _get_all_userinfo_properties(self, userinfo):
+        """Get all known properties from the userinfo.
+        Returns a dictionary.
+        """
+        result = {}
+        logger.debug("userinfo %s", userinfo.items())
+        for userinfo_prop, member_prop in self._parse_userinfo_to_memberdata():
+            if userinfo_prop in userinfo:
+                value = userinfo[userinfo_prop]
+                result[member_prop] = value
+        # DEFAULTS
+        if "email" not in result and "email" in userinfo:
+            result["email"] = userinfo["email"]
+        if "fullname" not in result:
+            if "given_name" in userinfo and "family_name" in userinfo:
+                result["fullname"] = "{} {}".format(
+                    userinfo["given_name"], userinfo["family_name"]
+                )
+            elif "name" in userinfo and "family_name" in userinfo:
+                result["fullname"] = "{} {}".format(
+                    userinfo["name"], userinfo["family_name"]
+                )
+        logger.debug("User properties: %s", result)
+        return result
 
     def _generatePassword(self):
         """Return a obfuscated password never used for login"""
@@ -410,6 +475,8 @@ class OIDCPlugin(BasePlugin):
             return [safe_text(scope) for scope in scopes if scope]
         return []
 
+    # pas_interfaces.plugins.IChallengePlugin
+    @security.private
     def challenge(self, request, response):
         """Assert via the response that credentials will be gathered.
 
@@ -429,8 +496,18 @@ class OIDCPlugin(BasePlugin):
         response.redirect(url, lock=1)
         return True
 
+    # pas_interfaces.plugins.IPropertiesPlugin
+    @security.private
+    def getPropertiesForUser(self, user, request=None):
+        if hasattr(self, "_userdata_by_userid"):
+            propertysheet = self._userdata_by_userid.get(user.getId(), _marker)
+            if propertysheet is not _marker:
+                return propertysheet
+        return None
+
 
 InitializeClass(OIDCPlugin)
+
 
 classImplements(
     OIDCPlugin,
@@ -438,7 +515,7 @@ classImplements(
     # IExtractionPlugin,
     # IAuthenticationPlugin,
     IChallengePlugin,
-    # IPropertiesPlugin,
+    IPropertiesPlugin,
     # IRolesPlugin,
 )
 

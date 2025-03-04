@@ -56,7 +56,7 @@ class TestUtilsFlowStart:
         assert isinstance(result, dict)
         assert result["client_id"] == self.plugin.client_id
         assert result["response_type"] == "code"
-        assert result["scope"] == ["profile", "email", "phone"]
+        assert result["scope"] == ["openid", "profile", "email", "phone"]
         assert isinstance(result["state"], str)
         assert isinstance(result["nonce"], str)
         assert "code_challenge" not in result

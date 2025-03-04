@@ -1,6 +1,5 @@
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import PLUGIN_ID
-from pas.plugins.oidc import utils
 from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 from Products.CMFPlone.interfaces import INonInstallable
@@ -27,7 +26,6 @@ def post_install(context):
             id=PLUGIN_ID,
             title="OpenID Connect",
         )
-        plugin.id = PLUGIN_ID
         pas._setObject(PLUGIN_ID, plugin)
         logger.info("Created %s in acl_users.", PLUGIN_ID)
     plugin = getattr(pas, PLUGIN_ID)
@@ -52,7 +50,7 @@ def post_install(context):
     for info in plugins.listPluginTypeInfo():
         interface_name = info["id"]
         # If we support IPropertiesPlugin, it should be added here.
-        if interface_name in ("IChallengePlugin",):
+        if interface_name in ("IChallengePlugin", "IPropertiesPlugin"):
             iface = plugins._getInterfaceFromName(interface_name)
             plugins.movePluginsTop(iface, [PLUGIN_ID])
             logger.info(f"Moved {PLUGIN_ID} to top of {interface_name}.")
@@ -89,10 +87,21 @@ def activate_challenge_plugin(context):
     activate_plugin(context, "IChallengePlugin", move_to_top=True)
 
 
+def activate_properties_plugin(context):
+    activate_plugin(context, "IPropertiesPlugin", move_to_top=True)
+
+
 def uninstall(context):
     """Uninstall script"""
     pas = api.portal.get_tool("acl_users")
 
-    for plugin in utils.get_plugins():
-        pas._delObject(plugin.getId())
-        logger.info(f"Removed OIDCPlugin {plugin.getId()} from acl_users.")
+    # Remove plugin if it exists.
+    if PLUGIN_ID not in pas.objectIds():
+        return
+
+    plugin = getattr(pas, PLUGIN_ID)
+    if not isinstance(plugin, OIDCPlugin):
+        logger.warning(f"PAS plugin {PLUGIN_ID} not removed: it is not a OIDCPlugin.")
+        return
+    pas._delObject(PLUGIN_ID)
+    logger.info(f"Removed OIDCPlugin {PLUGIN_ID} from acl_users.")
