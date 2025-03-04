@@ -1,0 +1,25 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    >
+
+  <genericsetup:upgradeStep
+      title="Activate challenge plugin"
+      profile="pas.plugins.oidc:default"
+      source="1000"
+      destination="1001"
+      handler="..setuphandlers.activate_challenge_plugin"
+      />
+
+  <genericsetup:upgradeSteps
+      profile="pas.plugins.oidc:default"
+      source="1001"
+      destination="1002"
+      >
+    <genericsetup:upgradeDepends
+        title="Add OIDC controlpanel"
+        import_steps="controlpanel"
+        />
+  </genericsetup:upgradeSteps>
+
+</configure>

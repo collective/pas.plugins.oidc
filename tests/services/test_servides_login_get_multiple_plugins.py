@@ -1,9 +1,10 @@
 import pytest
 
 
-class TestServiceLoginGet:
+class TestSetupInstall:
     @pytest.fixture(autouse=True)
-    def _initialize(self, api_anon_request):
+    def _initialize(self, google, api_anon_request):
+        self.portal = google
         self.api_session = api_anon_request
 
     def test_login_get_available(self):
@@ -19,6 +20,10 @@ class TestServiceLoginGet:
             [0, "plugin", "oidc"],
             [0, "url", "/@login-oidc/oidc"],
             [0, "title", "OpenID Connect"],
+            [1, "id", "google"],
+            [1, "plugin", "oidc"],
+            [1, "url", "/@login-oidc/google"],
+            [1, "title", "Google"],
         ],
     )
     def test_login_get_options(self, idx: int, key: str, expected: str):

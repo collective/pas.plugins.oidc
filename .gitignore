@@ -1,5 +1,5 @@
 # Generated from:
-# https://github.com/plone/meta/tree/master/config/default
+# https://github.com/plone/meta/tree/main/config/default
 # See the inline comments on how to expand/tweak this configuration file
 # python related
 *.egg-info
@@ -36,6 +36,7 @@ parts/
 pyvenv.cfg
 .python-version
 var/
+local.cfg
 
 # mxdev
 /instance/
@@ -47,6 +48,11 @@ var/
 .installed.txt
 
 requirements-mxdev.txt
+
+/.python-version
+/dependencies.svg
+/forest.*
+
 
 ##
 # Add extra configuration options in .meta.toml:

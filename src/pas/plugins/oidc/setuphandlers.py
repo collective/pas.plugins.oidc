@@ -93,8 +93,6 @@ def activate_properties_plugin(context):
 
 def uninstall(context):
     """Uninstall script"""
-    from pas.plugins.oidc.utils import PLUGIN_ID
-
     pas = api.portal.get_tool("acl_users")
 
     # Remove plugin if it exists.

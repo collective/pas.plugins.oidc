@@ -9,6 +9,65 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0b4 (2025-02-28)
+
+
+### New features:
+
+- Add backchannel logout implementation for classic ui session @mamico [#67](https://github.com/collective/pas.plugins.oidc/issues/67)
+
+## 2.0.0b3 (2025-02-03)
+
+
+### New features:
+
+- Register the adapter as needed by the @login endpoint present in plone.restapi @erral [#47](https://github.com/collective/pas.plugins.oidc/issues/47)
+- Changes to make compatible with OAM (Oracle Access Manager) @djay [#65](https://github.com/collective/pas.plugins.oidc/pull/64)
+
+
+### Internal:
+
+- Bump plone.restapi to 9.10.0 [@ericof]
+
+
+## 2.0.0b2 (2024-12-09)
+
+
+### New features:
+
+- Update the Deutsch translation [macagua] [#60](https://github.com/collective/pas.plugins.oidc/issues/60)
+- Implement control panel to configure pas.plugins.oidc [@ericof] [#65](https://github.com/collective/pas.plugins.oidc/issues/65)
+
+
+### Documentation:
+
+- Fixed port numbers on README file [macagua] [#51](https://github.com/collective/pas.plugins.oidc/issues/51)
+
+
+## 2.0.0b1 (2024-06-25)
+
+
+### New features:
+
+- Added Deutsch translation
+  [@macagua] [#45](https://github.com/collective/pas.plugins.oidc/issues/45)
+- Allow multiple instances of OIDC plugin in a given Plone site @erral [#48](https://github.com/collective/pas.plugins.oidc/issues/48)
+- Notify user events on creation and authentication. [@Arkusm][@ericof] [#53](https://github.com/collective/pas.plugins.oidc/issues/53)
+- Updated the latest .po templates for translate
+  Updated Spanish translation
+  [@macagua] [#55](https://github.com/collective/pas.plugins.oidc/issues/55)
+
+
+### Internal:
+
+- Update configuration files @plone 
+
+
+### Documentation:
+
+- Recommend using `[pas.plugins.keycloakgroups](https://pypi.org/project/pas.plugins.keycloakgroups/)` for groups support with Keycloak [@ericof] [#42](https://github.com/collective/pas.plugins.oidc/issues/42)
+
+
 ## 2.0.0a1 (2023-11-23)
 
 

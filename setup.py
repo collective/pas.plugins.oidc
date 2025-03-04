@@ -1,4 +1,5 @@
 """Installer for the pas.plugins.oidc package."""
+
 from pathlib import Path
 from setuptools import find_packages
 from setuptools import setup
@@ -13,13 +14,13 @@ long_description = f"""
 
 setup(
     name="pas.plugins.oidc",
-    version="2.0.0a2.dev0",
-    description="An add-on for Plone",
+    version="2.0.0b5.dev0",
+    description="OIDC support for Plone sites",
     long_description=long_description,
     long_description_content_type="text/markdown",
     # Get more from https://pypi.org/classifiers/
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Environment :: Web Environment",
         "Framework :: Plone",
         "Framework :: Plone :: Addon",
@@ -32,7 +33,7 @@ setup(
         "Operating System :: OS Independent",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
     ],
-    keywords="Python Plone CMS",
+    keywords="Python Plone CMS PAS Authentication OAuth OIDC",
     author="mamico",
     author_email="mauro.amico@gmail.com",
     url="https://github.com/collective/pas.plugins.oidc",
@@ -52,15 +53,24 @@ setup(
     install_requires=[
         "setuptools",
         "Plone",
+        "Zope",
+        "Products.CMFCore",
         "plone.api",
-        "plone.restapi>=8.34.0",
+        "plone.app.registry",
+        "plone.base",
+        "plone.protect",
+        "plone.restapi>=9.10.0",
         "oic",
+        "requests",
+        "z3c.form",
     ],
     extras_require={
         "test": [
-            "gocept.pytestlayer",
+            "zope.pytestlayer",
+            "plone.app.contenttypes",
             "plone.app.testing",
             "plone.restapi[test]",
+            "plone.testing",
             "pytest-cov",
             "pytest-plone>=0.2.0",
             "pytest-docker",

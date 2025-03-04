@@ -1,4 +1,5 @@
 """Init and utils."""
+
 from AccessControl.Permissions import manage_users as ManageUsers
 from Products.PluggableAuthService import PluggableAuthService as PAS
 from zope.i18nmessageid import MessageFactory
@@ -23,5 +24,6 @@ def initialize(context):  # pragma: no cover
     context.registerClass(
         plugins.OIDCPlugin,
         permission=ManageUsers,
-        constructors=(plugins.add_oidc_plugin,),
+        constructors=(plugins.manage_addOIDCPluginForm, plugins.addOIDCPlugin),
+        visibility=None,
     )

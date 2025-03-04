@@ -37,4 +37,12 @@
       layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
 
+  <browser:page
+      name="backchannel-logout"
+      for="pas.plugins.oidc.plugins.IOIDCPlugin"
+      class=".view.BackChannelLogoutView"
+      permission="zope2.View"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
+      />
+
 </configure>

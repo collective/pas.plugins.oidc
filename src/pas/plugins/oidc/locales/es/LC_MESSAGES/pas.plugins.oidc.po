@@ -3,8 +3,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: pas.plugins.oidc\n"
-"POT-Creation-Date: 2023-11-08 15:55+0000\n"
-"PO-Revision-Date: 2023-05-29 05:41-0400\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"PO-Revision-Date: 2024-05-23 07:00-0400\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>\n"
 "Language-Team: ES <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -17,23 +17,153 @@ msgstr ""
 "Domain: pas.plugins.oidc\n"
 "Language: es\n"
 "X-Is-Fallback-For: es-ar es-bo es-cl es-co es-cr es-do es-ec es-es es-sv es-gt es-hn es-mx es-ni es-pa es-py es-pe es-pr es-us es-uy es-ve\n"
+"X-Generator: Poedit 3.4.4\n"
 
-#: pas/plugins/oidc/configure.zcml:32
+#: pas/plugins/oidc/www/oidcPluginForm.zpt:54
+msgid "Add"
+msgstr "Añadir"
+
+#: pas/plugins/oidc/interfaces.py:24
+msgid "Client ID"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:30
+msgid "Client secret"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:71
+msgid "Create authentication __ac ticket"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:77
+msgid "Create authentication auth_token (volto/restapi) ticket"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:70
+msgid "Create authentication ticket"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:58
+msgid "Create groups / update group memberships"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:76
+msgid "Create restapi ticket"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:52
+msgid "Create user / update user properties"
+msgstr ""
+
+#: pas/plugins/oidc/www/oidcPluginForm.zpt:26
+msgid "Id"
+msgstr "Id"
+
+#: pas/plugins/oidc/configure.zcml:33
 msgid "Installs the pas.plugins.oidc add-on."
 msgstr "Instala el complemento pas.plugins.oidc."
 
-#: pas/plugins/oidc/browser/view.py:129
+#: pas/plugins/oidc/controlpanel/classic.py:144
+msgid "OIDC Plugin Settings"
+msgstr ""
+
+#: pas/plugins/oidc/www/oidcPluginForm.zpt:13
+msgid "OIDC Plugin manage the details of the OpenID Connect Authentication plugin Pluggable Auth Service functionality."
+msgstr "El plugin OIDC gestiona los detalles de la funcionalidad del plugin de autenticación OpenID Connect Pluggable Auth Service."
+
+#: pas/plugins/oidc/profiles/default/controlpanel.xml
+msgid "OIDC Settings"
+msgstr ""
+
+#: pas/plugins/oidc/controlpanel/oidc.py:19
+msgid "OIDC settings"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:18
+msgid "OIDC/OAuth2 Issuer"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:82
+msgid "Open ID scopes"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:83
+msgid "Open ID scopes to request to the server"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:116
+msgid "Property used as userid"
+msgstr ""
+
+#: pas/plugins/oidc/services/oidc/oidc.py:95
+msgid "Provider is not properly configured."
+msgstr "El proveedor no está configurado correctamente."
+
+#: pas/plugins/oidc/interfaces.py:36
+msgid "Redirect uris"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:85
+msgid "Scope"
+msgstr ""
+
+#: pas/plugins/oidc/browser/view.py:61
+#: pas/plugins/oidc/services/oidc/oidc.py:107
 msgid "There was an error during the login process. Please try again."
 msgstr "Hubo un error durante el proceso de inicio de sesión. Inténtalo de nuevo."
 
-#: pas/plugins/oidc/configure.zcml:41
+#: pas/plugins/oidc/browser/view.py:54
+msgid "There was an error getting the oauth2 client."
+msgstr "Hubo un error al obtener el cliente oauth2."
+
+#: pas/plugins/oidc/www/oidcPluginForm.zpt:40
+msgid "Title"
+msgstr "Título"
+
+#: pas/plugins/oidc/interfaces.py:39
+msgid "URI"
+msgstr ""
+
+#: pas/plugins/oidc/configure.zcml:42
 msgid "Uninstalls the pas.plugins.oidc add-on."
 msgstr "Desinstala el complemento pas.plugins.oidc."
 
-#: pas/plugins/oidc/configure.zcml:32
+#: pas/plugins/oidc/interfaces.py:92
+msgid "Use PKCE"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:46
+msgid "Use Zope session data manager"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:107
+msgid "Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:98
+msgid "Use deprecated redirect_uri"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:99
+msgid "Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:106
+msgid "Use modified OpenID Schema"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:64
+msgid "User info property used as groupid, default 'groups'"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:117
+msgid "User info property used as userid, default 'sub'."
+msgstr ""
+
+#: pas/plugins/oidc/configure.zcml:33
 msgid "pas.plugins.oidc"
 msgstr "pas.plugins.oidc"
 
-#: pas/plugins/oidc/configure.zcml:41
+#: pas/plugins/oidc/configure.zcml:42
 msgid "pas.plugins.oidc (uninstall)"
 msgstr "pas.plugins.oidc (desinstalar)"

@@ -1,0 +1,27 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="pas.plugins.oidc"
+    >
+
+  <!-- ClassicUI Control panel -->
+  <adapter factory=".classic.OIDCControlPanelAdapter" />
+  <browser:page
+      name="oidc-controlpanel"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      class=".classic.OIDCSettingsControlPanel"
+      permission="cmf.ManagePortal"
+      layer="pas.plugins.oidc.interfaces.IDefaultBrowserLayer"
+      />
+
+  <!-- Restapi Controlpanel -->
+  <adapter factory=".serializer.OIDCControlpanelSerializeToJson" />
+  <adapter factory=".deserializer.OIDCControlpanelDeserializeFromJson" />
+
+  <adapter
+      factory=".oidc.OIDCSettingsConfigletPanel"
+      provides="pas.plugins.oidc.interfaces.IOIDCControlpanel"
+      name="oidc_admin"
+      />
+
+</configure>
