@@ -111,6 +111,7 @@ class OIDCPlugin(BasePlugin):
     create_user = True
     create_groups = False
     user_property_as_groupid = "groups"
+    allowed_groups = ()
     scope = ("profile", "email", "phone")
     use_pkce = False
     use_deprecated_redirect_uri_for_logout = False
@@ -147,6 +148,12 @@ class OIDCPlugin(BasePlugin):
             type="string",
             mode="w",
             label="User info property used as groupid, default 'groups'",
+        ),
+        dict(
+            id="allowed_groups",
+            type="lines",
+            mode="w",
+            label="Allowed Groups",
         ),
         dict(
             id="create_ticket",
@@ -211,6 +218,11 @@ class OIDCPlugin(BasePlugin):
         if pas is None:
             return
         user = pas.getUserById(user_id)
+
+        if user and not self.user_can_login(user,userinfo):
+            logger.info(f"User {user_id} is not allowed to log in due to group restrictions.")
+            return
+
         if self.getProperty("create_user"):
             # https://github.com/collective/Products.AutoUserMakerPASPlugin/blob/master/Products/AutoUserMakerPASPlugin/auth.py#L110
             if user is None:
@@ -428,7 +440,32 @@ class OIDCPlugin(BasePlugin):
         url = f"{self.absolute_url()}/require_login?came_from={request.URL}"
         response.redirect(url, lock=1)
         return True
+    
+    def user_can_login(self, user, userinfo):
+        """ Check if the user can login based on the allowed groups configuration
 
+        Only call this when self.allowed_groups is not empty.
+        """
+        
+        logger.info(f"User {user.getId()} hello my friend")
+        allowed_groups = self.getProperty("allowed_groups")
+        if not allowed_groups:
+            return True
+
+        groupid_property = self.getProperty("user_property_as_groupid")
+
+        logger.info(f"Groupproperty: {groupid_property}")
+
+        groups = userinfo.get(groupid_property, None)
+
+        logger.info(f"User {user.getId()} is in groups: {groups}")
+        logger.info(f"Allowed groups are: {allowed_groups}")
+
+        for group in allowed_groups:
+            if group in groups:
+                return True
+
+        return False
 
 InitializeClass(OIDCPlugin)
 
