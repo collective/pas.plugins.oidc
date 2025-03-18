@@ -226,28 +226,23 @@ To enable this functionality:
 2. Configure the OpenID Provider (e.g., Keycloak) to use the backchannel logout endpoint with the url: `.../acl_users/oidc/backchannel-logout`
 
 #### Allowed groups
-
-If you need to restrict access to a specific group, you can use the `Allowed groups` field in the plugin configuration. 
-If the user is not in any of the groups listed, the login will be denied.
+If you need to restrict access to a specific group, you can use the `Allowed groups` field in the plugin configuration. If the user is not in any of the groups listed, the login will be denied.
 
 To use this feature, you need to create a new scope in the OIDC Provider (e.g., Keycloak) and add the groups to the user's token.
 
-For that, in Keycloak, go to the `Client Scopes` section and create a new scope `groups`.
-Then, go to the `Mappers` tab and create a new mapper with name `groups` and type `Group Membership`. 
+In Keycloak, go to the `Client Scopes` section and create a new scope named `groups`. Then, go to the `Mappers` tab and create a new mapper with the name `groups` and type `Group Membership`.
 
-![](docs/allowedgroups1.png "Create a new scope groups")
+![Create a new scope groups](docs/allowedgroups1.png)
 
-![](docs/allowedgroups2.png "Add a new mapper Group Membership") 
+![Add a new mapper Group Membership](docs/allowedgroups2.png)
 
-After that, go to the `Client Scopes` section and add the new scope to the client you are using with the plugin. (for instance `plone`)
+After that, go to the `Client Scopes` section and add the new scope to the client you are using with the plugin (for instance, `plone`).
 
-![](docs/allowedgroups3.png "Add the new scope to the client")
+![Add the new scope to the client](docs/allowedgroups3.png)
 
 Finally, in the plugin configuration, add `groups` to the scopes field.
 
-In the `Allowed groups` field, you can add the groups that are allowed to login. In the example in this repository, you could for instance set `/Foundation Members`. Users that are not in this group will not be able to login.
-
-## Technical Decisions
+In the `Allowed groups` field, you can add the groups that are allowed to log in. For example, in this repository, you could set `/Foundation Members`. Users who are not in this group will not be able to log in.
 
 ### Usage of sessions in the login process
 
