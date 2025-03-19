@@ -226,11 +226,13 @@ To enable this functionality:
 2. Configure the OpenID Provider (e.g., Keycloak) to use the backchannel logout endpoint with the url: `.../acl_users/oidc/backchannel-logout`
 
 #### Allowed groups
+
 If you need to restrict access to a specific group, you can use the `Allowed groups` field in the plugin configuration. If the user is not in any of the groups listed, the login will be denied.
 
 To use this feature, you need to create a new scope in the OIDC Provider (e.g., Keycloak) and add the groups to the user's token.
 
-In Keycloak, go to the `Client Scopes` section and create a new scope named `groups`. Then, go to the `Mappers` tab and create a new mapper with the name `groups` and type `Group Membership`.
+In Keycloak, go to the `Client Scopes` section and create a new scope named `groups`. Then, go to the `Mappers` tab and create a new mapper with the name `groups` and type `Group Membership` (Uncheck the `Full groups path` option).
+You can find this configuration in the `plone` realm in the `tests` directory. The `plone` client is also configured to use the `groups` scope.
 
 ![Create a new scope groups](docs/allowedgroups1.png)
 
@@ -242,7 +244,7 @@ After that, go to the `Client Scopes` section and add the new scope to the clien
 
 Finally, in the plugin configuration, add `groups` to the scopes field.
 
-In the `Allowed groups` field, you can add the groups that are allowed to log in. For example, in this repository, you could set `/Foundation Members`. Users who are not in this group will not be able to log in.
+In the `Allowed groups` field, you can add the groups that are allowed to log in. For example, in this repository, you could set `Foundation Members`. Users who are not in this group will not be able to log in.
 
 ### Usage of sessions in the login process
 
