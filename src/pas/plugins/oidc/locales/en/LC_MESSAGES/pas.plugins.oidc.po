@@ -18,6 +18,10 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
+#: pas/plugins/oidc/interfaces.py:70
+msgid "Allowed Groups"
+msgstr ""
+
 #: pas/plugins/oidc/interfaces.py:24
 msgid "Client ID"
 msgstr ""
@@ -26,15 +30,15 @@ msgstr ""
 msgid "Client secret"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:71
+#: pas/plugins/oidc/interfaces.py:81
 msgid "Create authentication __ac ticket"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:77
+#: pas/plugins/oidc/interfaces.py:87
 msgid "Create authentication auth_token (volto/restapi) ticket"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:70
+#: pas/plugins/oidc/interfaces.py:80
 msgid "Create authentication ticket"
 msgstr ""
 
@@ -42,7 +46,7 @@ msgstr ""
 msgid "Create groups / update group memberships"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:76
+#: pas/plugins/oidc/interfaces.py:86
 msgid "Create restapi ticket"
 msgstr ""
 
@@ -50,15 +54,27 @@ msgstr ""
 msgid "Create user / update user properties"
 msgstr ""
 
+#: pas/plugins/oidc/interfaces.py:73
+msgid "Group"
+msgstr ""
+
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:26
 msgid "Id"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:133
+msgid "Identity Domain Name"
 msgstr ""
 
 #: pas/plugins/oidc/configure.zcml:33
 msgid "Installs the pas.plugins.oidc add-on."
 msgstr ""
 
-#: pas/plugins/oidc/controlpanel/classic.py:144
+#: pas/plugins/oidc/interfaces.py:71
+msgid "List of groups that are allowed to log in."
+msgstr ""
+
+#: pas/plugins/oidc/controlpanel/classic.py:161
 msgid "OIDC Plugin Settings"
 msgstr ""
 
@@ -78,15 +94,15 @@ msgstr ""
 msgid "OIDC/OAuth2 Issuer"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:82
+#: pas/plugins/oidc/interfaces.py:92
 msgid "Open ID scopes"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:83
+#: pas/plugins/oidc/interfaces.py:93
 msgid "Open ID scopes to request to the server"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:116
+#: pas/plugins/oidc/interfaces.py:126
 msgid "Property used as userid"
 msgstr ""
 
@@ -98,16 +114,20 @@ msgstr ""
 msgid "Redirect uris"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:85
+#: pas/plugins/oidc/interfaces.py:134
+msgid "Required for Oracle Authentication Manager only"
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:95
 msgid "Scope"
 msgstr ""
 
-#: pas/plugins/oidc/browser/view.py:61
+#: pas/plugins/oidc/browser/view.py:64
 #: pas/plugins/oidc/services/oidc/oidc.py:107
 msgid "There was an error during the login process. Please try again."
 msgstr ""
 
-#: pas/plugins/oidc/browser/view.py:54
+#: pas/plugins/oidc/browser/view.py:57
 msgid "There was an error getting the oauth2 client."
 msgstr ""
 
@@ -123,7 +143,7 @@ msgstr ""
 msgid "Uninstalls the pas.plugins.oidc add-on."
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:92
+#: pas/plugins/oidc/interfaces.py:102
 msgid "Use PKCE"
 msgstr ""
 
@@ -131,19 +151,19 @@ msgstr ""
 msgid "Use Zope session data manager"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:107
+#: pas/plugins/oidc/interfaces.py:117
 msgid "Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:98
+#: pas/plugins/oidc/interfaces.py:108
 msgid "Use deprecated redirect_uri"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:99
+#: pas/plugins/oidc/interfaces.py:109
 msgid "Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:106
+#: pas/plugins/oidc/interfaces.py:116
 msgid "Use modified OpenID Schema"
 msgstr ""
 
@@ -151,7 +171,7 @@ msgstr ""
 msgid "User info property used as groupid, default 'groups'"
 msgstr ""
 
-#: pas/plugins/oidc/interfaces.py:117
+#: pas/plugins/oidc/interfaces.py:127
 msgid "User info property used as userid, default 'sub'."
 msgstr ""
 
