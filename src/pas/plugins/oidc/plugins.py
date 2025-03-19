@@ -220,7 +220,7 @@ class OIDCPlugin(BasePlugin):
         user = pas.getUserById(user_id)
 
         if not self.user_can_login(userinfo):
-            message = f"You are not allowed to log in due to group restrictions."
+            message = "You are not allowed to log in due to group restrictions."
             api.portal.show_message(message=message, request=self.REQUEST, type="error")
             if user:
                 raise AssertionError(
@@ -228,7 +228,7 @@ class OIDCPlugin(BasePlugin):
                 )
             else:
                 raise AssertionError(
-                    f"User is not allowed to log in due to group restrictions and will not be created."
+                    "User is not allowed to log in due to group restrictions and will not be created."
                 )
 
         if self.getProperty("create_user"):

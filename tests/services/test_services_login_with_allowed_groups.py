@@ -1,4 +1,3 @@
-from pas.plugins.oidc.plugins import OIDCPlugin
 from plone import api
 
 import pytest
