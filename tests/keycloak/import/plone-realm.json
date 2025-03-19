@@ -515,76 +515,74 @@
   "webAuthnPolicyPasswordlessCreateTimeout": 0,
   "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": false,
   "webAuthnPolicyPasswordlessAcceptableAaguids": [],
-  "users": [
-    {
-      "id": "b87ce548-8140-4bf7-a174-0d62ec57c5e2",
-      "createdTimestamp": 1702478068312,
-      "username": "service-account-admin-cli",
-      "enabled": true,
-      "totp": false,
-      "emailVerified": false,
-      "serviceAccountClientId": "admin-cli",
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": [
-        "default-roles-plone"
-      ],
-      "clientRoles": {
-        "realm-management": [
-          "view-users",
-          "manage-users",
-          "query-users",
-          "query-groups"
-        ],
-        "account": [
-          "view-groups"
-        ]
-      },
-      "notBefore": 0,
-      "groups": []
+  "users" : [ {
+    "id" : "b87ce548-8140-4bf7-a174-0d62ec57c5e2",
+    "createdTimestamp" : 1702478068312,
+    "username" : "service-account-admin-cli",
+    "enabled" : true,
+    "totp" : false,
+    "emailVerified" : false,
+    "serviceAccountClientId" : "admin-cli",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-plone" ],
+    "clientRoles" : {
+      "realm-management" : [ "view-users", "manage-users", "query-users", "query-groups" ],
+      "account" : [ "view-groups" ]
     },
-    {
-      "id": "973eab1d-eb84-4fff-97f1-cc13d6d866b2",
-      "createdTimestamp": 1703613823232,
-      "username": "service-account-plone-admin",
-      "enabled": true,
-      "totp": false,
-      "emailVerified": false,
-      "serviceAccountClientId": "plone-admin",
-      "disableableCredentialTypes": [],
-      "requiredActions": [],
-      "realmRoles": [
-        "default-roles-plone"
-      ],
-      "clientRoles": {
-        "realm-management": [
-          "view-users",
-          "query-users",
-          "query-groups"
-        ]
-      },
-      "notBefore": 0,
-      "groups": []
-    }
-  ],
-  "scopeMappings": [
-    {
-      "clientScope": "offline_access",
-      "roles": [
-        "offline_access"
-      ]
-    }
-  ],
-  "clientScopeMappings": {
-    "account": [
-      {
-        "client": "account-console",
-        "roles": [
-          "manage-account",
-          "view-groups"
-        ]
-      }
-    ]
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "973eab1d-eb84-4fff-97f1-cc13d6d866b2",
+    "createdTimestamp" : 1703613823232,
+    "username" : "service-account-plone-admin",
+    "enabled" : true,
+    "totp" : false,
+    "emailVerified" : false,
+    "serviceAccountClientId" : "plone-admin",
+    "credentials" : [ ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-plone" ],
+    "clientRoles" : {
+      "realm-management" : [ "view-users", "query-users", "query-groups" ]
+    },
+    "notBefore" : 0,
+    "groups" : [ ]
+  }, {
+    "id" : "256b08a1-5830-46b3-89fd-9475b0c12b61",
+    "createdTimestamp" : 1699479231659,
+    "username" : "user",
+    "enabled" : true,
+    "totp" : false,
+    "emailVerified" : true,
+    "firstName" : "Plone",
+    "lastName" : "User",
+    "email" : "collective@plone.org",
+    "credentials" : [ {
+      "id" : "ae7306c8-2bdf-4c32-b7ac-bd4b9953093f",
+      "type" : "password",
+      "userLabel" : "My password",
+      "createdDate" : 1699479246196,
+      "secretData" : "{\"value\":\"6//sMXjSc+Q+kFqTLRgK6ihZHP/HyKpJOkUdAcvCTXk=\",\"salt\":\"NussvDaHepLB7Fcg+Hrnqg==\",\"additionalParameters\":{}}",
+      "credentialData" : "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\",\"additionalParameters\":{}}"
+    } ],
+    "disableableCredentialTypes" : [ ],
+    "requiredActions" : [ ],
+    "realmRoles" : [ "default-roles-plone" ],
+    "notBefore" : 0,
+    "groups" : [ "/Foundation Board", "/Foundation Members", "/Plone Developers" ]
+  } ],
+  "scopeMappings" : [ {
+    "clientScope" : "offline_access",
+    "roles" : [ "offline_access" ]
+  } ],
+  "clientScopeMappings" : {
+    "account" : [ {
+      "client" : "account-console",
+      "roles" : [ "manage-account", "view-groups" ]
+    } ]
   },
   "clients": [
     {
@@ -698,7 +696,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "12345678",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -842,7 +840,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": true,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "12345678",
       "redirectUris": [
         "http://localhost:8080/Plone/*",
         "*"
@@ -898,7 +896,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "**********",
+      "secret": "12345678",
       "redirectUris": [
         "/*"
       ],
