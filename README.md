@@ -261,6 +261,8 @@ The plugin has 2 ways of working with sessions:
 - Use the cookie-based session management: if the `Use Zope session data manager` option in the plugin
   configuration is disabled, the plugin will use a Cookie to save that information in the client's browser.
 
+## Technical Decisions
+
 ### Settings in environment variables
 
 Optionally, instead of editing your OIDC provider settings through the ZMI, you can use [collective.regenv](https://pypi.org/project/collective.regenv/) and provide
