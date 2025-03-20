@@ -246,6 +246,8 @@ Finally, in the plugin configuration, add `groups` to the scopes field.
 
 In the `Allowed groups` field, you can add the groups that are allowed to log in. For example, in this repository, you could set `Foundation Members`. Users who are not in this group will not be able to log in.
 
+## Technical Decisions
+
 ### Usage of sessions in the login process
 
 This plugin uses sessions during the login process to identify the user while he goes to the OIDC provider
@@ -260,8 +262,6 @@ The plugin has 2 ways of working with sessions:
 
 - Use the cookie-based session management: if the `Use Zope session data manager` option in the plugin
   configuration is disabled, the plugin will use a Cookie to save that information in the client's browser.
-
-## Technical Decisions
 
 ### Settings in environment variables
 
