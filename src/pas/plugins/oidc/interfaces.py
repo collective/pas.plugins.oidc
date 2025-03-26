@@ -66,6 +66,16 @@ class IOIDCSettings(Interface):
         required=False,
         default="groups",
     )
+    allowed_groups = schema.List(
+        title=_("Allowed Groups"),
+        description=_("List of groups that are allowed to log in."),
+        value_type=schema.TextLine(
+            title=_("Group"),
+            description=_(""),
+        ),
+        required=False,
+        default=[],
+    )
     create_ticket = schema.Bool(
         title=_("Create authentication ticket"),
         description=_("Create authentication __ac ticket"),

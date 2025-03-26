@@ -83,6 +83,14 @@ class OIDCControlPanelAdapter:
         self.settings.user_property_as_groupid = value
 
     @property
+    def allowed_groups(self):
+        return self.settings.allowed_groups
+
+    @allowed_groups.setter
+    def allowed_groups(self, value):
+        self.settings.allowed_groups = value
+
+    @property
     def create_ticket(self):
         return self.settings.create_ticket
 

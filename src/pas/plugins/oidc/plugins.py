@@ -111,6 +111,7 @@ class OIDCPlugin(BasePlugin):
     create_user = True
     create_groups = False
     user_property_as_groupid = "groups"
+    allowed_groups = ()
     scope = ("profile", "email", "phone")
     use_pkce = False
     use_deprecated_redirect_uri_for_logout = False
@@ -147,6 +148,12 @@ class OIDCPlugin(BasePlugin):
             type="string",
             mode="w",
             label="User info property used as groupid, default 'groups'",
+        ),
+        dict(
+            id="allowed_groups",
+            type="lines",
+            mode="w",
+            label="Allowed Groups",
         ),
         dict(
             id="create_ticket",
@@ -211,6 +218,19 @@ class OIDCPlugin(BasePlugin):
         if pas is None:
             return
         user = pas.getUserById(user_id)
+
+        if not self.user_can_login(userinfo):
+            message = "You are not allowed to log in due to group restrictions."
+            api.portal.show_message(message=message, request=self.REQUEST, type="error")
+            if user:
+                raise AssertionError(
+                    f"User {user_id} is not allowed to log in due to group restrictions."
+                )
+            else:
+                raise AssertionError(
+                    "User is not allowed to log in due to group restrictions and will not be created."
+                )
+
         if self.getProperty("create_user"):
             # https://github.com/collective/Products.AutoUserMakerPASPlugin/blob/master/Products/AutoUserMakerPASPlugin/auth.py#L110
             if user is None:
@@ -428,6 +448,32 @@ class OIDCPlugin(BasePlugin):
         url = f"{self.absolute_url()}/require_login?came_from={request.URL}"
         response.redirect(url, lock=1)
         return True
+
+    def user_can_login(self, userinfo):
+        """Check if the user can login based on the allowed groups configuration
+
+        Only call this when self.allowed_groups is not empty.
+        """
+
+        allowed_groups = self.getProperty("allowed_groups")
+        if not allowed_groups:
+            return True
+
+        groupid_property = self.getProperty("user_property_as_groupid")
+
+        groups = userinfo.get(groupid_property, [])
+        if isinstance(groups, str):
+            groups = [groups]
+
+        for group in allowed_groups:
+            if group in groups:
+                return True
+
+        logger.info(
+            f"User is in groups: {groups} but allowed groups are: {allowed_groups}"
+        )
+
+        return False
 
 
 InitializeClass(OIDCPlugin)

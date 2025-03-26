@@ -86,7 +86,6 @@ When using this plugin with a [Volto frontend](https://6.docs.plone.org/volto/in
 
 Also, on the OpenID provider, configure the Redirect URL as **`<Path to your Plone site>`/login-oidc/oidc**.
 
-
 #### Classic UI
 
 When using this plugin with *Plone 6 Classic UI* the standard URLs used for login (`http://localhost:8080/Plone/login`) and logout (`http://localhost:8080/Plone/logout`)
@@ -225,6 +224,27 @@ To enable this functionality:
 1. Navigate to `.../acl_users/session/manage_secret` and enable the `Enable per-user keyring` option.
 
 2. Configure the OpenID Provider (e.g., Keycloak) to use the backchannel logout endpoint with the url: `.../acl_users/oidc/backchannel-logout`
+
+#### Allowed groups
+
+If you need to restrict access to a specific group, you can use the `Allowed groups` field in the plugin configuration. If the user is not in any of the groups listed, the login will be denied.
+
+To use this feature, you need to create a new scope in the OIDC Provider (e.g., Keycloak) and add the groups to the user's token.
+
+In Keycloak, go to the `Client Scopes` section and create a new scope named `groups`. Then, go to the `Mappers` tab and create a new mapper with the name `groups` and type `Group Membership` (Uncheck the `Full groups path` option).
+You can find this configuration in the `plone` realm in the `tests` directory. The `plone` client is also configured to use the `groups` scope.
+
+![Create a new scope groups](docs/allowedgroups1.png)
+
+![Add a new mapper Group Membership](docs/allowedgroups2.png)
+
+After that, go to the `Client Scopes` section and add the new scope to the client you are using with the plugin (for instance, `plone`).
+
+![Add the new scope to the client](docs/allowedgroups3.png)
+
+Finally, in the plugin configuration, add `groups` to the scopes field.
+
+In the `Allowed groups` field, you can add the groups that are allowed to log in. For example, in this repository, you could set `Foundation Members`. Users who are not in this group will not be able to log in.
 
 ## Technical Decisions
 
