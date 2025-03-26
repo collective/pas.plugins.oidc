@@ -17,13 +17,12 @@ class OIDCLoginProviders:
         acl_users = api.portal.get_tool("acl_users")
         for plugin in acl_users.objectValues():
             if isinstance(plugin, OIDCPlugin):
-                options.append(
-                    {
-                        "id": plugin.getId(),
-                        "plugin": "oidc",
-                        "title": plugin.title,
-                        "url": f"{self.context.absolute_url()}/@login-oidc/{plugin.getId()}",
-                    }
-                )
+                url = self.context.absolute_url()
+                options.append({
+                    "id": plugin.getId(),
+                    "plugin": "oidc",
+                    "title": plugin.title,
+                    "url": f"{url}/@login-oidc/{plugin.getId()}",
+                })
 
         return options

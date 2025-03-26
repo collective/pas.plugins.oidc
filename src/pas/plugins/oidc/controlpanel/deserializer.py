@@ -25,19 +25,13 @@ class OIDCControlpanelDeserializeFromJson(ControlpanelDeserializeFromJson):
         plugin = portal.acl_users[PLUGIN_ID]
         return plugin
 
-    def __call__(self, mask_validation_errors=True):
-        controlpanel = self.controlpanel
-        request = controlpanel.request
-        data = json_body(request)
-
+    def _deserialize(self, schema_data: dict, data: dict) -> tuple[list[str]]:
+        request = self.request
         proxy = self.proxy
-
-        schema_data = {}
-        errors = []
-
         # Make a fake context
         fake_context = FakeDXContext()
 
+        errors = []
         for name, field in getFields(self.schema).items():
             field_data = schema_data.setdefault(self.schema, {})
 
@@ -61,7 +55,11 @@ class OIDCControlpanelDeserializeFromJson(ControlpanelDeserializeFromJson):
                     errors.append({"message": str(e), "field": name, "error": e})
                 else:
                     field_data[name] = value
+        return errors
 
+    def _validate_schema(self, schema_data) -> list:
+        errors = []
+        request = self.request
         # Validate schemata
         for schema, field_data in schema_data.items():
             validator = queryMultiAdapter(
@@ -69,6 +67,17 @@ class OIDCControlpanelDeserializeFromJson(ControlpanelDeserializeFromJson):
             )
             for error in validator.validate(field_data):
                 errors.append({"error": error, "message": str(error)})
+        return errors
+
+    def __call__(self, mask_validation_errors=True):
+        controlpanel = self.controlpanel
+        request = controlpanel.request
+        data = json_body(request)
+
+        schema_data, errors = self._deserialize(data)
+
+        # Validate schemata
+        errors.extend(self._validate_schema(schema_data=schema_data))
 
         if errors:
             for error in errors:

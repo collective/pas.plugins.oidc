@@ -15,27 +15,31 @@ GREEN=`tput setaf 2`
 RESET=`tput sgr0`
 YELLOW=`tput setaf 3`
 
-BACKEND_FOLDER=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-COMPOSE_FOLDER=${BACKEND_FOLDER}/tests
-DOCS_DIR=${BACKEND_FOLDER}/docs
-
 # Python checks
-PYTHON?=python3
+UV?=uv
 
 # installed?
-ifeq (, $(shell which $(PYTHON) ))
-  $(error "PYTHON=$(PYTHON) not found in $(PATH)")
+ifeq (, $(shell which $(UV) ))
+  $(error "UV=$(UV) not found in $(PATH)")
 endif
 
-# version ok?
-PYTHON_VERSION_MIN=3.8
-PYTHON_VERSION_OK=$(shell $(PYTHON) -c "import sys; print((int(sys.version_info[0]), int(sys.version_info[1])) >= tuple(map(int, '$(PYTHON_VERSION_MIN)'.split('.'))))")
-ifeq ($(PYTHON_VERSION_OK),0)
-  $(error "Need python $(PYTHON_VERSION) >= $(PYTHON_VERSION_MIN)")
+BACKEND_FOLDER=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+
+ifdef PLONE_VERSION
+PLONE_VERSION := $(PLONE_VERSION)
+else
+PLONE_VERSION := 6.1.1
 endif
+
+VENV_FOLDER=$(BACKEND_FOLDER)/.venv
+BIN_FOLDER=$(VENV_FOLDER)/bin
+TESTS_FOLDER=$(BACKEND_FOLDER)/tests
+
+# Environment variables to be exported
+export PYTHONWARNINGS := ignore
+export DOCKER_BUILDKIT := 1
 
 all: build
-build: install
 
 # Add the following 'help' target to your Makefile
 # And add help text after each target name starting with '\#\#'
@@ -43,120 +47,132 @@ build: install
 help: ## This help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: clean
-clean: clean-build clean-pyc clean-test clean-venv clean-instance ## remove all build, test, coverage and Python artifacts
-
-.PHONY: clean-instance
-clean-instance: ## remove existing instance
-	rm -fr instance etc inituser var
-
-.PHONY: clean-venv
-clean-venv: ## remove virtual environment
-	rm -fr bin include lib lib64 env pyvenv.cfg .tox .pytest_cache requirements-mxdev.txt
-
-.PHONY: clean-build
-clean-build: ## remove build artifacts
-	rm -fr build/
-	rm -fr dist/
-	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -rf {} +
-
-.PHONY: clean-pyc
-clean-pyc: ## remove Python file artifacts
-	find . -name '*.pyc' -exec rm -f {} +
-	find . -name '*.pyo' -exec rm -f {} +
-	find . -name '*~' -exec rm -f {} +
-	find . -name '__pycache__' -exec rm -fr {} +
-
-.PHONY: clean-test
-clean-test: ## remove test and coverage artifacts
-	rm -f .coverage
-	rm -fr htmlcov/
-
-bin/pip bin/tox bin/mxdev:
-	@echo "$(GREEN)==> Setup Virtual Env$(RESET)"
-	$(PYTHON) -m venv .
-	bin/pip install -U "pip" "wheel" "cookiecutter" "mxdev" "tox"
+############################################
+# Config
+############################################
+instance/etc/zope.ini instance/etc/zope.conf: ## Create instance configuration
+	@echo "$(GREEN)==> Create instance configuration$(RESET)"
+	@uvx cookiecutter -f --no-input -c 2.1.1 --config-file instance.yaml gh:plone/cookiecutter-zope-instance
 
 .PHONY: config
-config: bin/pip  ## Create instance configuration
-	@echo "$(GREEN)==> Create instance configuration$(RESET)"
-	bin/cookiecutter -f --no-input --config-file instance.yaml gh:plone/cookiecutter-zope-instance
+config: instance/etc/zope.ini
 
-.PHONY: install-plone-6.0
-install-plone-6.0: config ## pip install Plone packages
-	@echo "$(GREEN)==> Setup Build$(RESET)"
-	bin/mxdev -c mx.ini
-	bin/pip install -r requirements-mxdev.txt
+############################################
+# Installation
+############################################
+requirements-mxdev.txt: ## Generate constraints file
+	@echo "$(GREEN)==> Generate constraints file$(RESET)"
+	@echo '-c https://dist.plone.org/release/$(PLONE_VERSION)/constraints.txt' > requirements.txt
+	@uvx mxdev -c mx.ini
+
+$(VENV_FOLDER): requirements-mxdev.txt ## Install dependencies
+	@echo "$(GREEN)==> Install environment$(RESET)"
+	@uv venv $(VENV_FOLDER)
+	@uv pip install -r requirements-mxdev.txt
+
+.PHONY: sync
+sync: $(VENV_FOLDER) ## Sync project dependencies
+	@echo "$(GREEN)==> Sync project dependencies$(RESET)"
+	@uv pip install -r requirements-mxdev.txt
 
 .PHONY: install
-install: install-plone-6.0  ## Install Plone 6.0
+install: $(VENV_FOLDER) config ## Install Plone and dependencies
+
+.PHONY: clean
+clean: ## Clean installation and instance
+	@echo "$(RED)==> Cleaning environment and build$(RESET)"
+	@rm -rf $(VENV_FOLDER) pyvenv.cfg .installed.cfg instance .venv .pytest_cache .ruff_cache constraints* requirements*
+	$(MAKE) -C "./docs" clean
+
+############################################
+# Instance
+############################################
+.PHONY: remove-data
+remove-data: ## Remove all content
+	@echo "$(RED)==> Removing all content$(RESET)"
+	rm -rf $(VENV_FOLDER) instance/var
 
 .PHONY: start
-start: ## Start a Plone instance on localhost:8080
-	PYTHONWARNINGS=ignore ./bin/runwsgi instance/etc/zope.ini
+start: $(VENV_FOLDER) instance/etc/zope.ini ## Start a Plone instance on localhost:8080
+	@uv run runwsgi instance/etc/zope.ini
 
 .PHONY: console
-console: ## Console
-	PYTHONWARNINGS=ignore ./bin/zconsole debug instance/etc/zope.ini
+console: $(VENV_FOLDER) instance/etc/zope.ini ## Start a console into a Plone instance
+	@uv run zconsole debug instance/etc/zope.conf
+
+.PHONY: create-site
+create-site: $(VENV_FOLDER) instance/etc/zope.ini ## Create a new site from scratch
+	@uv run zconsole run instance/etc/zope.conf ./scripts/create_site.py
+
+###########################################
+# Docs
+###########################################
+.PHONY: docs-install
+docs-install:  ## Install documentation dependencies
+	$(MAKE) -C "./docs/" install
+
+.PHONY: docs-build
+docs-build:  ## Build documentation
+	$(MAKE) -C "./docs/" html
+
+.PHONY: docs-live
+docs-live:  ## Rebuild documentation on changes, with live-reload in the browser
+	$(MAKE) -C "./docs/" livehtml
+
+############################################
+# QA
+############################################
+.PHONY: lint
+lint: ## Check and fix code base according to Plone standards
+	@echo "$(GREEN)==> Lint codebase$(RESET)"
+	@uvx ruff@latest check --fix --config $(BACKEND_FOLDER)/pyproject.toml
+	@uvx pyroma@latest -d .
+	@uvx check-python-versions@latest .
+	@uvx zpretty@latest --check src
 
 .PHONY: format
-format: bin/tox ## Format the codebase according to our standards
+format: ## Check and fix code base according to Plone standards
 	@echo "$(GREEN)==> Format codebase$(RESET)"
-	bin/tox -e format
+	@uvx ruff@latest check --select I --fix --config $(BACKEND_FOLDER)/pyproject.toml
+	@uvx ruff@latest format --config $(BACKEND_FOLDER)/pyproject.toml
+	@uvx zpretty@latest -i src
 
-.PHONY: lint
-lint: bin/tox ## check code style
-	bin/tox -e lint
+.PHONY: check
+check: format lint ## Check and fix code base according to Plone standards
 
+############################################
 # i18n
-bin/i18ndude bin/pocompile: bin/pip
-	@echo "$(GREEN)==> Install translation tools$(RESET)"
-	bin/pip install i18ndude zest.pocompile
-
+############################################
 .PHONY: i18n
-i18n: bin/i18ndude ## Update locales
+i18n: $(VENV_FOLDER) ## Update locales
 	@echo "$(GREEN)==> Updating locales$(RESET)"
-	bin/update_locale
-	bin/pocompile src/
+	@uv run python -m pas.plugins.oidc.locales
 
+############################################
 # Tests
+############################################
 .PHONY: test
-test: bin/tox ## run tests
-	bin/tox -e test
+test: $(VENV_FOLDER) ## run tests
+	@uv run pytest
 
 .PHONY: test-coverage
-test-coverage: bin/tox ## run tests
-	bin/tox -e coverage
+test-coverage: $(VENV_FOLDER) ## run tests with coverage
+	@uv run pytest --cov=pas.plugins.oidc --cov-report term-missing
 
+############################################
 # Keycloak
+############################################
 .PHONY: keycloak-start
 keycloak-start: ## Start Keycloak stack
 	@echo "$(GREEN)==> Start keycloak stack$(RESET)"
-	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml up -d
+	@docker compose -f $(TESTS_FOLDER)/docker-compose.yml up -d
 
 .PHONY: keycloak-status
 keycloak-status: ## Check Keycloak stack status
 	@echo "$(GREEN)==> Check Keycloak stack status$(RESET)"
-	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml ps
+	@docker compose -f $(TESTS_FOLDER)/docker-compose.yml ps
 
 .PHONY: keycloak-stop
 keycloak-stop: ## Stop Keycloak stack
 	@echo "$(GREEN)==> Stop Keycloak stack$(RESET)"
-	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml down
-
-# Docs
-bin/sphinx-build: bin/pip
-	bin/pip install -r requirements-docs.txt
-
-.PHONY: build-docs
-build-docs: bin/sphinx-build  ## Build the documentation
-	./bin/sphinx-build \
-		-b html $(DOCS_DIR) "$(DOCS_DIR)/_build/html"
-
-.PHONY: livehtml
-livehtml: bin/sphinx-build  ## Rebuild Sphinx documentation on changes, with live-reload in the browser
-	./bin/sphinx-autobuild \
-		--ignore "*.swp" \
-		-b html $(DOCS_DIR) "$(DOCS_DIR)/_build/html"
+	@docker compose -f $(TESTS_FOLDER)/docker-compose.yml down

@@ -84,14 +84,6 @@ class LogoutView(BrowserView):
         except OAuth2ConnectionException:
             return ""
 
-        # session = Session(
-        #   self.request,
-        #   use_session_data_manager=self.context.getProperty("use_session_data_manager")
-        # )
-        # state is used to keep track of responses to outstanding requests (state).
-        # https://github.com/keycloak/keycloak-documentation/blob/master/securing_apps/topics/oidc/java/logout.adoc
-        # session.set('end_session_state', rndstr())
-
         redirect_uri = utils.url_cleanup(api.portal.get().absolute_url())
 
         if self.context.getProperty("use_deprecated_redirect_uri_for_logout"):
@@ -127,12 +119,10 @@ class CallbackView(BrowserView):
             self.context, qs, client, session
         )
         if self.context.getProperty("use_modified_openid_schema"):
-            IdToken.c_param.update(
-                {
-                    "email_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
-                    "phone_number_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
-                }
-            )
+            IdToken.c_param.update({
+                "email_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
+                "phone_number_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
+            })
 
         # The response you get back is an instance of an AccessTokenResponse
         # or again possibly an ErrorResponse instance.
@@ -169,7 +159,8 @@ class BackChannelLogoutView(BrowserView):
                     manager.rotate(ring=secret_key)
             else:
                 logger.error(
-                    "For the backchannel logout, the session PAS needs to be configured with 'per user keyring'."
+                    "For the backchannel logout, the session PAS needs to be "
+                    "configured with 'per user keyring'."
                 )
             return ""
         else:
