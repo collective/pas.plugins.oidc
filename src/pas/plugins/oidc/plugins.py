@@ -531,14 +531,11 @@ def safe_write(request):
 def _registered_objects(request):
     """Collect all objects part of a pending write transaction."""
     app = request.PARENTS[-1]
-    return list(
-        itertools.chain.from_iterable(
-            [
-                conn._registered_objects
-                # skip the 'temporary' connection since it stores session objects
-                # which get written all the time
-                for name, conn in app._p_jar.connections.items()
-                if name != "temporary"
-            ]
-        )
-    )
+    registered_objects = [
+        conn._registered_objects
+        # skip the 'temporary' connection since it stores session objects
+        # which get written all the time
+        for name, conn in app._p_jar.connections.items()
+        if name != "temporary"
+    ]
+    return list(itertools.chain.from_iterable(registered_objects))
