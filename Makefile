@@ -33,6 +33,7 @@ endif
 
 VENV_FOLDER=$(BACKEND_FOLDER)/.venv
 BIN_FOLDER=$(VENV_FOLDER)/bin
+TESTS_FOLDER=$(BACKEND_FOLDER)/tests
 
 # Environment variables to be exported
 export PYTHONWARNINGS := ignore
@@ -164,14 +165,14 @@ test-coverage: $(VENV_FOLDER) ## run tests with coverage
 .PHONY: keycloak-start
 keycloak-start: ## Start Keycloak stack
 	@echo "$(GREEN)==> Start keycloak stack$(RESET)"
-	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml up -d
+	@docker compose -f $(TESTS_FOLDER)/docker-compose.yml up -d
 
 .PHONY: keycloak-status
 keycloak-status: ## Check Keycloak stack status
 	@echo "$(GREEN)==> Check Keycloak stack status$(RESET)"
-	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml ps
+	@docker compose -f $(TESTS_FOLDER)/docker-compose.yml ps
 
 .PHONY: keycloak-stop
 keycloak-stop: ## Stop Keycloak stack
 	@echo "$(GREEN)==> Stop Keycloak stack$(RESET)"
-	@docker compose -f $(COMPOSE_FOLDER)/docker-compose.yml down
+	@docker compose -f $(TESTS_FOLDER)/docker-compose.yml down
