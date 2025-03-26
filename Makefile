@@ -176,3 +176,20 @@ keycloak-status: ## Check Keycloak stack status
 keycloak-stop: ## Stop Keycloak stack
 	@echo "$(GREEN)==> Stop Keycloak stack$(RESET)"
 	@docker compose -f $(TESTS_FOLDER)/docker-compose.yml down
+
+############################################
+# Release
+############################################
+.PHONY: changelog
+changelog: ## Release the package to pypi.org
+	@echo "🚀 Display the draft for the changelog"
+	@uv run towncrier --draft
+
+.PHONY: release
+release: ## Release the package to pypi.org
+	@echo "🚀 Release package"
+	@uv run prerelease
+	@rm -Rf dist
+	@uv build
+	@uv publish
+	@uv run postrelease
