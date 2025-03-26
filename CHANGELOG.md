@@ -9,6 +9,27 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0rc1 (2025-03-26)
+
+
+### Breaking changes:
+
+- Drop support for Python 3.8 @ericof 
+- Drop support for Python 3.9 @ericof 
+
+
+### New features:
+
+- Add support for Plone 6.1 @ericof 
+- Add support for Python 3.12 @ericof 
+- Add support for Python 3.13 @ericof 
+
+
+### Internal:
+
+- Move to pyproject.toml, hatchling and uv @ericof [#71](https://github.com/collective/pas.plugins.oidc/issues/71)
+- Update GHA workflows @ericof 
+
 ## 2.0.0b4 (2025-02-28)
 
 
