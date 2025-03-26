@@ -338,7 +338,7 @@ make format
 
 ### Run tests
 
-Testing of this package is done with [`pytest`](https://docs.pytest.org/) and [`tox`](https://tox.wiki/).
+Testing of this package is done with [`pytest`](https://docs.pytest.org/).
 
 Run all tests with:
 
@@ -349,13 +349,13 @@ make test
 Run all tests but stop on the first error and open a `pdb` session:
 
 ```bash
-./bin/tox -e test -- -x --pdb
+uv run pytest -x --pdb
 ```
 
 Run tests named `TestServiceOIDCPost`:
 
 ```bash
-./bin/tox -e test -- -k TestServiceOIDCPost
+uv run pytest -k TestServiceOIDCPost
 ```
 
 ## References

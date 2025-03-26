@@ -189,6 +189,7 @@ changelog: ## Release the package to pypi.org
 release: ## Release the package to pypi.org
 	@echo "🚀 Release package"
 	@uv run prerelease
+	@uv run release
 	@rm -Rf dist
 	@uv build
 	@uv publish

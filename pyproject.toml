@@ -215,4 +215,5 @@ targets = "src"
 exclude_dirs = ["tests", "src/pas/plugins/oidc/locales"]
 
 [tool.zest-releaser]
+upload-pypi = false # Build and upload with uv
 python-file-with-version = "src/pas/plugins/oidc/__init__.py"
