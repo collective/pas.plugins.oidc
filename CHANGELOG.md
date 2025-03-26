@@ -9,6 +9,19 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0rc2 (2025-03-26)
+
+
+### Internal:
+
+- Add environment variable KEYCLOAK_VERSION to allow choosing which version of Keycloak will be used @ericof 
+- GHA: Do not fail fast during CI tests. @ericof 
+
+
+### Documentation:
+
+- Update README to refer to using uv instead of tox @ericof 
+
 ## 2.0.0rc1 (2025-03-26)
 
 
