@@ -31,6 +31,12 @@ else
 PLONE_VERSION := 6.1.1
 endif
 
+ifdef KEYCLOAK_VERSION
+KEYCLOAK_VERSION := $(KEYCLOAK_VERSION)
+else
+KEYCLOAK_VERSION := 22.0.0
+endif
+
 VENV_FOLDER=$(BACKEND_FOLDER)/.venv
 BIN_FOLDER=$(VENV_FOLDER)/bin
 TESTS_FOLDER=$(BACKEND_FOLDER)/tests
@@ -38,6 +44,7 @@ TESTS_FOLDER=$(BACKEND_FOLDER)/tests
 # Environment variables to be exported
 export PYTHONWARNINGS := ignore
 export DOCKER_BUILDKIT := 1
+export KEYCLOAK_VERSION := $(KEYCLOAK_VERSION)
 
 all: build
 
