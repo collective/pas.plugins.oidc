@@ -204,12 +204,10 @@ class Post(LoginOIDC):
         qs = qs[1:] if qs.startswith("?") else qs
         args, state = utils.parse_authorization_response(plugin, qs, client, session)
         if plugin.getProperty("use_modified_openid_schema"):
-            IdToken.c_param.update(
-                {
-                    "email_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
-                    "phone_number_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
-                }
-            )
+            IdToken.c_param.update({
+                "email_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
+                "phone_number_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
+            })
 
         # The response you get back is an instance of an AccessTokenResponse
         # or again possibly an ErrorResponse instance.

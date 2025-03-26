@@ -103,8 +103,10 @@ master_doc = "index"
 exclude_patterns = []
 
 suppress_warnings = [
-    # "toc.excluded",  # Suppress `WARNING: document isn't included in any toctree`
-    "toc.not_readable",  # Suppress `WARNING: toctree contains reference to nonexisting document 'news*'`
+    # Suppress `WARNING: document isn't included in any toctree`
+    # "toc.excluded",
+    # Suppress `WARNING: toctree contains reference to nonexisting document 'news*'`
+    "toc.not_readable",
 ]
 
 # -- Options for HTML output -------------------------------------------------
@@ -116,8 +118,9 @@ html_logo = "_static/logo.svg"
 html_favicon = "_static/favicon.ico"
 html_theme_options = {
     "article_header_start": ["toggle-primary-sidebar"],
-    "extra_footer": """<p>The text and illustrations in this website are licensed by the Plone Foundation under a Creative Commons Attribution 4.0 International license. Plone and the Plone® logo are registered trademarks of the Plone Foundation, registered in the United States and other countries. For guidelines on the permitted uses of the Plone trademarks, see <a href="https://plone.org/foundation/logo">https://plone.org/foundation/logo</a>. All other trademarks are owned by their respective owners.</p>
-<p>Pull request previews by <a href="https://readthedocs.org/" target="_blank">Read the Docs</a>.</p>""",
+    "extra_footer": (
+        """<p>The text and illustrations in this website are licensed by the Plone Foundation under a Creative Commons Attribution 4.0 International license. Plone and the Plone® logo are registered trademarks of the Plone Foundation, registered in the United States and other countries. For guidelines on the permitted uses of the Plone trademarks, see <a href="https://plone.org/foundation/logo">https://plone.org/foundation/logo</a>. All other trademarks are owned by their respective owners.</p><p>Pull request previews by<a href="https://readthedocs.org/" target="_blank">Read the Docs</a>.</p>""",  # noQA: E501
+    ),
     "footer_end": ["version.html"],
     "icon_links": [
         {
@@ -161,7 +164,7 @@ html_theme_options = {
     "path_to_docs": "docs",
     "repository_branch": "main",
     "repository_url": "https://github.com/collective/pas.plugins.oidc/tree/main/",
-    "search_bar_text": "Search",  # TODO: Confirm usage of search_bar_text in plone-sphinx-theme
+    "search_bar_text": "Search",
     "use_edit_page_button": True,
     "use_issues_button": True,
     "use_repository_button": True,
@@ -169,7 +172,7 @@ html_theme_options = {
 
 # Announce that we have an opensearch plugin
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_use_opensearch
-html_use_opensearch = "https://pas.plugins.oidc.readthedocs.io/"  # TODO: Confirm usage of opensearch in theme
+html_use_opensearch = "https://pas.plugins.oidc.readthedocs.io/"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".

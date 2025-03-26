@@ -19,7 +19,6 @@ from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
 from secrets import choice
-from typing import List
 from ZODB.POSException import ConflictError
 from zope.event import notify
 from zope.interface import implementer
@@ -36,23 +35,23 @@ manage_addOIDCPluginForm = PageTemplateFile(
 )
 
 
-def addOIDCPlugin(dispatcher, id, title=None, REQUEST=None):
+def addOIDCPlugin(dispatcher, id, title=None, REQUEST=None):  # noQA: A002
     """Add a HTTP Basic Auth Helper to a Pluggable Auth Service."""
     plugin = OIDCPlugin(id, title)
     dispatcher._setObject(plugin.getId(), plugin)
 
     if REQUEST is not None:
+        url = dispatcher.absolute_url()
+        message = "OIDC+Plugin+added."
         REQUEST["RESPONSE"].redirect(
-            "%s/manage_workspace"
-            "?manage_tabs_message="
-            "OIDC+Plugin+added." % dispatcher.absolute_url()
+            f"{url}/manage_workspace?manage_tabs_message={message}"
         )
 
 
 PWCHARS = string.ascii_letters + string.digits + string.punctuation
 
 
-def format_redirect_uris(uris: List[str]) -> List[str]:
+def format_redirect_uris(uris: list[str]) -> list[str]:
     response = []
     portal_url = api.portal.get().absolute_url()
     for uri in uris:
@@ -67,7 +66,7 @@ class OAuth2ConnectionException(Exception):
 
 
 class IOIDCPlugin(Interface):
-    """ """
+    """OIDCPlugin Interface/"""
 
 
 class OAMClient(Client):
@@ -84,11 +83,12 @@ class OAMClient(Client):
     def handle_provider_config(self, pcr, issuer, keys=True, endpoints=True):
         domain = self.domain
         if domain:
-            # we need to modify jwks_uri in the provider_info to add the identityDomain for OAM
+            # we need to modify jwks_uri in the provider_info to add
+            # the identityDomain for OAM
             # gets used in https://github.com/CZ-NIC/pyoidc/blob/0bd1eadcefc5ccb7ef6c69d9b631537a7d3cfe30/src/oic/oauth2/__init__.py#L1132
             url = pcr["jwks_uri"]
             req = requests.PreparedRequest()
-            req.prepare_url(url, dict(identityDomainName=domain))
+            req.prepare_url(url, {"identityDomainName": domain})
             pcr["jwks_uri"] = req.url
         return super().handle_provider_config(pcr, issuer, keys, endpoints)
 
@@ -120,92 +120,174 @@ class OIDCPlugin(BasePlugin):
     identity_domain_name = ""
 
     _properties = (
-        dict(id="title", type="string", mode="w", label="Title"),
-        dict(id="issuer", type="string", mode="w", label="OIDC/Oauth2 Issuer"),
-        dict(id="client_id", type="string", mode="w", label="Client ID"),
-        dict(id="client_secret", type="string", mode="w", label="Client secret"),
-        dict(id="redirect_uris", type="lines", mode="w", label="Redirect uris"),
-        dict(
-            id="use_session_data_manager",
-            type="boolean",
-            mode="w",
-            label="Use Zope session data manager.",
-        ),
-        dict(
-            id="create_user",
-            type="boolean",
-            mode="w",
-            label="Create user / update user properties",
-        ),
-        dict(
-            id="create_groups",
-            type="boolean",
-            mode="w",
-            label="Create groups / update group memberships",
-        ),
-        dict(
-            id="user_property_as_groupid",
-            type="string",
-            mode="w",
-            label="User info property used as groupid, default 'groups'",
-        ),
-        dict(
-            id="allowed_groups",
-            type="lines",
-            mode="w",
-            label="Allowed Groups",
-        ),
-        dict(
-            id="create_ticket",
-            type="boolean",
-            mode="w",
-            label="Create authentication __ac ticket. ",
-        ),
-        dict(
-            id="create_restapi_ticket",
-            type="boolean",
-            mode="w",
-            label="Create authentication auth_token (volto/restapi) ticket.",
-        ),
-        dict(
-            id="scope",
-            type="lines",
-            mode="w",
-            label="Open ID scopes to request to the server",
-        ),
-        dict(id="use_pkce", type="boolean", mode="w", label="Use PKCE. "),
-        dict(
-            id="use_deprecated_redirect_uri_for_logout",
-            type="boolean",
-            mode="w",
-            label="Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout).",
-        ),
-        dict(
-            id="use_modified_openid_schema",
-            type="boolean",
-            mode="w",
-            label="Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string. ",
-        ),
-        dict(
-            id="user_property_as_userid",
-            type="string",
-            mode="w",
-            label="User info property used as userid, default 'sub'",
-        ),
-        dict(
-            id="identity_domain_name",
-            type="string",
-            mode="w",
-            label="Identity Domain Name (required for Oracle Authentication Manager only)",
-        ),
+        {"id": "title", "type": "string", "mode": "w", "label": "Title"},
+        {"id": "issuer", "type": "string", "mode": "w", "label": "OIDC/Oauth2 Issuer"},
+        {"id": "client_id", "type": "string", "mode": "w", "label": "Client ID"},
+        {
+            "id": "client_secret",
+            "type": "string",
+            "mode": "w",
+            "label": "Client secret",
+        },
+        {"id": "redirect_uris", "type": "lines", "mode": "w", "label": "Redirect uris"},
+        {
+            "id": "use_session_data_manager",
+            "type": "boolean",
+            "mode": "w",
+            "label": "Use Zope session data manager.",
+        },
+        {
+            "id": "create_user",
+            "type": "boolean",
+            "mode": "w",
+            "label": "Create user / update user properties",
+        },
+        {
+            "id": "create_groups",
+            "type": "boolean",
+            "mode": "w",
+            "label": "Create groups / update group memberships",
+        },
+        {
+            "id": "user_property_as_groupid",
+            "type": "string",
+            "mode": "w",
+            "label": "User info property used as groupid, default 'groups'",
+        },
+        {
+            "id": "allowed_groups",
+            "type": "lines",
+            "mode": "w",
+            "label": "Allowed Groups",
+        },
+        {
+            "id": "create_ticket",
+            "type": "boolean",
+            "mode": "w",
+            "label": "Create authentication __ac ticket. ",
+        },
+        {
+            "id": "create_restapi_ticket",
+            "type": "boolean",
+            "mode": "w",
+            "label": "Create authentication auth_token (volto/restapi) ticket.",
+        },
+        {
+            "id": "scope",
+            "type": "lines",
+            "mode": "w",
+            "label": "Open ID scopes to request to the server",
+        },
+        {"id": "use_pkce", "type": "boolean", "mode": "w", "label": "Use PKCE. "},
+        {
+            "id": "use_deprecated_redirect_uri_for_logout",
+            "type": "boolean",
+            "mode": "w",
+            "label": (
+                "Use deprecated redirect_uri for logout url"
+                "(/Plone/acl_users/oidc/logout)."
+            ),
+        },
+        {
+            "id": "use_modified_openid_schema",
+            "type": "boolean",
+            "mode": "w",
+            "label": (
+                "Use a modified OpenID Schema for email_verified and "
+                "phone_number_verified boolean values coming as string."
+            ),
+        },
+        {
+            "id": "user_property_as_userid",
+            "type": "string",
+            "mode": "w",
+            "label": "User info property used as userid, default 'sub'",
+        },
+        {
+            "id": "identity_domain_name",
+            "type": "string",
+            "mode": "w",
+            "label": (
+                "Identity Domain Name "
+                "(required for Oracle Authentication Manager) only."
+            ),
+        },
     )
 
-    def __init__(self, id, title=None):
+    def __init__(self, id, title=None):  # noQA: A002
         self._setId(id)
         self.title = title
 
+    def _create_update_user(self, user, user_id, userinfo):
+        # https://github.com/collective/Products.AutoUserMakerPASPlugin/blob/master/Products/AutoUserMakerPASPlugin/auth.py#L110
+        if user is None:
+            with safe_write(self.REQUEST):
+                userAdders = self.plugins.listPlugins(IUserAdderPlugin)
+                if not userAdders:
+                    raise NotImplementedError(
+                        "I wanted to make a new user, but"
+                        " there are no PAS plugins active"
+                        " that can make users."
+                    )
+
+                # Add the user to the first IUserAdderPlugin that works:
+                user = None
+                for _, curAdder in userAdders:
+                    if curAdder.doAddUser(user_id, self._generatePassword()):
+                        # Assign a dummy password. It'll never be used;.
+                        user = self._getPAS().getUser(user_id)
+                        try:
+                            membershipTool = getToolByName(self, "portal_membership")
+                            if not membershipTool.getHomeFolder(user_id):
+                                membershipTool.createMemberArea(user_id)
+                        except (ConflictError, KeyboardInterrupt):
+                            raise
+                        except Exception as exc:  # nosec B110
+                            # Silently ignored exception, but seems fine here.
+                            # Logging would likely generate too much noise,
+                            # depending on your setup.
+                            # https://bandit.readthedocs.io/en/1.7.4/plugins/b110_try_except_pass.html
+                            logger.debug("Ignoring exception", exc_info=exc)
+                            pass
+                        else:
+                            notify(PrincipalCreated(user))
+                            self._updateUserProperties(user, userinfo)
+                            notify(UserInitialLoginInEvent(user))
+                            notify(UserLoggedInEvent(user))
+                            break
+        else:
+            with safe_write(self.REQUEST):
+                self._updateUserProperties(user, userinfo)
+            notify(UserLoggedInEvent(user))
+
+    def _create_update_group(self, user, user_id, userinfo):
+        groupid_property = self.getProperty("user_property_as_groupid")
+        groupid = userinfo.get(groupid_property, None)
+        if isinstance(groupid, str):
+            groupid = [groupid]
+
+        if isinstance(groupid, list):
+            with safe_write(self.REQUEST):
+                oidc = self.getId()
+                groups = user.getGroups()
+                # Remove group memberships
+                for gid in groups:
+                    group = api.group.get(gid)
+                    is_managed = group.getProperty("type") == oidc.upper()
+                    if is_managed and gid not in groupid:
+                        api.group.remove_user(group=group, username=user_id)
+                # Add group memberships
+                for gid in groupid:
+                    if gid not in groups:
+                        group = api.group.get(gid) or api.group.create(gid, title=gid)
+                        # Tag managed groups with "type" of plugin id
+                        if not group.getTool().hasProperty("type"):
+                            group.getTool()._setProperty("type", "", "string")
+                        group.setGroupProperties({"type": oidc.upper()})
+                        api.group.add_user(group=group, username=user_id)
+
     def rememberIdentity(self, userinfo):
-        if not isinstance(userinfo, (OpenIDSchema, dict)):
+        if not isinstance(userinfo, OpenIDSchema | dict):
             raise AssertionError(
                 f"userinfo should be an OpenIDSchema but is {type(userinfo)}"
             )
@@ -224,93 +306,24 @@ class OIDCPlugin(BasePlugin):
             api.portal.show_message(message=message, request=self.REQUEST, type="error")
             if user:
                 raise AssertionError(
-                    f"User {user_id} is not allowed to log in due to group restrictions."
+                    f"User {user_id} is not allowed to log in "
+                    "due to group restrictions."
                 )
             else:
                 raise AssertionError(
-                    "User is not allowed to log in due to group restrictions and will not be created."
+                    "User is not allowed to log in due to group restrictions and will "
+                    "not be created."
                 )
 
         if self.getProperty("create_user"):
-            # https://github.com/collective/Products.AutoUserMakerPASPlugin/blob/master/Products/AutoUserMakerPASPlugin/auth.py#L110
-            if user is None:
-                with safe_write(self.REQUEST):
-                    userAdders = self.plugins.listPlugins(IUserAdderPlugin)
-                    if not userAdders:
-                        raise NotImplementedError(
-                            "I wanted to make a new user, but"
-                            " there are no PAS plugins active"
-                            " that can make users."
-                        )
-                    # roleAssigners = self.plugins.listPlugins(IRoleAssignerPlugin)
-                    # if not roleAssigners:
-                    #     raise NotImplementedError("I wanted to make a new user and give"
-                    #                             " him the Member role, but there are"
-                    #                             " no PAS plugins active that assign"
-                    #                             " roles to users.")
-
-                    # Add the user to the first IUserAdderPlugin that works:
-                    user = None
-                    for _, curAdder in userAdders:
-                        if curAdder.doAddUser(user_id, self._generatePassword()):
-                            # Assign a dummy password. It'll never be used;.
-                            user = self._getPAS().getUser(user_id)
-                            try:
-                                membershipTool = getToolByName(
-                                    self, "portal_membership"
-                                )
-                                if not membershipTool.getHomeFolder(user_id):
-                                    membershipTool.createMemberArea(user_id)
-                            except (ConflictError, KeyboardInterrupt):
-                                raise
-                            except Exception:  # nosec B110
-                                # Silently ignored exception, but seems fine here.
-                                # Logging would likely generate too much noise,
-                                # depending on your setup.
-                                # https://bandit.readthedocs.io/en/1.7.4/plugins/b110_try_except_pass.html
-                                pass
-                            else:
-                                notify(PrincipalCreated(user))
-                                self._updateUserProperties(user, userinfo)
-                                notify(UserInitialLoginInEvent(user))
-                                notify(UserLoggedInEvent(user))
-                                break
-            else:
-                # if time.time() > user.getProperty(LAST_UPDATE_USER_PROPERTY_KEY) + config.get(autoUpdateUserPropertiesIntervalKey, 0):
-                with safe_write(self.REQUEST):
-                    self._updateUserProperties(user, userinfo)
-                notify(UserLoggedInEvent(user))
+            self._create_update_user(user, user_id, userinfo)
 
         if self.getProperty("create_groups"):
-            groupid_property = self.getProperty("user_property_as_groupid")
-            groupid = userinfo.get(groupid_property, None)
-            if isinstance(groupid, str):
-                groupid = [groupid]
-
-            if isinstance(groupid, list):
-                with safe_write(self.REQUEST):
-                    oidc = self.getId()
-                    groups = user.getGroups()
-                    # Remove group memberships
-                    for gid in groups:
-                        group = api.group.get(gid)
-                        is_managed = group.getProperty("type") == oidc.upper()
-                        if is_managed and gid not in groupid:
-                            api.group.remove_user(group=group, username=user_id)
-                    # Add group memberships
-                    for gid in groupid:
-                        if gid not in groups:
-                            group = api.group.get(gid) or api.group.create(
-                                gid, title=gid
-                            )
-                            # Tag managed groups with "type" of plugin id
-                            if not group.getTool().hasProperty("type"):
-                                group.getTool()._setProperty("type", "", "string")
-                            group.setGroupProperties({"type": oidc.upper()})
-                            api.group.add_user(group=group, username=user_id)
+            self._create_update_group(user, user_id, userinfo)
 
         if user and self.getProperty("create_ticket"):
             self._setupTicket(user_id)
+
         if user and self.getProperty("create_restapi_ticket"):
             self._setupJWTTicket(user_id, user)
 
@@ -319,9 +332,9 @@ class OIDCPlugin(BasePlugin):
         This is utilised when first creating a user, and to update
         their information when logging in again later.
         """
-        # TODO: modificare solo se ci sono dei cambiamenti sui dati ?
-        # TODO: mettere in config il mapping tra metadati che arrivano da oidc e properties su plone
-        # TODO: warning nel caso non vengono tornati dati dell'utente
+        # TODO: Update it only if we change their data?
+        # TODO: Add to config the mapping of OIDC metadata to Plone properties
+        # TODO: Warning in case no user data is returned.
         userProps = {}
         email = userinfo.get("email", "")
         name = userinfo.get("name", "")
@@ -367,7 +380,7 @@ class OIDCPlugin(BasePlugin):
         """
         authenticators = self.plugins.listPlugins(IAuthenticationPlugin)
         plugin = None
-        for id_, authenticator in authenticators:
+        for _, authenticator in authenticators:
             if authenticator.meta_type == "JWT Authentication Plugin":
                 plugin = authenticator
                 break
@@ -391,16 +404,12 @@ class OIDCPlugin(BasePlugin):
                 )
             else:
                 client = Client(client_authn_method=CLIENT_AUTHN_METHOD)
-            client.allow["issuer_mismatch"] = (
-                True  # Some providers aren't configured with configured and issuer urls the same even though they should.
-            )
-
-            # registration_response = client.register(provider_info["registration_endpoint"], redirect_uris=...)
-            # ... oic.exception.RegistrationError: {'error': 'insufficient_scope',
-            #     'error_description': "Policy 'Trusted Hosts' rejected request to client-registration service. Details: Host not trusted."}
+            # Some providers aren't configured with configured and issuer urls the same
+            # even though they should.
+            client.allow["issuer_mismatch"] = True
 
             # use WebFinger
-            provider_info = client.provider_config(self.getProperty("issuer"))  # noqa
+            info_ = client.provider_config(self.getProperty("issuer"))  # noqa: F841
             info = {
                 "client_id": self.getProperty("client_id"),
                 "client_secret": self.getProperty("client_secret"),
@@ -414,7 +423,7 @@ class OIDCPlugin(BasePlugin):
             # to catch it wherever it happens without knowing the internals
             # of the OAuth2 process
             logger.exception("Error getting OAuth2 client", exc_info=exc)
-            raise OAuth2ConnectionException
+            raise OAuth2ConnectionException from exc
 
     def get_redirect_uris(self):
         redirect_uris = self.getProperty("redirect_uris")
@@ -510,13 +519,11 @@ def _registered_objects(request):
     """Collect all objects part of a pending write transaction."""
     app = request.PARENTS[-1]
     return list(
-        itertools.chain.from_iterable(
-            [
-                conn._registered_objects
-                # skip the 'temporary' connection since it stores session objects
-                # which get written all the time
-                for name, conn in app._p_jar.connections.items()
-                if name != "temporary"
-            ]
-        )
+        itertools.chain.from_iterable([
+            conn._registered_objects
+            # skip the 'temporary' connection since it stores session objects
+            # which get written all the time
+            for name, conn in app._p_jar.connections.items()
+            if name != "temporary"
+        ])
     )

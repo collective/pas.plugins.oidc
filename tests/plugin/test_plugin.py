@@ -16,15 +16,15 @@ class TestPlugin:
         self.http_response = http_request.response
 
     @pytest.mark.parametrize(
-        "property,expected",
+        "prop,expected",
         [
             ("create_user", True),
             ("create_ticket", True),
         ],
     )
-    def test_plugin_setup(self, property, expected):
+    def test_plugin_setup(self, prop, expected):
         plugin = self.plugin
-        assert plugin.getProperty(property) is expected
+        assert plugin.getProperty(prop) is expected
 
     def test_remember_identity(self):
         pas = self.pas

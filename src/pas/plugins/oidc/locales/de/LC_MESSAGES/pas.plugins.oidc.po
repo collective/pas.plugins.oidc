@@ -77,7 +77,7 @@ msgstr "Installiert das Add-on pas.plugins.oidc."
 msgid "List of groups that are allowed to log in."
 msgstr ""
 
-#: pas/plugins/oidc/controlpanel/classic.py:161
+#: pas/plugins/oidc/controlpanel/classic.py:160
 msgid "OIDC Plugin Settings"
 msgstr ""
 

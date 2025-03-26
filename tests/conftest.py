@@ -3,7 +3,7 @@ from pas.plugins.oidc.testing import INTEGRATION_TESTING
 from pas.plugins.oidc.testing import RESTAPI_TESTING
 from pathlib import Path
 from pytest_plone import fixtures_factory
-from requests.exceptions import ConnectionError
+from requests import exceptions as exc
 
 import pytest
 import requests
@@ -13,13 +13,11 @@ pytest_plugins = ["pytest_plone"]
 
 
 globals().update(
-    fixtures_factory(
-        (
-            (INTEGRATION_TESTING, "integration"),
-            (FUNCTIONAL_TESTING, "functional"),
-            (RESTAPI_TESTING, "restapi"),
-        )
-    )
+    fixtures_factory((
+        (INTEGRATION_TESTING, "integration"),
+        (FUNCTIONAL_TESTING, "functional"),
+        (RESTAPI_TESTING, "restapi"),
+    ))
 )
 
 
@@ -31,10 +29,10 @@ def docker_compose_file(pytestconfig):
 
 def is_responsive(url: str) -> bool:
     try:
-        response = requests.get(url)
+        response = requests.get(url)  # noQA: S113
         if response.status_code == 200:
             return True
-    except ConnectionError:
+    except exc.ConnectionError:
         return False
 
 

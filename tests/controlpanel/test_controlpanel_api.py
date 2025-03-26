@@ -2,7 +2,6 @@ import pytest
 
 
 class TestControlPanel:
-
     @pytest.fixture(autouse=True)
     def _initialize(self, api_manager_request):
         self.api_session = api_manager_request

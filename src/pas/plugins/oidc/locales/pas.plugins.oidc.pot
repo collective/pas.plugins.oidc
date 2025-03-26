@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-03-19 13:37+0000\n"
+"POT-Creation-Date: 2025-03-26 10:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -81,7 +81,7 @@ msgstr ""
 msgid "List of groups that are allowed to log in."
 msgstr ""
 
-#: pas/plugins/oidc/controlpanel/classic.py:161
+#: pas/plugins/oidc/controlpanel/classic.py:160
 msgid "OIDC Plugin Settings"
 msgstr ""
 
