@@ -1,4 +1,4 @@
-<div align="center"><img alt="pas.plugins.oidc logo" src="https://raw.githubusercontent.com/collective/pas.plugins.oidc/main/docs/icon.png" width="70" /></div>
+<div align="center"><img alt="pas.plugins.oidc logo" src="https://raw.githubusercontent.com/collective/pas.plugins.oidc/main/docs/_static/icon.png" width="70" /></div>
 
 <h1 align="center">pas.plugins.oidc</h1>
 
@@ -13,7 +13,7 @@
 
 [![PyPI - Plone Versions](https://img.shields.io/pypi/frameworkversions/plone/pas.plugins.oidc)](https://pypi.org/project/pas.plugins.oidc/)
 
-[![Meta](https://github.com/collective/pas.plugins.oidc/actions/workflows/meta.yml/badge.svg)](https://github.com/collective/pas.plugins.oidc/actions/workflows/meta.yml)
+[![CI](https://github.com/collective/pas.plugins.oidc/actions/workflows/ci.yml/badge.svg)](https://github.com/collective/pas.plugins.oidc/actions/workflows/ci.yml)
 ![Code Style](https://img.shields.io/badge/Code%20Style-Black-000000)
 
 [![GitHub contributors](https://img.shields.io/github/contributors/collective/pas.plugins.oidc)](https://github.com/collective/pas.plugins.oidc)
@@ -234,13 +234,13 @@ To use this feature, you need to create a new scope in the OIDC Provider (e.g., 
 In Keycloak, go to the `Client Scopes` section and create a new scope named `groups`. Then, go to the `Mappers` tab and create a new mapper with the name `groups` and type `Group Membership` (Uncheck the `Full groups path` option).
 You can find this configuration in the `plone` realm in the `tests` directory. The `plone` client is also configured to use the `groups` scope.
 
-![Create a new scope groups](docs/allowedgroups1.png)
+![Create a new scope groups](docs/_static/allowedgroups1.png)
 
-![Add a new mapper Group Membership](docs/allowedgroups2.png)
+![Add a new mapper Group Membership](docs/_static/allowedgroups2.png)
 
 After that, go to the `Client Scopes` section and add the new scope to the client you are using with the plugin (for instance, `plone`).
 
-![Add the new scope to the client](docs/allowedgroups3.png)
+![Add the new scope to the client](docs/_static/allowedgroups3.png)
 
 Finally, in the plugin configuration, add `groups` to the scopes field.
 
