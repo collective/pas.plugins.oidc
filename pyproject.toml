@@ -64,6 +64,8 @@ test = [
     "pytest",
     "pytest-mock",
     "requests-mock",
+    "zest-releaser[recommended]>=9.5.0",
+    "zestreleaser-towncrier>=1.3.0",
 ]
 
 [project.urls]
@@ -86,13 +88,19 @@ path = "src/pas/plugins/oidc/__init__.py"
 
 [tool.hatch.build.targets.sdist]
 include = [
+    "/*.md",
+    "/*.yaml",
+    "/*.yml",
+    "/docs",
     "/src",
+    "/tests",
 ]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pas",]
 
 [tool.towncrier]
+package = "pas.plugins.oidc"
 directory = "news/"
 filename = "CHANGELOG.md"
 start_string = "<!-- towncrier release notes start -->\n"
@@ -205,3 +213,6 @@ omit = [
 [tool.bandit]
 targets = "src"
 exclude_dirs = ["tests", "src/pas/plugins/oidc/locales"]
+
+[tool.zest-releaser]
+python-file-with-version = "src/pas/plugins/oidc/__init__.py"
