@@ -3,7 +3,7 @@
     .then(response => response.json())
     .then(data => {
         if (!data.error && !data.error_type) {
-            const refreshTime = 10 * 1000; // refreshtime needs to be lower than refresh threashold
+            const refreshTime = 30 * 1000; // refreshtime needs to be lower than refresh threashold
             const intervalID = setInterval(refreshToken, refreshTime);
             function refreshToken() {
                 fetch('/acl_users/oidc/refresh-token')

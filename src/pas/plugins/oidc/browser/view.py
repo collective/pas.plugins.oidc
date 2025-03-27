@@ -12,10 +12,8 @@ from Products.Five.browser import BrowserView
 from urllib.parse import quote
 from zExceptions import Unauthorized
 from zope.component import getUtility
+
 import json
-import base64
-from oic.oic.message import TokenErrorResponse
-from oic.exception import RequestError
 
 
 class RequireLoginView(BrowserView):
@@ -179,7 +177,7 @@ class RefreshTokenView(BrowserView):
         # TODO: how to check for oidc vs normal users now ?
         # TODO: for the best refresh_time needs to be setted according to id_token or refresh_token ttl
         if api.user.get_current().getId():
-            return json.dumps({'userid': api.user.get_current().getId()})
+            return json.dumps({"userid": api.user.get_current().getId()})
         else:
             return json.dumps({"error": "not authenticated"})
 
