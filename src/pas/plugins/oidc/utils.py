@@ -5,11 +5,9 @@ from oic.oic import message
 from oic.oic import Token
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import plugins
-from pas.plugins.oidc.plugins import OIDCPlugin
 from pas.plugins.oidc.session import Session
 from plone import api
 from typing import Union
-import json
 import base64
 import re
 
@@ -83,7 +81,7 @@ def get_plugins() -> list:
     pas = api.portal.get_tool("acl_users")
     plugins_to_return = []
     for plugin in pas.objectValues():
-        if isinstance(plugin, OIDCPlugin):
+        if isinstance(plugin, plugins.OIDCPlugin):
             plugins_to_return.append(plugin)
 
     return plugins_to_return

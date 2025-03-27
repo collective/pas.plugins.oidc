@@ -7,7 +7,6 @@ from oic.oic.message import RegistrationResponse
 from oic.oic.message import TokenErrorResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
 from pas.plugins.oidc import logger
-from pas.plugins.oidc import utils
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
 from Products.CMFCore.utils import getToolByName
@@ -452,6 +451,9 @@ class OIDCPlugin(BasePlugin):
     # * check / refresh tokens when or before they are expired
     # should be a monkey patch to plone.session ?
     def authenticateCredentials(self, credentials):
+        # fix circular dependencies
+        from pas.plugins.oidc import utils  # NOQA
+
         if not credentials.get("source", None) == "plone.session":
             return None
 
