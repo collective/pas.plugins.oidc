@@ -484,7 +484,7 @@ class OIDCPlugin(BasePlugin):
                 return None
             # when we want to refresh the token ? define a threashold, now 30s ?
             # ... or we want try to refresh when is expired, using a still valid refresh_token ?
-            if user_data["id_token"]["exp"] - int(time()) < 30:
+            if user_data["id_token"]["exp"] - int(time()) < 60:
                 # get tokens from cookies (btw better to have an extractcredentials)
                 logger.debug("try to refresh %s %s %s", userid, tokens, user_data)
                 # request = api.env.getRequest()
