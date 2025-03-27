@@ -38,11 +38,27 @@
       />
 
   <browser:page
+      name="refresh-token"
+      for="pas.plugins.oidc.plugins.IOIDCPlugin"
+      class=".view.RefreshTokenView"
+      permission="zope2.View"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
+      />
+
+  <browser:page
       name="backchannel-logout"
       for="pas.plugins.oidc.plugins.IOIDCPlugin"
       class=".view.BackChannelLogoutView"
       permission="zope2.View"
       layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
+
+           <browser:viewlet
+                name="oidc-refresh-token"
+                template="refresh-token.pt"
+                manager="plone.app.layout.viewlets.interfaces.IScripts"
+                permission="zope2.View"
+                />
+
 
 </configure>

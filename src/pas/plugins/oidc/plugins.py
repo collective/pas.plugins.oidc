@@ -24,11 +24,12 @@ from ZODB.POSException import ConflictError
 from zope.event import notify
 from zope.interface import implementer
 from zope.interface import Interface
-
+import json
 import itertools
 import plone.api as api
 import requests
 import string
+from time import time
 
 
 manage_addOIDCPluginForm = PageTemplateFile(
@@ -197,7 +198,7 @@ class OIDCPlugin(BasePlugin):
         self._setId(id)
         self.title = title
 
-    def rememberIdentity(self, userinfo):
+    def rememberIdentity(self, userinfo, access_token=None):
         if not isinstance(userinfo, (OpenIDSchema, dict)):
             raise AssertionError(
                 f"userinfo should be an OpenIDSchema but is {type(userinfo)}"
@@ -290,7 +291,7 @@ class OIDCPlugin(BasePlugin):
                             api.group.add_user(group=group, username=user_id)
 
         if user and self.getProperty("create_ticket"):
-            self._setupTicket(user_id)
+            self._setupTicket(user_id, access_token)
         if user and self.getProperty("create_restapi_ticket"):
             self._setupJWTTicket(user_id, user)
 
@@ -321,7 +322,7 @@ class OIDCPlugin(BasePlugin):
         """Return a obfuscated password never used for login"""
         return "".join([choice(PWCHARS) for ii in range(40)])  # nosec B311
 
-    def _setupTicket(self, user_id):
+    def _setupTicket(self, user_id, access_token):
         """Set up authentication ticket (__ac cookie) with plone.session.
 
         Only call this when self.create_ticket is True.
@@ -337,7 +338,16 @@ class OIDCPlugin(BasePlugin):
             return
         request = self.REQUEST
         response = request["RESPONSE"]
-        pas.session._setupSession(user_id, response)
+        if access_token:
+            pas.session._setupSession(
+                user_id, response, tokens=(self.id, ), 
+                user_data=json.dumps({
+                    "id_token": access_token.to_dict()["id_token"],
+                    "refresh_token": access_token.to_dict()["refresh_token"],
+                })
+            )
+        else:
+            pas.session._setupSession(user_id, response, tokens=(self.id, ))
         logger.debug(f"Done setting up session/ticket for {user_id}")
 
     def _setupJWTTicket(self, user_id, user):
@@ -429,6 +439,67 @@ class OIDCPlugin(BasePlugin):
         response.redirect(url, lock=1)
         return True
 
+    # needs to be a monkey patch to plone.session ?
+    
+    # IAuthenticationPlugin implementation
+    # This is a customized version of session.authennticateCredenntials with
+    # * store id_token and refresh_token in the user session token (__ac)
+    # * check / refresh tokens when or before they are expired
+    def authenticateCredentials(self, credentials):
+        if not credentials.get("source", None) == "plone.session":
+            return None
+
+        pas = self._getPAS()
+        ticket = credentials["cookie"]
+        ticket_data = pas.session._validateTicket(ticket)
+        if ticket_data is None:
+            return None
+        (digest, userid, tokens, user_data, timestamp) = ticket_data
+
+        ## ------ 8< ---- OIDC token stuff ------------------------------------------------------
+        # logger.info("ticket_data %s %s %s %s %s", userid, tokens, user_data, timestamp, time())
+        # if self.getProperty("create_ticket"): if self.iid is in the ttokens is obviously create_ticket enabled
+        if (self.id in tokens):
+            user_data = json.loads(user_data)
+            logger.info("time to expire %s", user_data["id_token"]["exp"] - int(time()))
+            if user_data["id_token"]["exp"] < time():
+                # pas.session.resetCredentials(request, response)
+                # TODO: cleanup cookies ?
+                # XXX: try to refresh token here ?
+                logger.info("credential expired %s %s %s %s %s", userid, tokens, user_data, timestamp, time())
+                pas.session.remove(self.REQUEST)
+                return None
+            # when we want to refresh the token ? define a threashold, now 30s ?
+            # ... or we want try to refresh when is expired, using a still valid refresh_token ?
+            if user_data["id_token"]["exp"] - int(time()) < 30:
+                # get tokens from cookies (btw better to have an extractcredentials)
+                from pas.plugins.oidc import utils 
+                from oic.oic.message import TokenErrorResponse
+                logger.info("try to refresh %s %s %s", userid, tokens, user_data)
+                # request = api.env.getRequest()
+                # oidc_tokens = utils.getTokensFromCookie(request, "__oidc_token_")
+                if user_data.get("refresh_token"):
+                    client = self.get_oauth2_client()
+                    refreshed_oidc_tokens = utils.refresh_token(client, user_data["refresh_token"])
+                    if isinstance(refreshed_oidc_tokens, TokenErrorResponse):
+                        logger.info("unable to refresh_token %s %s %s %s", userid, tokens, user_data, refreshed_oidc_tokens.to_dict())
+                        return None
+                    logger.info("token refreshed %s %s", refreshed_oidc_tokens, refreshed_oidc_tokens.to_dict())
+                    self._setupTicket(userid, refreshed_oidc_tokens)
+                    # if user and self.getProperty("create_restapi_ticket"):
+                    #     self._setupJWTTicket(user_id, user)
+                    # utils.setTokensToCookie(request, "__oidc_token_", refreshed_oidc_tokens.to_dict())
+                else:
+                    logger.warning("missing info to refresh token %s %s %s", userid, tokens, user_data)
+        ## ------ 8< ---- OIDC token stuff ------------------------------------------------------
+
+        info = pas._verifyUser(pas.plugins, user_id=userid)
+        if info is None:
+            return None
+
+        # XXX Should refresh the ticket if after timeout refresh.
+        return (info["id"], info["login"])
+
 
 InitializeClass(OIDCPlugin)
 
@@ -436,7 +507,7 @@ classImplements(
     OIDCPlugin,
     IOIDCPlugin,
     # IExtractionPlugin,
-    # IAuthenticationPlugin,
+    IAuthenticationPlugin,
     IChallengePlugin,
     # IPropertiesPlugin,
     # IRolesPlugin,

@@ -12,6 +12,10 @@ from Products.Five.browser import BrowserView
 from urllib.parse import quote
 from zExceptions import Unauthorized
 from zope.component import getUtility
+import json
+import base64
+from oic.oic.message import TokenErrorResponse
+from oic.exception import RequestError
 
 
 class RequireLoginView(BrowserView):
@@ -136,9 +140,12 @@ class CallbackView(BrowserView):
 
         # The response you get back is an instance of an AccessTokenResponse
         # or again possibly an ErrorResponse instance.
-        user_info = utils.get_user_info(client, state, args)
+        access_tokens = utils.get_access_token(client, state, args)
+        user_info = utils.get_user_info(client, state, args, access_token=access_tokens)
         if user_info:
-            self.context.rememberIdentity(user_info)
+            self.context.rememberIdentity(user_info, access_token=access_tokens)
+            # data = base64.b64encode(json.dumps(access_token.to_dict()).encode("utf-8"))
+            # utils.setTokensToCookie(self.request, "__oidc_token_", access_tokens.to_dict())
             self.request.response.setHeader(
                 "Cache-Control", "no-cache, must-revalidate"
             )
@@ -146,6 +153,61 @@ class CallbackView(BrowserView):
             self.request.response.redirect(return_url)
         else:
             raise Unauthorized()
+
+
+# THIS IS A DO NOTHING CALL, ONLY TO MAKE SURE THAT THE TOKEN WILL BE REFRESHED
+class RefreshTokenView(BrowserView):
+    # def do_logout(self):
+    #     pas = api.portal.get_tool("acl_users")
+    #     userid = api.user.get_current().getId()
+    #     if userid:
+    #         session = pas.session
+    #         if session.per_user_keyring:
+    #             secret_key = session._getSecretKey(userid)
+    #             manager = getUtility(IKeyManager)
+    #             if manager[secret_key]:
+    #                 manager.clear(ring=secret_key)
+    #                 manager.rotate(ring=secret_key)
+    #     # cleanup cookies
+    #     auth_cookie_name = pas.credentials_cookie_auth.cookie_name
+    #     setTokensToCookie(self.request, "__oidc_token_", None)
+    #     self.request.response.expireCookie(auth_cookie_name, path="/")
+    #     self.request.response.expireCookie("auth_token", path="/")
+
+    def __call__(self):
+        self.request.response.setHeader("Content-Type", "application/json")
+        # TODO: how to check for oidc vs normal users now ?
+        # TODO: for the best refresh_time needs to be setted according to id_token or refresh_token ttl
+        if api.user.get_current().getId():
+            return json.dumps({'userid': api.user.get_current().getId()})
+        else:
+            return json.dumps({"error": "not authenticated"})
+
+        # access_token = utils.getTokensFromCookie(self.request, "__oidc_token_")
+        # if not access_token:
+        #     # not authenticated with oidc
+        #     return json.dumps({"error": "not authenticated"})
+        # # XXX: if access_token is expired logout
+        # client = self.context.get_oauth2_client()
+        # # try:
+        # #     userinfo = utils.userinfo_request(client, access_token=access_token["access_token"])
+        # # except RequestError:
+        # #     self.do_logout()
+        # #     return json.dumps({"error": "invalid access token"})
+        # import time
+        # if time.time() > access_token["id_token"]["exp"]:
+        #     self.do_logout()
+        #     return json.dumps({"error": "token expired"})
+
+        # refresh_token = utils.refresh_token(client, access_token["refresh_token"])
+        # if isinstance(refresh_token, TokenErrorResponse):
+        #     self.do_logout()
+        #     # raise Unauthorized()
+        #     # self.request.response.redirect(api.portal.get().absolute_url())
+        #     return json.dumps(refresh_token.to_dict())
+        # setTokensToCookie(self.request, "__oidc_token_", refresh_token.to_dict())
+        # return json.dumps(refresh_token.to_dict())
+        # return json.dumps(access_token)
 
 
 class BackChannelLogoutView(BrowserView):

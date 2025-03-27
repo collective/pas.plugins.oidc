@@ -1,0 +1,28 @@
+<script>
+    fetch('/acl_users/oidc/refresh-token')
+    .then(response => response.json())
+    .then(data => {
+        if (!data.error && !data.error_type) {
+            const refreshTime = 10 * 1000; // refreshtime needs to be lower than refresh threashold
+            const intervalID = setInterval(refreshToken, refreshTime);
+            function refreshToken() {
+                fetch('/acl_users/oidc/refresh-token')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error || data.error_type) {
+                        clearInterval(intervalId);
+                        if (data.error === 'token expired') {
+                            setTimeout(function(){location.reload()}, 300);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                });
+            }
+        }
+    })
+    .catch(error => {
+        console.log(error)
+    });
+</script>

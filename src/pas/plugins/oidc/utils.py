@@ -2,13 +2,14 @@ from hashlib import sha256
 from oic import rndstr
 from oic.exception import RequestError
 from oic.oic import message
+from oic.oic import Token
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import plugins
 from pas.plugins.oidc.plugins import OIDCPlugin
 from pas.plugins.oidc.session import Session
 from plone import api
 from typing import Union
-
+import json
 import base64
 import re
 
@@ -171,17 +172,22 @@ def parse_authorization_response(
     return args, aresp["state"]
 
 
-def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
-    resp = client.do_access_token_request(
+def get_access_token(client, state, args):
+    return client.do_access_token_request(
         state=state,
         request_args=args,
         authn_method="client_secret_basic",
     )
+
+
+def get_user_info(client, state, args, access_token=None) -> Union[message.OpenIDSchema, dict]:
+    if access_token is None:
+        access_token = get_access_token(client, state, args)
     user_info = {}
-    if isinstance(resp, message.AccessTokenResponse):
+    if isinstance(access_token, message.AccessTokenResponse):
         # If it's an AccessTokenResponse the information in the response will be stored in the
         # client instance with state as the key for future use.
-        user_info = resp.to_dict().get("id_token", {})
+        user_info = access_token.to_dict().get("id_token", {})
         if client.userinfo_endpoint:
             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
 
@@ -203,15 +209,60 @@ def get_user_info(client, state, args) -> Union[message.OpenIDSchema, dict]:
         # userinfo in an instance of OpenIDSchema or ErrorResponse
         # It could also be dict, if there is no userinfo_endpoint
         if not (user_info and isinstance(user_info, (message.OpenIDSchema, dict))):
-            logger.error(f"Authentication failed,  invalid response {resp} {user_info}")
+            logger.error(f"Authentication failed,  invalid response {access_token} {user_info}")
             user_info = {}
-    elif isinstance(resp, message.TokenErrorResponse):
-        logger.error(f"Token error response: {resp.to_json()}")
+    elif isinstance(access_token, message.TokenErrorResponse):
+        logger.error(f"Token error response: {access_token.to_json()}")
     else:
-        logger.error(f"Authentication failed {resp}")
+        logger.error(f"Authentication failed {access_token}")
     return user_info
 
 
+def refresh_token(client, refresh_token: str, redirect_uri: str=None):
+    """Requests new tokens using a refresh token.
+    Parameters
+    ----------
+    refresh_token: str
+        refresh token issued to client after user authorization.
+    Returns
+    -------
+    Union[AccessTokenResponse, TokenErrorResponse, None]
+        The parsed token response, or None if no token request was performed.
+    """
+    request_args = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+        'redirect_uri': redirect_uri
+    }
+    client_auth_method = client.registration_response.get(
+        'token_endpoint_auth_method',
+        'client_secret_basic')
+    return client.do_access_token_refresh(
+        request_args=request_args,
+        authn_method=client_auth_method,
+        token=Token(resp={'refresh_token': refresh_token}),
+        endpoint=client.token_endpoint
+    )
+
+
+# BBB: currently unused
+# def userinfo_request(client, access_token: str):
+#     """Retrieves ID token.
+#     Parameters
+#     ----------
+#     access_token: str
+#         Bearer access token to use when fetching userinfo.
+#     Returns
+#     -------
+#     Union[OpenIDSchema, UserInfoErrorResponse, ErrorResponse, None]
+#     """
+#     if not access_token:
+#         return None
+#     userinfo_response = client.do_user_info_request(token=access_token)
+#     # userinfo_response = client.do_user_info_request(method=http_method, token=access_token)
+#     return userinfo_response
+
+    
 def process_came_from(session: Session, came_from: str = "") -> str:
     if not came_from:
         came_from = session.get("came_from")
@@ -219,3 +270,46 @@ def process_came_from(session: Session, came_from: str = "") -> str:
     if not (came_from and portal_url.isURLInPortal(came_from)):
         came_from = api.portal.get().absolute_url()
     return url_cleanup(came_from)
+
+
+# manage large cookies
+# maybe deprecated
+# def getTokensFromCookie(request, cookie_name_prefix):
+#     idx = 0
+#     data = ""
+#     while True:
+#         if f"{cookie_name_prefix}{idx}" in request.cookies:
+#             data += request.cookies.get(f"{cookie_name_prefix}{idx}")
+#             idx += 1
+#         else:
+#             break
+#     if data:
+#         return json.loads(base64.b64decode(data))
+
+
+# def setTokensToCookie(request, cookie_name_prefix, value):
+#     idx = 0
+#     size = 4000
+#     if value:
+#         data = base64.b64encode(json.dumps(value).encode("utf-8"))
+#         for chunk in [data[x:x+size] for x in range(0,len(data),size)]:
+#             request.response.setCookie(
+#                 f"{cookie_name_prefix}{idx}", 
+#                 chunk,
+#                 path="/",  #   self.context.absolute_url_path(),
+#                 httpOnly=True,
+#                 SameSite="Strict",
+#                 Secure=True,
+#                 # TODO: expire ?
+#             )
+#             idx += 1
+#     while True:
+#         if f"{cookie_name_prefix}{idx}" in request.cookies:
+#             request.response.expireCookie(
+#                 f"{cookie_name_prefix}{idx}", 
+#                 path="/",  #   self.context.absolute_url_path(),
+#             )
+#             idx += 1
+#         else:
+#             break
+
