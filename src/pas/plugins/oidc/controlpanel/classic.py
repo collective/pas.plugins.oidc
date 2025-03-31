@@ -12,7 +12,6 @@ from z3c.form.interfaces import DISPLAY_MODE
 @adapter(IPloneSiteRoot)
 @implementer(IOIDCSettings)
 class OIDCControlPanelAdapter:
-
     def __init__(self, context):
         self.context = context
         self.portal = api.portal.get()
