@@ -6,11 +6,13 @@ from plone.app.registry.browser import controlpanel
 from plone.base.interfaces import IPloneSiteRoot
 from zope.component import adapter
 from zope.interface import implementer
+from z3c.form.interfaces import DISPLAY_MODE
 
 
 @adapter(IPloneSiteRoot)
 @implementer(IOIDCSettings)
 class OIDCControlPanelAdapter:
+
     def __init__(self, context):
         self.context = context
         self.portal = api.portal.get()
@@ -19,7 +21,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def issuer(self):
-        return self.settings.issuer
+        return self.settings.getProperty("issuer")
 
     @issuer.setter
     def issuer(self, value):
@@ -27,7 +29,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def client_id(self):
-        return self.settings.client_id
+        return self.settings.getProperty("client_id")
 
     @client_id.setter
     def client_id(self, value):
@@ -35,7 +37,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def client_secret(self):
-        return self.settings.client_secret
+        return self.settings.getProperty("client_secret")
 
     @client_secret.setter
     def client_secret(self, value):
@@ -43,7 +45,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def redirect_uris(self):
-        return self.settings.redirect_uris
+        return self.settings.getProperty("redirect_uris")
 
     @redirect_uris.setter
     def redirect_uris(self, value):
@@ -51,7 +53,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def use_session_data_manager(self):
-        return self.settings.use_session_data_manager
+        return self.settings.getProperty("use_session_data_manager")
 
     @use_session_data_manager.setter
     def use_session_data_manager(self, value):
@@ -59,7 +61,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def create_user(self):
-        return self.settings.create_user
+        return self.settings.getProperty("create_user")
 
     @create_user.setter
     def create_user(self, value):
@@ -67,7 +69,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def create_groups(self):
-        return self.settings.create_groups
+        return self.settings.getProperty("create_groups")
 
     @create_groups.setter
     def create_groups(self, value):
@@ -75,7 +77,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def user_property_as_groupid(self):
-        return self.settings.user_property_as_groupid
+        return self.settings.getProperty("user_property_as_groupid")
 
     @user_property_as_groupid.setter
     def user_property_as_groupid(self, value):
@@ -83,7 +85,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def allowed_groups(self):
-        return self.settings.allowed_groups
+        return self.settings.getPropertty("allowed_groups")
 
     @allowed_groups.setter
     def allowed_groups(self, value):
@@ -91,7 +93,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def create_ticket(self):
-        return self.settings.create_ticket
+        return self.settings.getProperty("create_ticket")
 
     @create_ticket.setter
     def create_ticket(self, value):
@@ -99,7 +101,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def create_restapi_ticket(self):
-        return self.settings.create_restapi_ticket
+        return self.settings.getProperty("create_restapi_ticket")
 
     @create_restapi_ticket.setter
     def create_restapi_ticket(self, value):
@@ -107,7 +109,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def scope(self):
-        return self.settings.scope
+        return self.settings.getProperty("scope")
 
     @scope.setter
     def scope(self, value):
@@ -115,7 +117,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def use_pkce(self):
-        return self.settings.use_pkce
+        return self.settings.getProperty("use_pkce")
 
     @use_pkce.setter
     def use_pkce(self, value):
@@ -123,7 +125,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def use_deprecated_redirect_uri_for_logout(self):
-        return self.settings.use_deprecated_redirect_uri_for_logout
+        return self.settings.getProperty("use_deprecated_redirect_uri_for_logout")
 
     @use_deprecated_redirect_uri_for_logout.setter
     def use_deprecated_redirect_uri_for_logout(self, value):
@@ -131,7 +133,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def use_modified_openid_schema(self):
-        return self.settings.use_modified_openid_schema
+        return self.settings.getProperty("use_modified_openid_schema")
 
     @use_modified_openid_schema.setter
     def use_modified_openid_schema(self, value):
@@ -139,7 +141,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def user_property_as_userid(self):
-        return self.settings.user_property_as_userid
+        return self.settings.getProperty("user_property_as_userid")
 
     @user_property_as_userid.setter
     def user_property_as_userid(self, value):
@@ -147,7 +149,7 @@ class OIDCControlPanelAdapter:
 
     @property
     def identity_domain_name(self):
-        return self.settings.identity_domain_name
+        return self.settings.getProperty("identity_domain_name")
 
     @identity_domain_name.setter
     def identity_domain_name(self, value):
@@ -163,6 +165,13 @@ class OIDCSettingsForm(controlpanel.RegistryEditForm):
     def getContent(self):
         portal = api.portal.get()
         return OIDCControlPanelAdapter(portal)
+
+    def updateWidgets(self):
+        super().updateWidgets()
+        modes = {p["id"]: p["mode"] for p in self.getContent().settings.propertyMap()}
+        for id, widget in self.widgets.items():
+            if id in modes and "w" not in modes.get(id):
+                widget.mode = DISPLAY_MODE
 
     def applyChanges(self, data):
         """See interfaces.IEditForm"""
