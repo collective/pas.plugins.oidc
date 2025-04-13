@@ -4,9 +4,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: pas.plugins.oidc\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI +ZONE\n"
-"PO-Revision-Date: 2024-05-23 07:00-0400\n"
+"PO-Revision-Date: 2025-04-12 13:28+0200\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>\n"
 "Language-Team: ES <LL@li.org>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -15,9 +16,8 @@ msgstr ""
 "Language-Name: Español\n"
 "Preferred-Encodings: utf-8\n"
 "Domain: pas.plugins.oidc\n"
-"Language: es\n"
 "X-Is-Fallback-For: es-ar es-bo es-cl es-co es-cr es-do es-ec es-es es-sv es-gt es-hn es-mx es-ni es-pa es-py es-pe es-pr es-us es-uy es-ve\n"
-"X-Generator: Poedit 3.4.4\n"
+"X-Generator: Poedit 3.5\n"
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:54
 msgid "Add"
@@ -25,43 +25,43 @@ msgstr "Añadir"
 
 #: pas/plugins/oidc/interfaces.py:70
 msgid "Allowed Groups"
-msgstr ""
+msgstr "Grupos permitidos"
 
 #: pas/plugins/oidc/interfaces.py:24
 msgid "Client ID"
-msgstr ""
+msgstr "ID de cliente"
 
 #: pas/plugins/oidc/interfaces.py:30
 msgid "Client secret"
-msgstr ""
+msgstr "Secreto del cliente"
 
 #: pas/plugins/oidc/interfaces.py:81
 msgid "Create authentication __ac ticket"
-msgstr ""
+msgstr "Crear ticket __ac de autenticación"
 
 #: pas/plugins/oidc/interfaces.py:87
 msgid "Create authentication auth_token (volto/restapi) ticket"
-msgstr ""
+msgstr "Crear ticket de auth_token de autenticación (volto/restapi)"
 
 #: pas/plugins/oidc/interfaces.py:80
 msgid "Create authentication ticket"
-msgstr ""
+msgstr "Crear ticket de autenticación"
 
 #: pas/plugins/oidc/interfaces.py:58
 msgid "Create groups / update group memberships"
-msgstr ""
+msgstr "Crear grupos/actualizar las membresías de grupos"
 
 #: pas/plugins/oidc/interfaces.py:86
 msgid "Create restapi ticket"
-msgstr ""
+msgstr "Crear ticket restapi"
 
 #: pas/plugins/oidc/interfaces.py:52
 msgid "Create user / update user properties"
-msgstr ""
+msgstr "Crear usuario/actualizar las propiedades de usuario"
 
 #: pas/plugins/oidc/interfaces.py:73
 msgid "Group"
-msgstr ""
+msgstr "Grupo"
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:26
 msgid "Id"
@@ -69,7 +69,7 @@ msgstr "Id"
 
 #: pas/plugins/oidc/interfaces.py:133
 msgid "Identity Domain Name"
-msgstr ""
+msgstr "Identidad Nombre de Dominio"
 
 #: pas/plugins/oidc/configure.zcml:33
 msgid "Installs the pas.plugins.oidc add-on."
@@ -77,11 +77,11 @@ msgstr "Instala el complemento pas.plugins.oidc."
 
 #: pas/plugins/oidc/interfaces.py:71
 msgid "List of groups that are allowed to log in."
-msgstr ""
+msgstr "Lista de grupos que pueden iniciar sesión."
 
 #: pas/plugins/oidc/controlpanel/classic.py:160
 msgid "OIDC Plugin Settings"
-msgstr ""
+msgstr "Configuración del complemento OIDC"
 
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:13
 msgid "OIDC Plugin manage the details of the OpenID Connect Authentication plugin Pluggable Auth Service functionality."
@@ -89,27 +89,27 @@ msgstr "El plugin OIDC gestiona los detalles de la funcionalidad del plugin de a
 
 #: pas/plugins/oidc/profiles/default/controlpanel.xml
 msgid "OIDC Settings"
-msgstr ""
+msgstr "Configuración de OIDC"
 
 #: pas/plugins/oidc/controlpanel/oidc.py:19
 msgid "OIDC settings"
-msgstr ""
+msgstr "Configuración de OIDC"
 
 #: pas/plugins/oidc/interfaces.py:18
 msgid "OIDC/OAuth2 Issuer"
-msgstr ""
+msgstr "Emisor de OIDC/OAuth2"
 
 #: pas/plugins/oidc/interfaces.py:92
 msgid "Open ID scopes"
-msgstr ""
+msgstr "Ámbitos de Open ID"
 
 #: pas/plugins/oidc/interfaces.py:93
 msgid "Open ID scopes to request to the server"
-msgstr ""
+msgstr "Ámbitos de ID abiertos para solicitar al servidor"
 
 #: pas/plugins/oidc/interfaces.py:126
 msgid "Property used as userid"
-msgstr ""
+msgstr "Propiedad utilizada como ID de usuario"
 
 #: pas/plugins/oidc/services/oidc/oidc.py:95
 msgid "Provider is not properly configured."
@@ -117,15 +117,15 @@ msgstr "El proveedor no está configurado correctamente."
 
 #: pas/plugins/oidc/interfaces.py:36
 msgid "Redirect uris"
-msgstr ""
+msgstr "URI de redireccionamiento"
 
 #: pas/plugins/oidc/interfaces.py:134
 msgid "Required for Oracle Authentication Manager only"
-msgstr ""
+msgstr "Solo es necesario para el Oracle Authentication Manager"
 
 #: pas/plugins/oidc/interfaces.py:95
 msgid "Scope"
-msgstr ""
+msgstr "Ámbito"
 
 #: pas/plugins/oidc/browser/view.py:64
 #: pas/plugins/oidc/services/oidc/oidc.py:107
@@ -142,7 +142,7 @@ msgstr "Título"
 
 #: pas/plugins/oidc/interfaces.py:39
 msgid "URI"
-msgstr ""
+msgstr "URI"
 
 #: pas/plugins/oidc/configure.zcml:42
 msgid "Uninstalls the pas.plugins.oidc add-on."
@@ -150,35 +150,35 @@ msgstr "Desinstala el complemento pas.plugins.oidc."
 
 #: pas/plugins/oidc/interfaces.py:102
 msgid "Use PKCE"
-msgstr ""
+msgstr "Uso de PKCE"
 
 #: pas/plugins/oidc/interfaces.py:46
 msgid "Use Zope session data manager"
-msgstr ""
+msgstr "Usar el administrador de datos de sesión de Zope"
 
 #: pas/plugins/oidc/interfaces.py:117
 msgid "Use a modified OpenID Schema for email_verified and phone_number_verified boolean values coming as string"
-msgstr ""
+msgstr "Use un esquema OpenID modificado para email_verified y phone_number_verified con los valores booleanos que vienen como cadena"
 
 #: pas/plugins/oidc/interfaces.py:108
 msgid "Use deprecated redirect_uri"
-msgstr ""
+msgstr "Usar redirect_uri en desuso"
 
 #: pas/plugins/oidc/interfaces.py:109
 msgid "Use deprecated redirect_uri for logout url(/Plone/acl_users/oidc/logout)"
-msgstr ""
+msgstr "Usar redirect_uri en desuso para la URL de cierre de sesión (/Plone/acl_users/oidc/logout)"
 
 #: pas/plugins/oidc/interfaces.py:116
 msgid "Use modified OpenID Schema"
-msgstr ""
+msgstr "Usar el esquema de OpenID modificado"
 
 #: pas/plugins/oidc/interfaces.py:64
 msgid "User info property used as groupid, default 'groups'"
-msgstr ""
+msgstr "Propiedad de información de usuario utilizada como groupid, 'groups' por defecto"
 
 #: pas/plugins/oidc/interfaces.py:127
 msgid "User info property used as userid, default 'sub'."
-msgstr ""
+msgstr "Propiedad de información de usuario utilizada como userid, 'sub' por defecto."
 
 #: pas/plugins/oidc/configure.zcml:33
 msgid "pas.plugins.oidc"
