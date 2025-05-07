@@ -9,6 +9,13 @@
 
 <!-- towncrier release notes start -->
 
+## 2.0.0 (2025-05-06)
+
+
+### New features:
+
+- Updated Spanish translation [#74](https://github.com/collective/pas.plugins.oidc/issues/74)
+
 ## 2.0.0rc2 (2025-03-26)
 
 
