@@ -49,9 +49,9 @@ class OIDCSettingsForm(controlpanel.RegistryEditForm):
 
     def updateWidgets(self):
         super().updateWidgets()
-        pmap = self.getContent().settings.propertymap
+        pmap = self.getContent().propertymap
         for name, widget in self.widgets.items():
-            if name in pmap and "w" not in pmap[id].get("mode", ""):
+            if name in pmap and "w" not in pmap[name].get("mode", ""):
                 widget.mode = DISPLAY_MODE
 
     def applyChanges(self, data):
