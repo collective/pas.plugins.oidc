@@ -14,6 +14,6 @@ class TestControlPanel:
 
     def test_exists(self):
         browser = self.browser
-        self.browser.open(self.url)
+        browser.open(self.url)
         assert browser.url == self.url
         assert browser.headers["status"] == "200 OK"
