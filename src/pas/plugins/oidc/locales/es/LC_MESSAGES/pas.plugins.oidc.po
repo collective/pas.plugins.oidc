@@ -7,7 +7,6 @@ msgstr ""
 "PO-Revision-Date: 2025-04-12 13:28+0200\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>\n"
 "Language-Team: ES <LL@li.org>\n"
-"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -16,6 +15,7 @@ msgstr ""
 "Language-Name: Español\n"
 "Preferred-Encodings: utf-8\n"
 "Domain: pas.plugins.oidc\n"
+"Language: es\n"
 "X-Is-Fallback-For: es-ar es-bo es-cl es-co es-cr es-do es-ec es-es es-sv es-gt es-hn es-mx es-ni es-pa es-py es-pe es-pr es-us es-uy es-ve\n"
 "X-Generator: Poedit 3.5\n"
 
@@ -63,6 +63,10 @@ msgstr "Crear usuario/actualizar las propiedades de usuario"
 msgid "Group"
 msgstr "Grupo"
 
+#: pas/plugins/oidc/interfaces.py:141
+msgid "HTTP Method to use for the userinfo endpoint"
+msgstr ""
+
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:26
 msgid "Id"
 msgstr "Id"
@@ -79,7 +83,7 @@ msgstr "Instala el complemento pas.plugins.oidc."
 msgid "List of groups that are allowed to log in."
 msgstr "Lista de grupos que pueden iniciar sesión."
 
-#: pas/plugins/oidc/controlpanel/classic.py:160
+#: pas/plugins/oidc/controlpanel/classic.py:168
 msgid "OIDC Plugin Settings"
 msgstr "Configuración del complemento OIDC"
 
@@ -179,6 +183,10 @@ msgstr "Propiedad de información de usuario utilizada como groupid, 'groups' po
 #: pas/plugins/oidc/interfaces.py:127
 msgid "User info property used as userid, default 'sub'."
 msgstr "Propiedad de información de usuario utilizada como userid, 'sub' por defecto."
+
+#: pas/plugins/oidc/interfaces.py:140
+msgid "Userinfo Endpoint Method"
+msgstr ""
 
 #: pas/plugins/oidc/configure.zcml:33
 msgid "pas.plugins.oidc"

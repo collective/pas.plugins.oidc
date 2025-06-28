@@ -118,6 +118,7 @@ class CallbackView(BrowserView):
         args, state = utils.parse_authorization_response(
             self.context, qs, client, session
         )
+        method = self.context.getProperty("userinfo_endpoint_method", "POST")
         if self.context.getProperty("use_modified_openid_schema"):
             IdToken.c_param.update({
                 "email_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
@@ -126,7 +127,7 @@ class CallbackView(BrowserView):
 
         # The response you get back is an instance of an AccessTokenResponse
         # or again possibly an ErrorResponse instance.
-        user_info = utils.get_user_info(client, state, args)
+        user_info = utils.get_user_info(client, state, args, method)
         if user_info:
             self.context.rememberIdentity(user_info)
             self.request.response.setHeader(
