@@ -136,6 +136,13 @@ class IOIDCSettings(Interface):
         default="",
     )
 
+    userinfo_endpoint_method = schema.Choice(
+        title=_("Userinfo Endpoint Method"),
+        description=_("HTTP Method to use for the userinfo endpoint"),
+        values=["GET", "POST"],
+        default="POST",
+    )
+
 
 class IOIDCControlpanel(IControlpanel):
     """OIDC Control panel"""

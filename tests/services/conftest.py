@@ -14,8 +14,8 @@ import requests
 import transaction
 
 
-@pytest.fixture(scope="session")
-def keycloak(keycloak_service):
+@pytest.fixture(scope="session", params=["GET", "POST"])
+def keycloak(keycloak_service, request):
     return {
         "issuer": f"{keycloak_service}/realms/plone-test",
         "client_id": "plone",
@@ -24,6 +24,7 @@ def keycloak(keycloak_service):
         "redirect_uris": ("/login_oidc/oidc",),
         "create_restapi_ticket": True,
         "identity_domain_name": "blah",  # ensure non OAM SP ignores extra params/header
+        "userinfo_endpoint_method": request.param,
     }
 
 

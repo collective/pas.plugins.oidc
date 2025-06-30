@@ -174,7 +174,7 @@ def parse_authorization_response(
     return args, aresp["state"]
 
 
-def get_user_info(client, state, args) -> message.OpenIDSchema | dict:
+def get_user_info(client, state, args, method="POST") -> message.OpenIDSchema | dict:
     resp = client.do_access_token_request(
         state=state,
         request_args=args,
@@ -188,7 +188,7 @@ def get_user_info(client, state, args) -> message.OpenIDSchema | dict:
         if client.userinfo_endpoint:
             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
             try:
-                user_info = client.do_user_info_request(state=state)
+                user_info = client.do_user_info_request(method=method, state=state)
             except RequestError as exc:
                 logger.error(
                     "Authentication failed, probably missing openid scope",
