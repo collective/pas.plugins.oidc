@@ -126,6 +126,8 @@ class OIDCPlugin(BasePlugin):
     use_modified_openid_schema: bool = False
     user_property_as_userid: str = "sub"
     identity_domain_name: str = ""
+    userinfo_endpoint_method: str = "POST"
+    userinfo_endpoint_method_values: tuple[str, ...] = ("GET", "POST")
 
     _properties: tuple[dict] = (
         {"id": "title", "type": "string", "mode": "w", "label": "Title"},
@@ -218,6 +220,16 @@ class OIDCPlugin(BasePlugin):
             "label": (
                 "Identity Domain Name "
                 "(required for Oracle Authentication Manager) only."
+            ),
+        },
+        {
+            "id": "userinfo_endpoint_method",
+            "type": "selection",
+            "select_variable": "userinfo_endpoint_method_values",
+            "mode": "w",
+            "label": (
+                "Userinfo Endpoint Method "
+                "(HTTP Method to use for the userinfo endpoint)"
             ),
         },
     )

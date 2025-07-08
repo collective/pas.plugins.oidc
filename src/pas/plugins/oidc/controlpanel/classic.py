@@ -153,6 +153,14 @@ class OIDCControlPanelAdapter:
     def identity_domain_name(self, value):
         self.settings.identity_domain_name = value
 
+    @property
+    def userinfo_endpoint_method(self):
+        return self.settings.userinfo_endpoint_method
+
+    @userinfo_endpoint_method.setter
+    def userinfo_endpoint_method(self, value):
+        self.settings.userinfo_endpoint_method = value
+
 
 class OIDCSettingsForm(controlpanel.RegistryEditForm):
     schema = IOIDCSettings

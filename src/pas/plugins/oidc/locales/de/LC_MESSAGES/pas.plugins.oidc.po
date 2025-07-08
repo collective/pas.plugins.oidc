@@ -61,6 +61,10 @@ msgstr ""
 msgid "Group"
 msgstr ""
 
+#: pas/plugins/oidc/interfaces.py:141
+msgid "HTTP Method to use for the userinfo endpoint"
+msgstr ""
+
 #: pas/plugins/oidc/www/oidcPluginForm.zpt:26
 msgid "Id"
 msgstr ""
@@ -77,7 +81,7 @@ msgstr "Installiert das Add-on pas.plugins.oidc."
 msgid "List of groups that are allowed to log in."
 msgstr ""
 
-#: pas/plugins/oidc/controlpanel/classic.py:160
+#: pas/plugins/oidc/controlpanel/classic.py:168
 msgid "OIDC Plugin Settings"
 msgstr ""
 
@@ -176,6 +180,10 @@ msgstr ""
 
 #: pas/plugins/oidc/interfaces.py:127
 msgid "User info property used as userid, default 'sub'."
+msgstr ""
+
+#: pas/plugins/oidc/interfaces.py:140
+msgid "Userinfo Endpoint Method"
 msgstr ""
 
 #: pas/plugins/oidc/configure.zcml:33
