@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-06-28 18:33+0000\n"
+"POT-Creation-Date: 2026-01-30 12:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Scope"
 msgstr ""
 
-#: pas/plugins/oidc/browser/view.py:64
+#: pas/plugins/oidc/browser/view.py:65
 #: pas/plugins/oidc/services/oidc/oidc.py:107
 msgid "There was an error during the login process. Please try again."
 msgstr ""
@@ -188,6 +188,10 @@ msgstr ""
 
 #: pas/plugins/oidc/interfaces.py:140
 msgid "Userinfo Endpoint Method"
+msgstr ""
+
+#: pas/plugins/oidc/plugins.py:424
+msgid "You are not allowed to log in due to group restrictions."
 msgstr ""
 
 #: pas/plugins/oidc/configure.zcml:33
