@@ -6,6 +6,7 @@ from oic.oic import Client
 from oic.oic.message import OpenIDSchema
 from oic.oic.message import RegistrationResponse
 from oic.utils.authn.client import CLIENT_AUTHN_METHOD
+from pas.plugins.oidc import _
 from pas.plugins.oidc import logger
 from plone.base.utils import safe_text
 from plone.protect.utils import safeWrite
@@ -420,7 +421,7 @@ class OIDCPlugin(BasePlugin):
         user = pas.getUserById(user_id)
 
         if not self.user_can_login(userinfo):
-            message = "You are not allowed to log in due to group restrictions."
+            message = _("You are not allowed to log in due to group restrictions.")
             api.portal.show_message(message=message, request=self.REQUEST, type="error")
             if user:
                 raise AssertionError(
