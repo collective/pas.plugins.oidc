@@ -61,6 +61,7 @@ setup(
         # 'oidcrp',
         # "oic<1; python_version < 3",
         "oic",
+        "cryptojwt"
     ],
     extras_require={
         "test": [
