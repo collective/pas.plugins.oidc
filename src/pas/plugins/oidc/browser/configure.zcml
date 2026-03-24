@@ -36,4 +36,11 @@
       permission="zope2.View"
       />
 
+  <browser:page
+    name="test-jwt"
+    for="*"
+    class=".test_jwt.TestJWTView"
+    permission="cmf.ManagePortal"
+    />
+
 </configure>
