@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.10 (unreleased)
+1.0b4+cs.10 (2026-03-25)
 ------------------------
 
 - Add cryptojwt-based JWT verification helpers and a diagnostic test view.
