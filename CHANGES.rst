@@ -5,7 +5,8 @@ Changelog
 1.0b4+cs.10 (unreleased)
 ------------------------
 
-- Nothing changed yet.
+- Add cryptojwt-based JWT verification helpers and a diagnostic test view.
+  [ana-oprea]
 
 
 1.0b4+cs.9 (2023-09-27)
