@@ -5,7 +5,11 @@ Changelog
 1.0b4+cs.11 (unreleased)
 ------------------------
 
-- Nothing changed yet.
+- Harden EU Login token verification flow:
+  use strict claim validation (iss/aud/azp/nonce/time claims),
+  fail closed on invalid tokens, and keep pyjwkest fallback only
+  for technical compatibility issues.
+  [ana-oprea]
 
 
 1.0b4+cs.10 (2026-03-25)
