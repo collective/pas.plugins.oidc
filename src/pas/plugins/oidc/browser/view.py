@@ -258,54 +258,160 @@ class CallbackView(BrowserView):
                 }
             )
 
-        # The response you get back is an instance of an AccessTokenResponse
-        # or again possibly an ErrorResponse instance.
-        resp = client.do_access_token_request(
-            state=aresp["state"],
-            request_args=args,
-            authn_method="client_secret_basic",
+        # Keep OIDC client usage for protocol/session handling, but verify
+        # ID tokens through cryptojwt to support EU Login secp256k1.
+        userinfo = None
+        fallback_to_oic = False
+
+        client_id = self.context.getProperty("client_id")
+        client_secret = self.context.getProperty("client_secret")
+        code_verifier = (
+            session.get("verifier")
+            if self.context.getProperty("use_pkce")
+            else None
         )
+        nonce = session.get("nonce")
 
-        if isinstance(resp, AccessTokenResponse):
-            # If it's an AccessTokenResponse the information in the response will be stored in the
-            # client instance with state as the key for future use.
-            if client.userinfo_endpoint:
-                # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
+        provider_info = getattr(client, "provider_info", {}) or {}
+        jwks_uri = provider_info.get("jwks_uri")
+        issuer = provider_info.get("issuer")
+        supported_algs = provider_info.get(
+            "id_token_signing_alg_values_supported"
+        ) or ["ES256K"]
+        if isinstance(supported_algs, str):
+            supported_algs = [supported_algs]
 
-                # XXX: Not completely sure if this is even needed
-                #      We do not have a OpenID connect provider with userinfo endpoint
-                #      enabled and with the weird treatment of boolean values, so we cannot test this
-                # if self.context.getProperty("use_modified_openid_schema"):
-                #     userinfo = client.do_user_info_request(state=aresp["state"], user_info_schema=CustomOpenIDNonBooleanSchema)
-                # else:
-                #     userinfo = client.do_user_info_request(state=aresp["state"])
+        try:
+            from pas.plugins.oidc.jwt_verification import (
+                CompatibilityVerificationError,
+                TokenValidationError,
+                do_token_exchange,
+                verify_id_token,
+                verify_id_token_pyjwkest,
+            )
+        except Exception as exc:
+            logger.warning(
+                "JWT helper import failed, falling back to oic flow: %s", exc
+            )
+            fallback_to_oic = True
 
-                userinfo = client.do_user_info_request(state=aresp["state"])
-            else:
-                userinfo = resp.to_dict().get("id_token", {})
-
-            # userinfo in an instance of OpenIDSchema or ErrorResponse
-            # It could also be dict, if there is no userinfo_endpoint
-            if userinfo and isinstance(userinfo, (OpenIDSchema, dict)):
-                token = self.context.rememberIdentity(userinfo)
-                self.request.response.setHeader(
-                    "Cache-Control", "no-cache, must-revalidate"
+        if not fallback_to_oic:
+            # Step 1: exchange authorization code for raw tokens.
+            resp_dict = {}
+            try:
+                resp_dict = do_token_exchange(
+                    client.token_endpoint,
+                    aresp["code"],
+                    self.context.get_redirect_uris(),
+                    client_id,
+                    client_secret,
+                    code_verifier=code_verifier,
                 )
-                self.request.response.redirect(
-                    self.return_url(
-                        session=session, userinfo=userinfo, token=token
-                    )
+            except Exception as exc:
+                logger.warning(
+                    "Token exchange failed in custom flow: %s", exc
                 )
-                return
-            else:
-                logger.error(
-                    "authentication failed invaid response %s %s",
-                    resp,
-                    userinfo,
+                fallback_to_oic = True
+
+            # Step 2: verify ID token with cryptojwt.
+            id_token_jwt = (resp_dict or {}).get("id_token")
+            if not fallback_to_oic and not id_token_jwt:
+                logger.warning(
+                    "No id_token in token response, falling back to oic flow"
                 )
+                fallback_to_oic = True
+
+            if not fallback_to_oic and not jwks_uri:
+                logger.error("Missing jwks_uri in provider metadata")
                 raise Unauthorized()
+
+            if not fallback_to_oic:
+                try:
+                    userinfo = verify_id_token(
+                        id_token_jwt,
+                        jwks_uri,
+                        issuer=issuer,
+                        client_id=client_id,
+                        nonce=nonce,
+                        allowed_algs=supported_algs,
+                    )
+                    logger.info("cryptojwt verification succeeded")
+                except CompatibilityVerificationError as exc:
+                    logger.warning(
+                        "cryptojwt compatibility issue: %s", exc
+                    )
+                    try:
+                        userinfo = verify_id_token_pyjwkest(
+                            id_token_jwt,
+                            jwks_uri,
+                            issuer=issuer,
+                            client_id=client_id,
+                            nonce=nonce,
+                            allowed_algs=supported_algs,
+                        )
+                        logger.info("pyjwkest fallback succeeded")
+                    except TokenValidationError as invalid_exc:
+                        logger.warning(
+                            "pyjwkest fallback rejected token: %s",
+                            invalid_exc,
+                        )
+                        raise Unauthorized()
+                    except Exception as fallback_exc:
+                        logger.warning(
+                            "pyjwkest fallback failed: %s", fallback_exc
+                        )
+                        raise Unauthorized()
+                except TokenValidationError as exc:
+                    # Security failure: do not fallback to weaker paths.
+                    logger.warning("cryptojwt rejected token: %s", exc)
+                    raise Unauthorized()
+                except Exception as exc:
+                    logger.warning(
+                        "Unexpected cryptojwt verification failure: %s", exc
+                    )
+                    raise Unauthorized()
+
+        # Step 3: operational fallback to the legacy oic path when the custom
+        # token exchange flow is unavailable.
+        if fallback_to_oic:
+            logger.info("Falling back to oic do_access_token_request")
+            resp = client.do_access_token_request(
+                state=aresp["state"],
+                request_args=args,
+                authn_method="client_secret_basic",
+            )
+
+            if isinstance(resp, AccessTokenResponse):
+                if client.userinfo_endpoint:
+                    userinfo = client.do_user_info_request(
+                        state=aresp["state"]
+                    )
+                else:
+                    userinfo = resp.to_dict().get("id_token", {})
+            else:
+                logger.error("authentication failed %s", resp)
+                raise Unauthorized()
+
+        if userinfo is None:
+            logger.error("authentication failed: missing userinfo")
+            raise Unauthorized()
+
+        # Handle the verified userinfo
+        if userinfo and isinstance(userinfo, (OpenIDSchema, dict)):
+            token = self.context.rememberIdentity(userinfo)
+            self.request.response.setHeader(
+                "Cache-Control", "no-cache, must-revalidate"
+            )
+            self.request.response.redirect(
+                self.return_url(
+                    session=session, userinfo=userinfo, token=token
+                )
+            )
+            return
         else:
-            logger.error("authentication failed %s", resp)
+            logger.error(
+                "authentication failed invalid response %s", userinfo
+            )
             raise Unauthorized()
 
     def return_url(self, session=None, userinfo={}, token=None):
