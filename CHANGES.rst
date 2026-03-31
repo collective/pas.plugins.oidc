@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.11 (unreleased)
+1.0b4+cs.11 (2026-03-31)
 ------------------------
 
 - Harden EU Login token verification flow:
