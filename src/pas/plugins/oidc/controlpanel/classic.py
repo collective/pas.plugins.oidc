@@ -6,152 +6,35 @@ from plone.app.registry.browser import controlpanel
 from plone.base.interfaces import IPloneSiteRoot
 from zope.component import adapter
 from zope.interface import implementer
+from z3c.form.interfaces import DISPLAY_MODE
 
 
 @adapter(IPloneSiteRoot)
 @implementer(IOIDCSettings)
 class OIDCControlPanelAdapter:
+    propertymap = None
+
     def __init__(self, context):
         self.context = context
         self.portal = api.portal.get()
         self.encoding = "utf-8"
         self.settings = self.portal.acl_users[PLUGIN_ID]
+        self.propertymap = {prop["id"]: prop for prop in self.settings.propertyMap()}
 
-    @property
-    def issuer(self):
-        return self.settings.issuer
+    def __getattr__(self, name):
+        if self.propertymap and name in self.propertymap:
+            return self.settings.getProperty(name)
+        else:
+            raise AttributeError(f"{name} not in oidcsettings")
 
-    @issuer.setter
-    def issuer(self, value):
-        self.settings.issuer = value
-
-    @property
-    def client_id(self):
-        return self.settings.client_id
-
-    @client_id.setter
-    def client_id(self, value):
-        self.settings.client_id = value
-
-    @property
-    def client_secret(self):
-        return self.settings.client_secret
-
-    @client_secret.setter
-    def client_secret(self, value):
-        self.settings.client_secret = value
-
-    @property
-    def redirect_uris(self):
-        return self.settings.redirect_uris
-
-    @redirect_uris.setter
-    def redirect_uris(self, value):
-        self.settings.redirect_uris = value
-
-    @property
-    def use_session_data_manager(self):
-        return self.settings.use_session_data_manager
-
-    @use_session_data_manager.setter
-    def use_session_data_manager(self, value):
-        self.settings.use_session_data_manager = value
-
-    @property
-    def create_user(self):
-        return self.settings.create_user
-
-    @create_user.setter
-    def create_user(self, value):
-        self.settings.create_user = value
-
-    @property
-    def create_groups(self):
-        return self.settings.create_groups
-
-    @create_groups.setter
-    def create_groups(self, value):
-        self.settings.create_groups = value
-
-    @property
-    def user_property_as_groupid(self):
-        return self.settings.user_property_as_groupid
-
-    @user_property_as_groupid.setter
-    def user_property_as_groupid(self, value):
-        self.settings.user_property_as_groupid = value
-
-    @property
-    def allowed_groups(self):
-        return self.settings.allowed_groups
-
-    @allowed_groups.setter
-    def allowed_groups(self, value):
-        self.settings.allowed_groups = value
-
-    @property
-    def create_ticket(self):
-        return self.settings.create_ticket
-
-    @create_ticket.setter
-    def create_ticket(self, value):
-        self.settings.create_ticket = value
-
-    @property
-    def create_restapi_ticket(self):
-        return self.settings.create_restapi_ticket
-
-    @create_restapi_ticket.setter
-    def create_restapi_ticket(self, value):
-        self.settings.create_restapi_ticket = value
-
-    @property
-    def scope(self):
-        return self.settings.scope
-
-    @scope.setter
-    def scope(self, value):
-        self.settings.scope = value
-
-    @property
-    def use_pkce(self):
-        return self.settings.use_pkce
-
-    @use_pkce.setter
-    def use_pkce(self, value):
-        self.settings.use_pkce = value
-
-    @property
-    def use_deprecated_redirect_uri_for_logout(self):
-        return self.settings.use_deprecated_redirect_uri_for_logout
-
-    @use_deprecated_redirect_uri_for_logout.setter
-    def use_deprecated_redirect_uri_for_logout(self, value):
-        self.settings.use_deprecated_redirect_uri_for_logout = value
-
-    @property
-    def use_modified_openid_schema(self):
-        return self.settings.use_modified_openid_schema
-
-    @use_modified_openid_schema.setter
-    def use_modified_openid_schema(self, value):
-        self.settings.use_modified_openid_schema = value
-
-    @property
-    def user_property_as_userid(self):
-        return self.settings.user_property_as_userid
-
-    @user_property_as_userid.setter
-    def user_property_as_userid(self, value):
-        self.settings.user_property_as_userid = value
-
-    @property
-    def identity_domain_name(self):
-        return self.settings.identity_domain_name
-
-    @identity_domain_name.setter
-    def identity_domain_name(self, value):
-        self.settings.identity_domain_name = value
+    def __setattr__(self, name, value):
+        if self.propertymap and name in self.propertymap:
+            if "w" in self.propertymap[name].get("mode", ""):
+                return setattr(self.settings, name, value)
+            else:
+                raise TypeError(f"{name} readonly in oidcsettings")
+        else:
+            super().__setattr__(name, value)
 
     @property
     def userinfo_endpoint_method(self):
@@ -171,6 +54,13 @@ class OIDCSettingsForm(controlpanel.RegistryEditForm):
     def getContent(self):
         portal = api.portal.get()
         return OIDCControlPanelAdapter(portal)
+
+    def updateWidgets(self):
+        super().updateWidgets()
+        pmap = self.getContent().propertymap
+        for name, widget in self.widgets.items():
+            if name in pmap and "w" not in pmap[name].get("mode", ""):
+                widget.mode = DISPLAY_MODE
 
     def applyChanges(self, data):
         """See interfaces.IEditForm"""
