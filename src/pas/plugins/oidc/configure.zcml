@@ -48,7 +48,7 @@
       profile="pas.plugins.oidc:default"
       source="1001"
       destination="1002"
-      handler=".setuphandlers.activate_properties_plugin"
+      handler=".setuphandlers.activate_prop_roles_enum_plugin"
       />
 
   <utility

@@ -87,8 +87,10 @@ def activate_challenge_plugin(context):
     activate_plugin(context, "IChallengePlugin", move_to_top=True)
 
 
-def activate_properties_plugin(context):
+def activate_prop_roles_enum_plugin(context):
     activate_plugin(context, "IPropertiesPlugin", move_to_top=True)
+    activate_plugin(context, "IUserEnumerationPlugin", move_to_top=False)
+    activate_roles(context, "IRolesPlugin", move_to_top=False)
 
 
 def uninstall(context):
