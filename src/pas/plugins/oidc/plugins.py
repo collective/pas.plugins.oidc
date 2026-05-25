@@ -18,6 +18,8 @@ from Products.PluggableAuthService.interfaces.plugins import IAuthenticationPlug
 from Products.PluggableAuthService.interfaces.plugins import IChallengePlugin
 from Products.PluggableAuthService.interfaces.plugins import IPropertiesPlugin
 from Products.PluggableAuthService.interfaces.plugins import IUserAdderPlugin
+from Products.PluggableAuthService.interfaces.plugins import IUserEnumerationPlugin
+from Products.PluggableAuthService.interfaces.plugins import IRolesPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.UserPropertySheet import UserPropertySheet
 from Products.PluggableAuthService.utils import classImplements
@@ -124,6 +126,7 @@ class OIDCPlugin(BasePlugin):
     user_property_as_userid = "sub"
     userinfo_to_memberdata = ()
     identity_domain_name = ""
+    roles = ("Citizen",)
 
     _properties = (
         dict(id="title", type="string", mode="w", label="Title"),
@@ -205,6 +208,7 @@ class OIDCPlugin(BasePlugin):
             mode="w",
             label="Identity Domain Name (required for Oracle Authentication Manager only)",
         ),
+        dict(id="roles", type="lines", mode="w", label="roles"),
     )
 
     def __init__(self, id, title=None):
@@ -505,6 +509,58 @@ class OIDCPlugin(BasePlugin):
                 return propertysheet
         return None
 
+    # pas_interfaces.plugins.IRolesPlugin
+    def getRolesForPrincipal(self, principal, request=None):
+        default = ()
+        if self.getProperty("roles") and self.enumerateUsers(
+            id=principal.getId(), exact_match=True
+        ):
+            return tuple(self.getProperty("roles"))
+        return default
+
+    @security.private
+    def enumerateUsers(self, id=None, login=None, exact_match=True, **kw):
+        """See IUserEnumerationPlugin.
+
+        https://github.com/plone/Products.PlonePAS/blob/master/src/Products/PlonePAS/plugins/property.py#LL240C5-L272C32
+        """
+        plugin_id = self.getId()
+
+        if not exact_match:
+            return ()
+
+        # XXX: id vs login ....
+        if id is not None:
+            userid = id
+        elif login is not None:
+            userid = login
+        else:
+            return ()
+
+        logger.debug("Enumerating users for %s", userid)
+
+        if userid not in self._userdata_by_userid:
+            return ()
+
+        data = self._userdata_by_userid[userid]
+        logger.debug("Enumerating users for %s", data)
+
+        user_info = [
+            {
+                "id": self.prefix + userid,
+                "login": userid,
+                "title": data.getProperty("fullname", userid),
+                "description": data.getProperty("fullname", userid),
+                "email": data.getProperty("email", ""),
+                "pluginid": plugin_id,
+            }
+        ]
+
+        return tuple(user_info)
+
+
+
+
 
 InitializeClass(OIDCPlugin)
 
@@ -516,7 +572,8 @@ classImplements(
     # IAuthenticationPlugin,
     IChallengePlugin,
     IPropertiesPlugin,
-    # IRolesPlugin,
+    IRolesPlugin,
+    IUserEnumerationPlugin
 )
 
 
