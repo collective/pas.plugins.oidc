@@ -2,6 +2,16 @@ from hashlib import sha256
 from oic import rndstr
 from oic.exception import RequestError
 from oic.oic import message
+from oic.oauth2.message import (
+    SINGLE_REQUIRED_STRING,
+    SINGLE_OPTIONAL_STRING,
+    SINGLE_OPTIONAL_INT,
+    OPTIONAL_LIST_OF_STRINGS,
+    REQUIRED_LIST_OF_STRINGS,
+    OPTIONAL_LIST_OF_SP_SEP_STRINGS,
+    REQUIRED_LIST_OF_SP_SEP_STRINGS,
+    SINGLE_OPTIONAL_JSON,
+)
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import plugins
 from pas.plugins.oidc.plugins import OIDCPlugin
@@ -174,7 +184,39 @@ def parse_authorization_response(
     return args, aresp["state"]
 
 
-def get_user_info(client, state, args, method="POST") -> message.OpenIDSchema | dict:
+def extend_user_info_schema(
+    extensions: dict | None = None,
+) -> type[message.OpenIDSchema]:
+
+    if extensions is None:
+        return message.OpenIDSchema
+
+    types = {
+        "SINGLE_REQUIRED_STRING": SINGLE_REQUIRED_STRING,
+        "SINGLE_OPTIONAL_STRING": SINGLE_OPTIONAL_STRING,
+        "SINGLE_OPTIONAL_INT": SINGLE_OPTIONAL_INT,
+        "OPTIONAL_LIST_OF_STRINGS": OPTIONAL_LIST_OF_STRINGS,
+        "REQUIRED_LIST_OF_STRINGS": REQUIRED_LIST_OF_STRINGS,
+        "OPTIONAL_LIST_OF_SP_SEP_STRINGS": OPTIONAL_LIST_OF_SP_SEP_STRINGS,
+        "REQUIRED_LIST_OF_SP_SEP_STRINGS": REQUIRED_LIST_OF_SP_SEP_STRINGS,
+        "SINGLE_OPTIONAL_JSON": SINGLE_OPTIONAL_JSON,
+    }
+
+    class ExntendedOpenIDSchema(message.OpenIDSchema):
+
+        @property
+        def c_param(self) -> dict:
+            return {
+                **message.OpenIDSchema.c_param,
+                **{key: types[parser_id] for key, parser_id in extensions.items()},
+            }
+
+    return ExntendedOpenIDSchema
+
+
+def get_user_info(
+    client, state, args, method="POST", user_info_schema_extensions: dict | None = None
+) -> message.OpenIDSchema | dict:
     resp = client.do_access_token_request(
         state=state,
         request_args=args,
@@ -188,7 +230,13 @@ def get_user_info(client, state, args, method="POST") -> message.OpenIDSchema | 
         if client.userinfo_endpoint:
             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
             try:
-                user_info = client.do_user_info_request(method=method, state=state)
+                user_info = client.do_user_info_request(
+                    method=method,
+                    state=state,
+                    user_info_schema=extend_user_info_schema(
+                        user_info_schema_extensions
+                    ),
+                )
             except RequestError as exc:
                 logger.error(
                     "Authentication failed, probably missing openid scope",

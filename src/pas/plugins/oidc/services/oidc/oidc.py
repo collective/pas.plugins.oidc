@@ -1,3 +1,4 @@
+import json
 from oic.oic.message import EndSessionRequest
 from oic.oic.message import IdToken
 from pas.plugins.oidc import _
@@ -204,15 +205,27 @@ class Post(LoginOIDC):
         qs = qs[1:] if qs.startswith("?") else qs
         args, state = utils.parse_authorization_response(plugin, qs, client, session)
         method = plugin.getProperty("userinfo_endpoint_method", "POST")
+        try:
+            userinfo_schema_extensions = json.loads(
+                plugin.getProperty("userinfo_schema_extensions", "")
+            )
+        except json.JSONDecodeError as e:
+            logger.error(e)
+            userinfo_schema_extensions = None
+
         if plugin.getProperty("use_modified_openid_schema"):
-            IdToken.c_param.update({
-                "email_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
-                "phone_number_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
-            })
+            IdToken.c_param.update(
+                {
+                    "email_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
+                    "phone_number_verified": utils.SINGLE_OPTIONAL_BOOLEAN_AS_STRING,
+                }
+            )
 
         # The response you get back is an instance of an AccessTokenResponse
         # or again possibly an ErrorResponse instance.
-        user_info = utils.get_user_info(client, state, args, method)
+        user_info = utils.get_user_info(
+            client, state, args, method, userinfo_schema_extensions
+        )
         if user_info:
             alsoProvides(self.request, IDisableCSRFProtection)
             action = "login"

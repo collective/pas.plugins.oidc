@@ -32,7 +32,6 @@ import plone.api as api
 import requests
 import string
 
-
 manage_addOIDCPluginForm = PageTemplateFile(
     "www/oidcPluginForm", globals(), __name__="manage_addOIDCPluginForm"
 )
@@ -129,6 +128,7 @@ class OIDCPlugin(BasePlugin):
     identity_domain_name: str = ""
     userinfo_endpoint_method: str = "POST"
     userinfo_endpoint_method_values: tuple[str, ...] = ("GET", "POST")
+    userinfo_schema_extensions: str = ""
 
     _properties: tuple[dict] = (
         {"id": "title", "type": "string", "mode": "w", "label": "Title"},
@@ -231,6 +231,15 @@ class OIDCPlugin(BasePlugin):
             "label": (
                 "Userinfo Endpoint Method "
                 "(HTTP Method to use for the userinfo endpoint)"
+            ),
+        },
+        {
+            "id": "userinfo_schema_extensions",
+            "type": "string",
+            "mode": "w",
+            "label": (
+                "Userinfo Schema Extension"
+                "Mapping of user schema fields to how they should be parsed (SINGLE_REQUIRED_STRING, SINGLE_OPTIONAL_STRING, SINGLE_OPTIONAL_INT, OPTIONAL_LIST_OF_STRINGS, REQUIRED_LIST_OF_STRINGS, OPTIONAL_LIST_OF_SP_SEP_STRINGS, REQUIRED_LIST_OF_SP_SEP_STRINGS, SINGLE_OPTIONAL_JSON)",
             ),
         },
     )

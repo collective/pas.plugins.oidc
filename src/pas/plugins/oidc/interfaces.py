@@ -1,10 +1,12 @@
 """Module where all interfaces, events and exceptions live."""
 
+import json
 from pas.plugins.oidc import _
 from plone.restapi.controlpanels.interfaces import IControlpanel
 from zope import schema
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
+from plone.schema import JSONField
 
 
 class IPasPluginsOidcLayer(IDefaultBrowserLayer):
@@ -141,6 +143,33 @@ class IOIDCSettings(Interface):
         description=_("HTTP Method to use for the userinfo endpoint"),
         values=["GET", "POST"],
         default="POST",
+    )
+
+    userinfo_schema_extensions = JSONField(
+        title=_("Userinfo Schema extension"),
+        description=_(
+            "Mapping of user schema fields to how they should be parsed (SINGLE_REQUIRED_STRING, SINGLE_OPTIONAL_STRING, SINGLE_OPTIONAL_INT, OPTIONAL_LIST_OF_STRINGS, REQUIRED_LIST_OF_STRINGS, OPTIONAL_LIST_OF_SP_SEP_STRINGS, REQUIRED_LIST_OF_SP_SEP_STRINGS, SINGLE_OPTIONAL_JSON)"
+        ),
+        schema=json.dumps(
+            {
+                "type": "object",
+                "patternProperties": {
+                    "^.*$": {
+                        "type": "string",
+                        "enum": [
+                            "SINGLE_REQUIRED_STRING",
+                            "SINGLE_OPTIONAL_STRING",
+                            "SINGLE_OPTIONAL_INT",
+                            "OPTIONAL_LIST_OF_STRINGS",
+                            "REQUIRED_LIST_OF_STRINGS",
+                            "OPTIONAL_LIST_OF_SP_SEP_STRINGS",
+                            "REQUIRED_LIST_OF_SP_SEP_STRINGS",
+                            "SINGLE_OPTIONAL_JSON",
+                        ],
+                    }
+                },
+            }
+        ),
     )
 
 
