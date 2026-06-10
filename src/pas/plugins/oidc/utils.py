@@ -186,15 +186,9 @@ def parse_authorization_response(
 
 def extend_user_info_schema(plugin) -> type[message.OpenIDSchema]:
 
-    try:
-        userinfo_schema_extensions = json.loads(
-            plugin.getProperty("userinfo_schema_extensions", "{}")
-        )
-    except json.JSONDecodeError as e:
-        logger.error(e)
-        return message.OpenIDSchema
+    userinfo_schema_extensions = plugin.getProperty("userinfo_schema_extensions", [])
 
-    if not userinfo_schema_extensions:
+    if len(userinfo_schema_extensions) == 0:
         return message.OpenIDSchema
 
     types = {
@@ -215,8 +209,10 @@ def extend_user_info_schema(plugin) -> type[message.OpenIDSchema]:
             return {
                 **message.OpenIDSchema.c_param,
                 **{
-                    key: types[parser_id]
-                    for key, parser_id in userinfo_schema_extensions.items()
+                    extension[0]: types[extension[1]]
+                    for extension in [
+                        extension.split(":") for extension in userinfo_schema_extensions
+                    ]
                 },
             }
 
