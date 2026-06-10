@@ -13,6 +13,36 @@ class IPasPluginsOidcLayer(IDefaultBrowserLayer):
     """Marker interface that defines a browser layer."""
 
 
+def validate_userinfo_schema_extension(values):
+    valid_types = [
+        "SINGLE_REQUIRED_STRING",
+        "SINGLE_OPTIONAL_STRING",
+        "SINGLE_OPTIONAL_INT",
+        "OPTIONAL_LIST_OF_STRINGS",
+        "REQUIRED_LIST_OF_STRINGS",
+        "OPTIONAL_LIST_OF_SP_SEP_STRINGS",
+        "REQUIRED_LIST_OF_SP_SEP_STRINGS",
+        "SINGLE_OPTIONAL_JSON",
+    ]
+
+    for value in values:
+        split_value = value.split(":")
+        if len(split_value) > 2 or len(split_value) < 2:
+            raise Invalid(
+                _(
+                    "invalid userinfo_schema_extensions",
+                    f"A line can only consist of <key>:<type>. {values} is given",
+                )
+            )
+        if split_value[1] not in valid_types:
+            raise Invalid(
+                _(
+                    "invalid userinfo_schema_extensions",
+                    f"Type {split_value[1]} not valid for {split_value[0]}",
+                )
+            )
+
+
 class IOIDCSettings(Interface):
     """OIDC plugin settings"""
 
@@ -184,36 +214,6 @@ class IOIDCSettings(Interface):
         default=[],
         constraint=validate_userinfo_schema_extension,
     )
-
-
-def validate_userinfo_schema_extension(values):
-    valid_types = [
-        "SINGLE_REQUIRED_STRING",
-        "SINGLE_OPTIONAL_STRING",
-        "SINGLE_OPTIONAL_INT",
-        "OPTIONAL_LIST_OF_STRINGS",
-        "REQUIRED_LIST_OF_STRINGS",
-        "OPTIONAL_LIST_OF_SP_SEP_STRINGS",
-        "REQUIRED_LIST_OF_SP_SEP_STRINGS",
-        "SINGLE_OPTIONAL_JSON",
-    ]
-
-    for value in values:
-        split_value = value.split(":")
-        if len(split_value) > 2 or len(split_value) < 2:
-            raise Invalid(
-                _(
-                    "invalid userinfo_schema_extensions",
-                    f"A line can only consist of <key>:<type>. {values} is given",
-                )
-            )
-        if split_value[1] not in valid_types:
-            raise Invalid(
-                _(
-                    "invalid userinfo_schema_extensions",
-                    f"Type {split_value[1]} not valid for {split_value[0]}",
-                )
-            )
 
 
 class IOIDCControlpanel(IControlpanel):
