@@ -42,7 +42,7 @@ def validate_userinfo_schema_extension(values):
                 )
             )
 
-    return values
+    return True
 
 
 class IOIDCSettings(Interface):
