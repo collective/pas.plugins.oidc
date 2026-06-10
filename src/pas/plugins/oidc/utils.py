@@ -184,11 +184,17 @@ def parse_authorization_response(
     return args, aresp["state"]
 
 
-def extend_user_info_schema(
-    extensions: dict | None = None,
-) -> type[message.OpenIDSchema]:
+def extend_user_info_schema(plugin) -> type[message.OpenIDSchema]:
 
-    if extensions is None:
+    try:
+        userinfo_schema_extensions = json.loads(
+            plugin.getProperty("userinfo_schema_extensions", "{}")
+        )
+    except json.JSONDecodeError as e:
+        logger.error(e)
+        return message.OpenIDSchema
+
+    if not userinfo_schema_extensions:
         return message.OpenIDSchema
 
     types = {
@@ -208,14 +214,21 @@ def extend_user_info_schema(
         def c_param(self) -> dict:
             return {
                 **message.OpenIDSchema.c_param,
-                **{key: types[parser_id] for key, parser_id in extensions.items()},
+                **{
+                    key: types[parser_id]
+                    for key, parser_id in userinfo_schema_extensions.items()
+                },
             }
 
     return ExntendedOpenIDSchema
 
 
 def get_user_info(
-    client, state, args, method="POST", user_info_schema_extensions: dict | None = None
+    client,
+    state,
+    args,
+    method="POST",
+    user_info_schema: type[message.OpenIDSchema] = message.OpenIDSchema,
 ) -> message.OpenIDSchema | dict:
     resp = client.do_access_token_request(
         state=state,
@@ -233,9 +246,7 @@ def get_user_info(
                 user_info = client.do_user_info_request(
                     method=method,
                     state=state,
-                    user_info_schema=extend_user_info_schema(
-                        user_info_schema_extensions
-                    ),
+                    user_info_schema=user_info_schema,
                 )
             except RequestError as exc:
                 logger.error(

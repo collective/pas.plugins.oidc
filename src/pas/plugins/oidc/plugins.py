@@ -237,10 +237,7 @@ class OIDCPlugin(BasePlugin):
             "id": "userinfo_schema_extensions",
             "type": "string",
             "mode": "w",
-            "label": (
-                "Userinfo Schema Extension"
-                "Mapping of user schema fields to how they should be parsed (SINGLE_REQUIRED_STRING, SINGLE_OPTIONAL_STRING, SINGLE_OPTIONAL_INT, OPTIONAL_LIST_OF_STRINGS, REQUIRED_LIST_OF_STRINGS, OPTIONAL_LIST_OF_SP_SEP_STRINGS, REQUIRED_LIST_OF_SP_SEP_STRINGS, SINGLE_OPTIONAL_JSON)",
-            ),
+            "label": "Userinfo Schema Extension",
         },
     )
 
