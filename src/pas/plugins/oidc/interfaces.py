@@ -1,48 +1,16 @@
 """Module where all interfaces, events and exceptions live."""
 
-import json
 from pas.plugins.oidc import _
 from plone.restapi.controlpanels.interfaces import IControlpanel
 from zope import schema
-from zope.interface import Interface, Invalid
+from zope.interface import Interface
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
-from plone.schema import JSONField
+
+from pas.plugins.oidc.utils import validate_userinfo_schema_extension
 
 
 class IPasPluginsOidcLayer(IDefaultBrowserLayer):
     """Marker interface that defines a browser layer."""
-
-
-def validate_userinfo_schema_extension(values):
-    valid_types = [
-        "SINGLE_REQUIRED_STRING",
-        "SINGLE_OPTIONAL_STRING",
-        "SINGLE_OPTIONAL_INT",
-        "OPTIONAL_LIST_OF_STRINGS",
-        "REQUIRED_LIST_OF_STRINGS",
-        "OPTIONAL_LIST_OF_SP_SEP_STRINGS",
-        "REQUIRED_LIST_OF_SP_SEP_STRINGS",
-        "SINGLE_OPTIONAL_JSON",
-    ]
-
-    for value in values:
-        split_value = value.split(":")
-        if len(split_value) > 2 or len(split_value) < 2:
-            raise Invalid(
-                _(
-                    "invalid userinfo_schema_extensions",
-                    f"A line can only consist of <key>:<type>. {values} is given",
-                )
-            )
-        if split_value[1] not in valid_types:
-            raise Invalid(
-                _(
-                    "invalid userinfo_schema_extensions",
-                    f"Type {split_value[1]} not valid for {split_value[0]}",
-                )
-            )
-
-    return True
 
 
 class IOIDCSettings(Interface):
@@ -177,32 +145,6 @@ class IOIDCSettings(Interface):
         default="POST",
     )
 
-    # userinfo_schema_extensions = JSONField(
-    #     title=_("Userinfo Schema extension"),
-    #     description=_(
-    #         "Mapping of user schema fields to how they should be parsed (SINGLE_REQUIRED_STRING, SINGLE_OPTIONAL_STRING, SINGLE_OPTIONAL_INT, OPTIONAL_LIST_OF_STRINGS, REQUIRED_LIST_OF_STRINGS, OPTIONAL_LIST_OF_SP_SEP_STRINGS, REQUIRED_LIST_OF_SP_SEP_STRINGS, SINGLE_OPTIONAL_JSON)"
-    #     ),
-    #     schema=json.dumps(
-    #         {
-    #             "type": "object",
-    #             "patternProperties": {
-    #                 "^.*$": {
-    #                     "type": "string",
-    #                     "enum": [
-    #                         "SINGLE_REQUIRED_STRING",
-    #                         "SINGLE_OPTIONAL_STRING",
-    #                         "SINGLE_OPTIONAL_INT",
-    #                         "OPTIONAL_LIST_OF_STRINGS",
-    #                         "REQUIRED_LIST_OF_STRINGS",
-    #                         "OPTIONAL_LIST_OF_SP_SEP_STRINGS",
-    #                         "REQUIRED_LIST_OF_SP_SEP_STRINGS",
-    #                         "SINGLE_OPTIONAL_JSON",
-    #                     ],
-    #                 }
-    #             },
-    #         }
-    #     ),
-    # )
     userinfo_schema_extensions = schema.List(
         title=_("Userinfo Schema extension"),
         description=_(

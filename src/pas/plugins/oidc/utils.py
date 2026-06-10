@@ -12,10 +12,12 @@ from oic.oauth2.message import (
     REQUIRED_LIST_OF_SP_SEP_STRINGS,
     SINGLE_OPTIONAL_JSON,
 )
+from zope.interface import Invalid
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import plugins
 from pas.plugins.oidc.plugins import OIDCPlugin
 from pas.plugins.oidc.session import Session
+from pas.plugins.oidc import _
 from plone import api
 
 import base64
@@ -184,11 +186,50 @@ def parse_authorization_response(
     return args, aresp["state"]
 
 
+def validate_userinfo_schema_extension(values):
+    valid_types = [
+        "SINGLE_REQUIRED_STRING",
+        "SINGLE_OPTIONAL_STRING",
+        "SINGLE_OPTIONAL_INT",
+        "OPTIONAL_LIST_OF_STRINGS",
+        "REQUIRED_LIST_OF_STRINGS",
+        "OPTIONAL_LIST_OF_SP_SEP_STRINGS",
+        "REQUIRED_LIST_OF_SP_SEP_STRINGS",
+        "SINGLE_OPTIONAL_JSON",
+    ]
+
+    for value in values:
+        split_value = value.split(":")
+        if len(split_value) > 2 or len(split_value) < 2:
+            raise Invalid(
+                _(
+                    "invalid userinfo_schema_extensions",
+                    f"A line can only consist of <key>:<type>. {values} is given",
+                )
+            )
+        if split_value[1] not in valid_types:
+            raise Invalid(
+                _(
+                    "invalid userinfo_schema_extensions",
+                    f"Type {split_value[1]} not valid for {split_value[0]}",
+                )
+            )
+
+    return True
+
+
 def extend_user_info_schema(plugin) -> type[message.OpenIDSchema]:
 
     userinfo_schema_extensions = plugin.getProperty("userinfo_schema_extensions", [])
 
     if len(userinfo_schema_extensions) == 0:
+        return message.OpenIDSchema
+
+    try:
+        validate_userinfo_schema_extension(userinfo_schema_extensions)
+    except Invalid as e:
+        logger.error("invalid userinfo_schema_extensions")
+        logger.error(e)
         return message.OpenIDSchema
 
     types = {
