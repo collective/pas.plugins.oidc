@@ -1,1 +1,1 @@
-make user_info openidschema extensible via json field
+make user_info openidschema extensible
