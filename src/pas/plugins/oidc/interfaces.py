@@ -42,6 +42,8 @@ def validate_userinfo_schema_extension(values):
                 )
             )
 
+    return values
+
 
 class IOIDCSettings(Interface):
     """OIDC plugin settings"""
