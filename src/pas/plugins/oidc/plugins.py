@@ -128,7 +128,7 @@ class OIDCPlugin(BasePlugin):
     identity_domain_name: str = ""
     userinfo_endpoint_method: str = "POST"
     userinfo_endpoint_method_values: tuple[str, ...] = ("GET", "POST")
-    userinfo_schema_extensions: str = ""
+    userinfo_schema_extensions: tuple[str] = []
 
     _properties: tuple[dict] = (
         {"id": "title", "type": "string", "mode": "w", "label": "Title"},
