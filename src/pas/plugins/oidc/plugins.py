@@ -235,7 +235,7 @@ class OIDCPlugin(BasePlugin):
         },
         {
             "id": "userinfo_schema_extensions",
-            "type": "string",
+            "type": "lines",
             "mode": "w",
             "label": "Userinfo Schema Extension",
         },
