@@ -5,7 +5,7 @@ on:
 
 env:
   PYTHON_VERSION: "3.12"
-  PLONE_VERSION: "6.1.1"
+  PLONE_VERSION: "6.1.4"
   KEYCLOAK_VERSION: "22.0.0"
 
 jobs:
@@ -66,8 +66,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10', '3.11', '3.12', '3.13']
-        plone-version: ['6.1-latest', '6.0-latest']
+        python-version: ['3.11', '3.12', '3.13']
+        plone-version: ['6.2-latest', '6.1-latest', '6.0-latest']
     env:
       PYTHON_VERSION: ${{ matrix.python-version }}
       PLONE_VERSION: ${{ matrix.plone-version }}
