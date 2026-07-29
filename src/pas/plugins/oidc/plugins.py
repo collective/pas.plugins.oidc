@@ -292,9 +292,9 @@ class OIDCPlugin(BasePlugin):
                         user_id not in self._userdata_by_userid
                         or self._userdata_by_userid[user_id]._properties != userProps
                     ):
-                    self._userdata_by_userid[user_id] = UserPropertySheet(
-                        user_id, **userProps
-                    )
+                        self._userdata_by_userid[user_id] = UserPropertySheet(
+                            user_id, **userProps
+                        )
 
         if self.getProperty("create_groups"):
             groupid_property = self.getProperty("user_property_as_groupid")
