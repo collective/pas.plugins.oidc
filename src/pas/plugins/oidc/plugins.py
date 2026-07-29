@@ -282,6 +282,19 @@ class OIDCPlugin(BasePlugin):
             with safe_write(self.REQUEST):
                 self._updateUserProperties(user, userinfo)
                 notify(UserLoggedInEvent(user))
+        else:
+            with safe_write(self.REQUEST):
+                userProps = self._get_all_userinfo_properties(userinfo)
+                if userProps:
+                    if not hasattr(self, "_userdata_by_userid"):
+                        self._userdata_by_userid = OOBTree()
+                    if (
+                        user_id not in self._userdata_by_userid
+                        or self._userdata_by_userid[user_id]._properties != userProps
+                    ):
+                    self._userdata_by_userid[user_id] = UserPropertySheet(
+                        user_id, **userProps
+                    )
 
         if self.getProperty("create_groups"):
             groupid_property = self.getProperty("user_property_as_groupid")
