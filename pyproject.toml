@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "OIDC support for Plone sites"
 readme = "README.md"
 license = "GPL-2.0-only"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 authors = [
     { name = "Mauro Amico", email = "mauro.amico@gmail.com" },
     { name = "Érico Andrei", email = "ericof@plone.org" },
@@ -31,6 +31,7 @@ classifiers = [
     "Framework :: Plone :: 6.1",
     "Framework :: Plone :: 6.2",
     "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
