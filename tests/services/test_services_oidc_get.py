@@ -45,6 +45,29 @@ class TestServiceOIDCGet:
         assert "state" in qs
         assert "nonce" in qs
 
+    def test_login_oidc_allowed_idp_hint(self, portal):
+        plugin = portal.acl_users.oidc
+        plugin.idp_hint_query_key = "kc_idp_hint"
+        plugin.idp_hint_allowed_values = ("foo",)
+        transaction.commit()
+
+        response = self.api_session.get(f"{self.endpoint}?kc_idp_hint=foo")
+        next_url = response.json()["next_url"]
+        qs = dict(parse_qsl(urlparse(next_url).query))
+
+        assert qs["kc_idp_hint"] == "foo"
+
+    def test_login_oidc_rejects_unallowed_idp_hint(self, portal):
+        plugin = portal.acl_users.oidc
+        plugin.idp_hint_query_key = "kc_idp_hint"
+        plugin.idp_hint_allowed_values = ("foo",)
+        transaction.commit()
+
+        response = self.api_session.get(f"{self.endpoint}?kc_idp_hint=bar")
+        qs = dict(parse_qsl(urlparse(response.json()["next_url"]).query))
+
+        assert "kc_idp_hint" not in qs
+
 
 class TestServiceOIDCGetFailure:
     endpoint: str = "@login-oidc/oidc"

@@ -49,6 +49,8 @@ class LoginView(BrowserView):
     def __call__(self):
         session = utils.initialize_session(self.context, self.request)
         args = utils.authorization_flow_args(self.context, session)
+        if idp_hint := self.context.get_idp_hint(self.request):
+            args[idp_hint[0]] = idp_hint[1]
         error_msg = ""
         try:
             client = self.context.get_oauth2_client()

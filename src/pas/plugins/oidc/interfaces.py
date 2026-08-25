@@ -142,6 +142,26 @@ class IOIDCSettings(Interface):
         values=["GET", "POST"],
         default="POST",
     )
+    idp_hint_query_key = schema.TextLine(
+        title=_("Identity provider hint query key"),
+        description=_(
+            "Query parameter name used to select an allowed identity provider."
+        ),
+        required=False,
+        default="",
+    )
+    idp_hint_allowed_values = schema.List(
+        title=_("Allowed identity provider hint values"),
+        description=_(
+            "Identity provider hint values that may be passed to the issuer."
+        ),
+        value_type=schema.TextLine(
+            title=_("Identity provider hint value"),
+            description=_(""),
+        ),
+        required=False,
+        default=[],
+    )
 
 
 class IOIDCControlpanel(IControlpanel):

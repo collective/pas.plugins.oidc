@@ -85,6 +85,8 @@ class Get(LoginOIDC):
 
         session = utils.initialize_session(plugin, self.request)
         args = utils.authorization_flow_args(plugin, session)
+        if idp_hint := plugin.get_idp_hint(self.request):
+            args[idp_hint[0]] = idp_hint[1]
         try:
             client = plugin.get_oauth2_client()
         except OAuth2ConnectionException:

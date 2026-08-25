@@ -129,6 +129,8 @@ class OIDCPlugin(BasePlugin):
     identity_domain_name: str = ""
     userinfo_endpoint_method: str = "POST"
     userinfo_endpoint_method_values: tuple[str, ...] = ("GET", "POST")
+    idp_hint_query_key: str = ""
+    idp_hint_allowed_values: tuple[str, ...] = ()
 
     _properties: tuple[dict] = (
         {"id": "title", "type": "string", "mode": "w", "label": "Title"},
@@ -232,6 +234,18 @@ class OIDCPlugin(BasePlugin):
                 "Userinfo Endpoint Method "
                 "(HTTP Method to use for the userinfo endpoint)"
             ),
+        },
+        {
+            "id": "idp_hint_query_key",
+            "type": "string",
+            "mode": "w",
+            "label": "Identity provider hint query key",
+        },
+        {
+            "id": "idp_hint_allowed_values",
+            "type": "lines",
+            "mode": "w",
+            "label": "Allowed identity provider hint values",
         },
     )
 
@@ -404,6 +418,15 @@ class OIDCPlugin(BasePlugin):
             # of the OAuth2 process
             logger.exception("Error getting OAuth2 client", exc_info=exc)
             raise OAuth2ConnectionException from exc
+
+    def get_idp_hint(self, request) -> tuple[str, str] | None:
+        """Return a configured and allowed identity provider hint."""
+        query_key = self.getProperty("idp_hint_query_key", "")
+        allowed_values = self.getProperty("idp_hint_allowed_values", ())
+        value = request.get(query_key) if query_key else None
+        if isinstance(value, str) and value in (allowed_values or ()):
+            return query_key, value
+        return None
 
     def rememberIdentity(self, userinfo):
         if not isinstance(userinfo, OpenIDSchema | dict):

@@ -20,6 +20,8 @@ class TestPlugin:
         [
             ("create_user", True),
             ("create_ticket", True),
+            ("idp_hint_query_key", ""),
+            ("idp_hint_allowed_values", ()),
         ],
     )
     def test_plugin_setup(self, prop, expected):
