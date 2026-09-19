@@ -2,10 +2,22 @@ from hashlib import sha256
 from oic import rndstr
 from oic.exception import RequestError
 from oic.oic import message
+from oic.oauth2.message import (
+    SINGLE_REQUIRED_STRING,
+    SINGLE_OPTIONAL_STRING,
+    SINGLE_OPTIONAL_INT,
+    OPTIONAL_LIST_OF_STRINGS,
+    REQUIRED_LIST_OF_STRINGS,
+    OPTIONAL_LIST_OF_SP_SEP_STRINGS,
+    REQUIRED_LIST_OF_SP_SEP_STRINGS,
+    SINGLE_OPTIONAL_JSON,
+)
+from zope.interface import Invalid
 from pas.plugins.oidc import logger
 from pas.plugins.oidc import plugins
 from pas.plugins.oidc.plugins import OIDCPlugin
 from pas.plugins.oidc.session import Session
+from pas.plugins.oidc import _
 from plone import api
 
 import base64
@@ -174,7 +186,87 @@ def parse_authorization_response(
     return args, aresp["state"]
 
 
-def get_user_info(client, state, args, method="POST") -> message.OpenIDSchema | dict:
+def validate_userinfo_schema_extension(values):
+    valid_types = [
+        "SINGLE_REQUIRED_STRING",
+        "SINGLE_OPTIONAL_STRING",
+        "SINGLE_OPTIONAL_INT",
+        "OPTIONAL_LIST_OF_STRINGS",
+        "REQUIRED_LIST_OF_STRINGS",
+        "OPTIONAL_LIST_OF_SP_SEP_STRINGS",
+        "REQUIRED_LIST_OF_SP_SEP_STRINGS",
+        "SINGLE_OPTIONAL_JSON",
+    ]
+
+    for value in values:
+        split_value = value.split(":")
+        if len(split_value) > 2 or len(split_value) < 2:
+            raise Invalid(
+                _(
+                    "invalid userinfo_schema_extensions",
+                    f"A line can only consist of <key>:<type>. {values} is given",
+                )
+            )
+        if split_value[1] not in valid_types:
+            raise Invalid(
+                _(
+                    "invalid userinfo_schema_extensions",
+                    f"Type {split_value[1]} not valid for {split_value[0]}",
+                )
+            )
+
+    return True
+
+
+def extend_user_info_schema(plugin) -> type[message.OpenIDSchema]:
+
+    userinfo_schema_extensions = plugin.getProperty("userinfo_schema_extensions", [])
+
+    if len(userinfo_schema_extensions) == 0:
+        return message.OpenIDSchema
+
+    try:
+        validate_userinfo_schema_extension(userinfo_schema_extensions)
+    except Invalid as e:
+        logger.error("invalid userinfo_schema_extensions")
+        logger.error(e)
+        return message.OpenIDSchema
+
+    types = {
+        "SINGLE_REQUIRED_STRING": SINGLE_REQUIRED_STRING,
+        "SINGLE_OPTIONAL_STRING": SINGLE_OPTIONAL_STRING,
+        "SINGLE_OPTIONAL_INT": SINGLE_OPTIONAL_INT,
+        "OPTIONAL_LIST_OF_STRINGS": OPTIONAL_LIST_OF_STRINGS,
+        "REQUIRED_LIST_OF_STRINGS": REQUIRED_LIST_OF_STRINGS,
+        "OPTIONAL_LIST_OF_SP_SEP_STRINGS": OPTIONAL_LIST_OF_SP_SEP_STRINGS,
+        "REQUIRED_LIST_OF_SP_SEP_STRINGS": REQUIRED_LIST_OF_SP_SEP_STRINGS,
+        "SINGLE_OPTIONAL_JSON": SINGLE_OPTIONAL_JSON,
+    }
+
+    class ExntendedOpenIDSchema(message.OpenIDSchema):
+
+        @property
+        def c_param(self) -> dict:
+            return {
+                **message.OpenIDSchema.c_param,
+                **{
+                    extension[0]: types[extension[1]]
+                    for extension in [
+                        extension.split(":") for extension in userinfo_schema_extensions
+                    ]
+                },
+            }
+
+    return ExntendedOpenIDSchema
+
+
+def get_user_info(
+    client,
+    state,
+    args,
+    method="POST",
+    user_info_schema: type[message.OpenIDSchema] = message.OpenIDSchema,
+) -> message.OpenIDSchema | dict:
     resp = client.do_access_token_request(
         state=state,
         request_args=args,
@@ -188,7 +280,11 @@ def get_user_info(client, state, args, method="POST") -> message.OpenIDSchema | 
         if client.userinfo_endpoint:
             # https://openid.net/specs/openid-connect-core-1_0.html#UserInfo
             try:
-                user_info = client.do_user_info_request(method=method, state=state)
+                user_info = client.do_user_info_request(
+                    method=method,
+                    state=state,
+                    user_info_schema=user_info_schema,
+                )
             except RequestError as exc:
                 logger.error(
                     "Authentication failed, probably missing openid scope",
