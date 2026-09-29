@@ -2,6 +2,14 @@ Changelog
 =========
 
 
+1.0b4+cs.12 (unreleased)
+------------------------
+
+- Revoke the exact stored REST API JWT when logging out through the OIDC
+  logout view, while preserving the user's other sessions.
+  [GhitaB]
+
+
 1.0b4+cs.11 (2026-03-31)
 ------------------------
 

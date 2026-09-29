@@ -29,6 +29,37 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+def revoke_restapi_token(pas, token):
+    """Revoke one stored REST API JWT without affecting other sessions."""
+    if not token:
+        return False
+
+    jwt_auth = pas.get("jwt_auth")
+    tokens = getattr(jwt_auth, "_tokens", None)
+    if tokens is None:
+        return False
+
+    try:
+        payload = jwt_auth._decode_token(token)
+    except Exception:
+        return False
+
+    if not isinstance(payload, dict):
+        return False
+
+    user_id = payload.get("sub")
+    if not user_id or user_id not in tokens:
+        return False
+
+    user_tokens = tokens[user_id]
+    if token not in user_tokens:
+        return False
+
+    del user_tokens[token]
+    logger.info("Revoked OIDC logout REST API JWT for principal %s", user_id)
+    return True
+
+
 class Session(object):
     session_cookie_name = "__ac_session"
     _session = {}
@@ -206,6 +237,7 @@ class LogoutView(BrowserView):
 
         pas = getToolByName(self.context, "acl_users")
         auth_cookie_name = pas.credentials_cookie_auth.cookie_name
+        revoke_restapi_token(pas, self.request.cookies.get("auth_token"))
 
         # end_req = client.construct_EndSessionRequest(request_args=args)
         end_req = EndSessionRequest(**args)
