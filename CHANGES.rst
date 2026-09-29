@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0b4+cs.12 (unreleased)
+1.0b4+cs.12 (2026-09-29)
 ------------------------
 
 - Revoke the exact stored REST API JWT when logging out through the OIDC
