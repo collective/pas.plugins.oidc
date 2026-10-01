@@ -287,7 +287,10 @@ class OIDCPlugin(BasePlugin):
         groupid_property = self.getProperty("user_property_as_groupid")
         group_ids = userinfo.get(groupid_property)
         if isinstance(group_ids, str):
-            group_ids = [group_ids]
+            # Per the OAuth2/OIDC conventions, a claim holding several
+            # values (e.g. a custom "groups" or "affiliation" claim) is
+            # typically a space-delimited string, not a single group id.
+            group_ids = group_ids.split()
 
         if isinstance(group_ids, list):
             with safe_write(self.REQUEST):
@@ -498,7 +501,7 @@ class OIDCPlugin(BasePlugin):
 
         groups = userinfo.get(groupid_property, [])
         if isinstance(groups, str):
-            groups = [groups]
+            groups = groups.split()
 
         for group in allowed_groups:
             if group in groups:

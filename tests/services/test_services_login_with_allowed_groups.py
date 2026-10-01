@@ -34,3 +34,16 @@ def test_user_no_groups(portal, setup_allowed_groups):
     plugin = portal.acl_users.oidc
     userinfo = {"groups": []}
     assert plugin.user_can_login(userinfo) is False
+
+
+def test_user_in_allowed_group_space_delimited_claim(portal, setup_allowed_groups):
+    # Some providers return a multi-value claim as a single space-delimited
+    # string (as is conventional for OAuth2 scope-like claims) instead of a
+    # JSON list. The membership check needs to split it, otherwise a user
+    # who really is in the allowed group gets rejected.
+    portal = setup_allowed_groups
+    plugin = portal.acl_users.oidc
+    with api.env.adopt_roles(["Manager", "Member"]):
+        plugin.allowed_groups = ["staff"]
+    userinfo = {"groups": "editor staff"}
+    assert plugin.user_can_login(userinfo) is True

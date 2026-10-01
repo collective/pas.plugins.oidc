@@ -1,0 +1,1 @@
+Split space-delimited group claims (e.g. a custom affiliation claim returned as a single OAuth2 scope-like string) into individual group ids instead of treating the whole string as one group, both when creating/updating group memberships and when checking `allowed_groups`. @afonsojanu

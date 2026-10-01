@@ -50,3 +50,31 @@ class TestPlugin:
         plugin_url = plugin.absolute_url()
         expected_url = f"{plugin_url}/require_login?came_from={request_url}"
         assert http_response.headers["location"] == expected_url
+
+    def test_create_update_groups_splits_space_delimited_claim(self):
+        # A "groups" (or similarly configured) claim coming from an OIDC
+        # provider can be a single space-delimited string rather than a
+        # JSON list, as is common for OAuth2 scope-like claims. Each word
+        # should become its own group, not one group named after the
+        # whole string.
+        plugin = self.plugin
+        user = plugin._create_user("alice")
+        userinfo = {"groups": "staff member"}
+
+        plugin._create_update_groups(user, "alice", userinfo)
+
+        # getGroups() on the user object passed in is cached from before the
+        # membership change, so look the user up again to see the real state.
+        fresh_groups = set(api.user.get(username="alice").getGroups())
+        assert {"staff", "member"} <= fresh_groups
+        assert api.group.get(groupname="staff member") is None
+
+    def test_create_update_groups_keeps_single_group_claim(self):
+        plugin = self.plugin
+        user = plugin._create_user("bob")
+        userinfo = {"groups": "staff"}
+
+        plugin._create_update_groups(user, "bob", userinfo)
+
+        fresh_groups = set(api.user.get(username="bob").getGroups())
+        assert "staff" in fresh_groups
