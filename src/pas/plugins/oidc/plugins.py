@@ -360,7 +360,7 @@ class OIDCPlugin(BasePlugin):
         """
         authenticators = self.plugins.listPlugins(IAuthenticationPlugin)
         plugin = None
-        for _, authenticator in authenticators:
+        for __, authenticator in authenticators:
             if authenticator.meta_type == "JWT Authentication Plugin":
                 plugin = authenticator
                 break
