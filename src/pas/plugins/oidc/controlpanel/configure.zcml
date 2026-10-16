@@ -11,7 +11,7 @@
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       class=".classic.OIDCSettingsControlPanel"
       permission="cmf.ManagePortal"
-      layer="pas.plugins.oidc.interfaces.IDefaultBrowserLayer"
+      layer="pas.plugins.oidc.interfaces.IPasPluginsOidcLayer"
       />
 
   <!-- Restapi Controlpanel -->

@@ -1,5 +1,5 @@
 from pas.plugins.oidc import _
-from pas.plugins.oidc.interfaces import IDefaultBrowserLayer
+from pas.plugins.oidc.interfaces import IPasPluginsOidcLayer
 from pas.plugins.oidc.interfaces import IOIDCControlpanel
 from pas.plugins.oidc.interfaces import IOIDCSettings
 from plone.restapi.controlpanels import RegistryConfigletPanel
@@ -8,7 +8,7 @@ from zope.interface import implementer
 from zope.interface import Interface
 
 
-@adapter(Interface, IDefaultBrowserLayer)
+@adapter(Interface, IPasPluginsOidcLayer)
 @implementer(IOIDCControlpanel)
 class OIDCSettingsConfigletPanel(RegistryConfigletPanel):
     """Control Panel endpoint"""
