@@ -1,0 +1,1 @@
+make user_info openidschema extensible
