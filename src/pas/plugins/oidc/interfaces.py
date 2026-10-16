@@ -26,7 +26,7 @@ class IOIDCSettings(Interface):
         required=False,
         default="",
     )
-    client_secret = schema.TextLine(
+    client_secret = schema.Password(
         title=_("Client secret"),
         description=_(""),
         required=False,
