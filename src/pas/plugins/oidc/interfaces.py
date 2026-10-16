@@ -28,7 +28,7 @@ class IOIDCSettings(Interface):
     )
     client_secret = schema.Password(
         title=_("Client secret"),
-        description=_("Leave it blank to keep the current value"),
+        description=_(""),
         required=False,
         default="",
     )
