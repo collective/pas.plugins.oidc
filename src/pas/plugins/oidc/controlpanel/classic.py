@@ -51,6 +51,8 @@ class OIDCSettingsForm(controlpanel.RegistryEditForm):
     label = _("OIDC Plugin Settings")
     description = ""
 
+    _fake_secret = "********"  # noqa: S105
+
     def getContent(self):
         portal = api.portal.get()
         return OIDCControlPanelAdapter(portal)
@@ -62,10 +64,21 @@ class OIDCSettingsForm(controlpanel.RegistryEditForm):
             if name in pmap and "w" not in pmap[name].get("mode", ""):
                 widget.mode = DISPLAY_MODE
 
+        client_secret = self.widgets.get("client_secret")
+        if client_secret:
+            # Never render the client_secret value
+            client_secret.value = self._fake_secret
+
     def applyChanges(self, data):
         """See interfaces.IEditForm"""
         content = self.getContent()
         changes = {}
+        if data.get("client_secret") == self._fake_secret:
+            # This means the user is not changing the secret
+            # so we need to remove the client_secret from the data
+            # to avoid saving it with the fake secret value
+            # we use while rendering the widget
+            data.pop("client_secret")
         for name in data:
             current = getattr(content, name)
             value = data[name]
