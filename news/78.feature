@@ -1,1 +1,0 @@
-Allow to specify userinfo endpoint method. @remdub

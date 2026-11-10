@@ -9,6 +9,36 @@
 
 <!-- towncrier release notes start -->
 
+## 2.1.0 (2026-11-10)
+
+
+### Breaking changes:
+
+- Replace ``pkg_resources`` namespace with PEP 420 native namespace. [#98](https://github.com/collective/pas.plugins.oidc/issues/98)
+- Drop support for Plone 6.0.
+  @ale-rt 
+
+
+### New features:
+
+- Make controlpanel compatible with collective.regenv. @mamico [#73](https://github.com/collective/pas.plugins.oidc/issues/73)
+- Allow to specify userinfo endpoint method. @remdub [#78](https://github.com/collective/pas.plugins.oidc/issues/78)
+- Add french translation. @remdub [#83](https://github.com/collective/pas.plugins.oidc/issues/83)
+- add plone 6.2 support [#90](https://github.com/collective/pas.plugins.oidc/issues/90)
+- Hide the client secret in the control panel.
+  @ale-rt [#102](https://github.com/collective/pas.plugins.oidc/issues/102)
+
+
+### Bug fixes:
+
+- Fix the control panel layer.
+  @ale-rt 
+
+
+### Internal:
+
+- Fix make lint 
+
 ## 2.0.0 (2025-05-06)
 
 
