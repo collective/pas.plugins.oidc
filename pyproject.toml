@@ -196,8 +196,13 @@ preview = true
 ignore = [
     ".editorconfig",
     ".flake8",
+    ".vscode",
+    ".vscode/**",
+    "Makefile",
     "dependabot.yml",
     "mx.ini",
+    "news",
+    "news/**",
 ]
 
 [tool.pytest.ini_options]
