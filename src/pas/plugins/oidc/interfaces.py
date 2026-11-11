@@ -6,6 +6,8 @@ from zope import schema
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 
+from pas.plugins.oidc.utils import validate_userinfo_schema_extension
+
 
 class IPasPluginsOidcLayer(IDefaultBrowserLayer):
     """Marker interface that defines a browser layer."""
@@ -141,6 +143,20 @@ class IOIDCSettings(Interface):
         description=_("HTTP Method to use for the userinfo endpoint"),
         values=["GET", "POST"],
         default="POST",
+    )
+
+    userinfo_schema_extensions = schema.List(
+        title=_("Userinfo Schema extension"),
+        description=_(
+            "Mapping of user schema fields to how they should be parsed. One line for each key. Each line should be <key>:<type>. types are: SINGLE_REQUIRED_STRING, SINGLE_OPTIONAL_STRING, SINGLE_OPTIONAL_INT, OPTIONAL_LIST_OF_STRINGS, REQUIRED_LIST_OF_STRINGS, OPTIONAL_LIST_OF_SP_SEP_STRINGS, REQUIRED_LIST_OF_SP_SEP_STRINGS, SINGLE_OPTIONAL_JSON."
+        ),
+        value_type=schema.TextLine(
+            title=_("User Claim"),
+            description=_(""),
+        ),
+        required=False,
+        default=[],
+        constraint=validate_userinfo_schema_extension,
     )
 
 
