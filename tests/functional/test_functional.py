@@ -16,7 +16,7 @@ class TestFunctionalPlugin:
     def test_challenge_anonymous(self, browser_anonymous):
         browser = browser_anonymous
         browser.handleErrors = True
-        url = f"{self.portal_url}/@@overview-controlpanel"
+        url = f"{self.portal_url}/@@overview-controlpanel?foo=bar"
         quoted_url = quote(url)
         browser.open(url)
         # Since we have told the browser to not follow redirects,
@@ -24,7 +24,7 @@ class TestFunctionalPlugin:
         assert browser.url == url
         # Plone wants to redirect us to the require_login page of the plugin.
         location = browser.headers["location"]
-        expected = f"{self.plugin_url}/require_login?came_from={url}"
+        expected = f"{self.plugin_url}/require_login?came_from={quoted_url}"
         assert location == expected
 
         # Follow one redirect.
@@ -53,7 +53,7 @@ class TestFunctionalPlugin:
         assert browser.url == url
         # Plone wants to redirect us to the require_login page of the plugin.
         location = browser.headers["location"]
-        expected = f"{self.plugin_url}/require_login?came_from={url}"
+        expected = f"{self.plugin_url}/require_login?came_from={quote(url)}"
         assert location == expected
 
         # Follow one redirect.

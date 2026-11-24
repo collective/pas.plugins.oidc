@@ -1,0 +1,2 @@
+Preserve the original query string when redirecting an unauthorized request to OIDC login.
+@ale-rt
