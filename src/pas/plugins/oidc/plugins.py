@@ -22,6 +22,7 @@ from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.PropertiedUser import PropertiedUser
 from Products.PluggableAuthService.utils import classImplements
 from secrets import choice
+from urllib.parse import quote
 from ZODB.POSException import ConflictError
 from zope.event import notify
 from zope.interface import implementer
@@ -479,8 +480,12 @@ class OIDCPlugin(BasePlugin):
         A challenge is only tried when you are unauthorized.
         """
         # Go to the login view of the PAS plugin.
-        logger.info("Challenge. Came from %s", request.URL)
-        url = f"{self.absolute_url()}/require_login?came_from={request.URL}"
+        came_from = request.URL
+        if query_string := request.get("QUERY_STRING"):
+            came_from = f"{came_from}?{query_string}"
+
+        logger.info("Challenge. Came from %r", came_from)
+        url = f"{self.absolute_url()}/require_login?came_from={quote(came_from)}"
         response.redirect(url, lock=1)
         return True
 

@@ -3,6 +3,7 @@ from oic.oic.message import OpenIDSchema
 from pas.plugins.oidc import PLUGIN_ID
 from plone import api
 from plone.session.tktauth import splitTicket
+from urllib.parse import quote
 
 import pytest
 
@@ -48,5 +49,5 @@ class TestPlugin:
 
         # Check the response.
         plugin_url = plugin.absolute_url()
-        expected_url = f"{plugin_url}/require_login?came_from={request_url}"
+        expected_url = f"{plugin_url}/require_login?came_from={quote(request_url)}"
         assert http_response.headers["location"] == expected_url
